@@ -1,7 +1,7 @@
 {
   "titel": "Project Zakmonsters",
   "ondertitel": "",
-  "intro": "Wij lokaliseren oude Pokémon-games naar het Nederlands. Dat is handwerk: we automatiseren ons vertaalproces niet met Google Translate of AI-vertaalsoftware. We wegen af welke teksten het beste werken en lokaliseren Pokémon-terminologie naar het Nederlands. Dat doen we met een groep fanatieke vrijwilligers.",
+  "intro": "Wij lokaliseren oude Pokémon-games naar het Nederlands. Hieronder vind je alles waar we aan werken, af hebben en in de nabije toekomst aan willen werken.",
   "groepen": [
     {
       "titel": "Generatie 1",
@@ -28,5 +28,5 @@
       "url": "https://discord.gg/ftebcBBMRd"
     }
   },
-  "footer": "Fanproject zonder winstoogmerk. Pokémon is eigendom van The Pokémon Company. Wij bieden geen ROMs aan, alleen patches die je kunt toepassen op jouw legaal verworven ROM-dumps. We helpen je niet met het vinden van ROMs."
+  "footer": "Dit is een fanproject zonder winstoogmerk. Pokémon is eigendom van The Pokémon Company. Wij bieden geen ROMs aan, alleen patches die je kunt toepassen op jouw legaal verworven ROM-dumps. We helpen je niet met het vinden van ROMs."
 }
