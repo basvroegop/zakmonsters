@@ -7,7 +7,8 @@
       "titel": "Generatie 1",
       "projecten": [
         "rood",
-        "geel"
+        "geel",
+        "pokemon-ruilkaartspel"
       ]
     },
     {
@@ -15,8 +16,7 @@
       "projecten": [
         "goud-zilver",
         "kristal",
-        "pokemon-pinball",
-        "pokemon-ruilkaartspel"
+        "pokemon-pinball"
       ]
     }
   ],
