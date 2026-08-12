@@ -31,12 +31,16 @@ export function procentVan(project, voortgang) {
   return Math.max(0, Math.min(100, Math.round(cijfers.procent)));
 }
 
+// Een afgerond project krijgt een groene balk: dezelfde kleur als de badge "Voltooid", zodat
+// kleur en label hetzelfde zeggen in plaats van elk iets anders.
+const afKlasse = (project) => (statusVan(project) === STATUS.voltooid ? ' is-af' : '');
+
 export function voortgangHtml(project, voortgang) {
   const pct = procentVan(project, voortgang);
   if (pct === null) return '';
   return `<div class="voortgang">
       <div class="voortgang-kop"><span>Vertaald</span><span class="voortgang-pct">${pct}%</span></div>
-      <div class="balk" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
+      <div class="balk${afKlasse(project)}" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
            aria-label="Voortgang vertaling ${esc(project.naam || project.id)}"><i style="width:${pct}%"></i></div>
     </div>`;
 }
@@ -65,7 +69,7 @@ export function kaartHtml(project, voortgang) {
   // Het percentage staat rechtsonder tegenover de badge, met een dunne balk langs de onderrand.
   // Zo blijft de kaart één plaat, en zie je toch in één oogopslag hoe ver een project is.
   const balk = pct === null ? '' : `<span class="kaart-pct">${pct}%</span>
-      <span class="kaart-balk" aria-hidden="true"><i style="width:${pct}%"></i></span>`;
+      <span class="kaart-balk${afKlasse(project)}" aria-hidden="true"><i style="width:${pct}%"></i></span>`;
   return `<a class="kaart${teaser ? '' : ' kaart--zonderplaat'}" href="project.html?p=${encodeURIComponent(project.id)}"
        aria-label="${esc(omschrijving)}">
       <span class="kaart-plaat" style="${teaserStijl(project)}">
