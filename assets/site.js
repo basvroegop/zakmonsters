@@ -18,13 +18,22 @@ export function statusHtml(project) {
   return `<span class="status ${s.klasse}">${esc(s.label)}</span>`;
 }
 
-// De balk hoort bij lopend werk. Bij een voltooid project zegt "Voltooid" alles, en een balk
-// op 97% zou dat juist tegenspreken (er blijft in de editor altijd wat ruis staan).
-export function voortgangHtml(project, voortgang) {
-  if (statusVan(project) !== STATUS.bezig) return '';
+// Het percentage van een project, of null als er niets te tonen valt.
+//
+// Een voltooid project staat altijd op 100%, ongeacht wat de editor zegt. Daar blijft namelijk
+// altijd wat ruis in staan (regels die niet vertaald hoeven worden), en "Voltooid" naast een
+// balk op 97% spreekt zichzelf tegen. De status is de bron van waarheid, het cijfer is de
+// toelichting.
+export function procentVan(project, voortgang) {
+  if (statusVan(project) === STATUS.voltooid) return 100;
   const cijfers = voortgang && voortgang[project.voortgang];
-  if (!cijfers || !cijfers.totaal) return '';
-  const pct = Math.max(0, Math.min(100, Math.round(cijfers.procent)));
+  if (!cijfers || !cijfers.totaal) return null;
+  return Math.max(0, Math.min(100, Math.round(cijfers.procent)));
+}
+
+export function voortgangHtml(project, voortgang) {
+  const pct = procentVan(project, voortgang);
+  if (pct === null) return '';
   return `<div class="voortgang">
       <div class="voortgang-kop"><span>Vertaald</span><span class="voortgang-pct">${pct}%</span></div>
       <div class="balk" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
@@ -47,16 +56,22 @@ function teaserStijl(project) {
 //     en voor een zoekmachine betekenisloos;
 //   - is er géén plaat, dan verschijnt de naam wél in beeld. Anders zou een pas toegevoegd
 //     project een leeg gekleurd vlak zijn waar niemand iets aan heeft.
-export function kaartHtml(project) {
+export function kaartHtml(project, voortgang) {
   const naam = project.naam || project.id;
   const teaser = contentUrl(project.teaser);
-  const omschrijving = [naam, statusVan(project).label, project.samenvatting]
-    .filter(Boolean).join(' — ');
+  const pct = procentVan(project, voortgang);
+  const omschrijving = [naam, statusVan(project).label, pct === null ? '' : `${pct}% vertaald`,
+    project.samenvatting].filter(Boolean).join(' — ');
+  // Het percentage staat rechtsonder tegenover de badge, met een dunne balk langs de onderrand.
+  // Zo blijft de kaart één plaat, en zie je toch in één oogopslag hoe ver een project is.
+  const balk = pct === null ? '' : `<span class="kaart-pct">${pct}%</span>
+      <span class="kaart-balk" aria-hidden="true"><i style="width:${pct}%"></i></span>`;
   return `<a class="kaart${teaser ? '' : ' kaart--zonderplaat'}" href="project.html?p=${encodeURIComponent(project.id)}"
        aria-label="${esc(omschrijving)}">
       <span class="kaart-plaat" style="${teaserStijl(project)}">
         ${teaser ? '' : `<span class="kaart-naam">${esc(naam)}</span>`}
         ${statusHtml(project)}
+        ${balk}
       </span>
     </a>`;
 }

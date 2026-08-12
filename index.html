@@ -19,11 +19,8 @@
   </section>
 
   <section class="projecten">
-    <div class="omhulsel">
-      <h2>Onze projecten</h2>
-      <div class="kaarten" id="kaarten">
-        <p class="laden">Projecten laden…</p>
-      </div>
+    <div class="omhulsel" id="groepen">
+      <p class="laden">Projecten laden…</p>
     </div>
   </section>
 
@@ -41,7 +38,7 @@
 </footer>
 
 <script type="module">
-import { esc, veiligeUrl, markdown, laadSite, laadProjecten } from './assets/content.js';
+import { esc, veiligeUrl, markdown, laadSite, laadProjecten, laadVoortgang } from './assets/content.js';
 import { kaartHtml } from './assets/site.js';
 
 const $ = (id) => document.getElementById(id);
@@ -59,7 +56,7 @@ function discordHtml(knop) {
   try {
     site = await laadSite();
   } catch (err) {
-    $('kaarten').innerHTML = '<p class="fout">De inhoud kon niet worden geladen. Ververs de pagina of probeer het later opnieuw.</p>';
+    $('groepen').innerHTML = '<p class="fout">De inhoud kon niet worden geladen. Ververs de pagina of probeer het later opnieuw.</p>';
     console.error(err);
     return;
   }
@@ -77,15 +74,36 @@ function discordHtml(knop) {
     $('meedoenKnop').innerHTML = discordHtml(site.meedoen.discord);
   }
 
-  const projecten = await laadProjecten(site.projecten);
-  if (!projecten.length) {
-    $('kaarten').innerHTML = '<p class="leeg">Er staan nog geen projecten in de lijst.</p>';
+  // Projecten staan gebundeld onder een eigen kop ("Generatie 1", "Generatie 2", …). Een oudere
+  // site.json met alleen een platte `projecten`-lijst blijft werken: die wordt één naamloze groep.
+  const groepen = Array.isArray(site.groepen) && site.groepen.length
+    ? site.groepen
+    : [{ titel: '', projecten: site.projecten || [] }];
+
+  const geladen = [];
+  for (const groep of groepen) {
+    geladen.push({ titel: groep.titel || '', projecten: await laadProjecten(groep.projecten) });
+  }
+  const alles = geladen.flatMap((g) => g.projecten);
+  if (!alles.length) {
+    $('groepen').innerHTML = '<p class="leeg">Er staan nog geen projecten in de lijst.</p>';
     return;
   }
-  // De kaarten dragen alleen de plaat en de badge; de voortgangsbalk staat op de projectpagina.
-  // Daarom haalt de home de voortgang ook niet meer op — dat scheelt een verzoek naar een
-  // andere server voor iets dat hier toch niet getoond wordt.
-  $('kaarten').innerHTML = projecten.map((p) => kaartHtml(p)).join('');
+
+  // Eerst tekenen, daarna pas de voortgang ophalen: die komt van een andere server en mag de
+  // pagina niet ophouden als die traag is of plat ligt.
+  const teken = (voortgang) => {
+    $('groepen').innerHTML = geladen
+      .filter((g) => g.projecten.length)
+      .map((g) => `${g.titel ? `<h2>${esc(g.titel)}</h2>` : ''}
+        <div class="kaarten">${g.projecten.map((p) => kaartHtml(p, voortgang)).join('')}</div>`)
+      .join('');
+  };
+  teken({});
+
+  // Een voltooid project staat sowieso op 100%; alleen voor lopend werk is de editor nodig.
+  const heeftLopend = alles.some((p) => p.voortgang && String(p.status || 'bezig').toLowerCase() !== 'voltooid');
+  if (heeftLopend) teken(await laadVoortgang(site.voortgangBron));
 })();
 </script>
 </body>

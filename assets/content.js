@@ -191,6 +191,22 @@ export async function laadProjecten(ids) {
   return uit;
 }
 
+// Een project kan een tweede uitvoering hebben (bijvoorbeeld een Special Edition) met een eigen
+// tekst en eigen downloads. Die staat in `<id>.editie.md` naast het projectbestand zelf, zodat
+// het gewone bestand leesbaar blijft en beide versies dezelfde velden gebruiken.
+//
+// Bestaat dat bestand niet, dan is het antwoord null en toont de projectpagina geen wisselknop.
+export async function laadEditie(id) {
+  const veilig = String(id).replace(/[^a-z0-9-]/gi, '');
+  if (!veilig) return null;
+  try {
+    const { data, body } = parseFrontmatter(await haal(`content/projecten/${veilig}.editie.md`));
+    return { id: veilig, ...data, body };
+  } catch {
+    return null;
+  }
+}
+
 // Voortgang uit de vertaaleditor. Mislukt dit (server plat, project nog niet berekend), dan
 // tonen we gewoon geen balk — de status "Mee bezig" staat er los van en blijft kloppen.
 export async function laadVoortgang(bron) {

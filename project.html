@@ -17,7 +17,7 @@
 </footer>
 
 <script type="module">
-import { esc, contentUrl, markdown, laadSite, laadProject, laadVoortgang } from './assets/content.js';
+import { esc, contentUrl, markdown, laadSite, laadProject, laadEditie, laadVoortgang } from './assets/content.js';
 import { statusHtml, voortgangHtml, downloadsHtml } from './assets/site.js';
 
 const $ = (id) => document.getElementById(id);
@@ -44,6 +44,18 @@ function held(project) {
     </div>`;
 }
 
+// Heeft een project een speciale editie, dan wisselen twee knoppen tussen beide uitvoeringen.
+// De editie erft alles wat ze niet zelf invult (plaat, kleur, status), zodat je in het CMS
+// alleen hoeft in te vullen wat écht anders is.
+function wisselHtml(project, editie, actief) {
+  return `<div class="wissel" role="tablist" aria-label="Uitvoering">
+      <button class="wisselknop${actief === 'basis' ? ' is-actief' : ''}" data-editie="basis"
+        role="tab" aria-selected="${actief === 'basis'}">${esc(project.naam || project.id)}</button>
+      <button class="wisselknop${actief === 'editie' ? ' is-actief' : ''}" data-editie="editie"
+        role="tab" aria-selected="${actief === 'editie'}">${esc(editie.naam || 'Speciale editie')}</button>
+    </div>`;
+}
+
 (async () => {
   const site = await laadSite().catch(() => ({}));
   $('voet').innerHTML = markdown(site.footer || '');
@@ -61,29 +73,49 @@ function held(project) {
     return;
   }
 
-  document.title = `${project.naam || project.id} — ${site.titel || 'Zakmonsters'}`;
-  $('pagina').innerHTML = `
-    ${TERUG}
-    ${held(project)}
-    <div class="projectbody">
-      <article class="projecttekst">${markdown(project.body || '')}</article>
-      <aside class="projectzij">
-        <section class="blok" id="voortgangBlok" hidden>
-          <h2>Voortgang</h2>
-          <div id="voortgangSlot"></div>
-          <p class="klein">Live uit de vertaaleditor.</p>
-        </section>
-        <section class="blok">
-          <h2>Downloads</h2>
-          ${downloadsHtml(project)}
-        </section>
-      </aside>
-    </div>`;
+  const editie = await laadEditie(id);
+  const voortgang = await laadVoortgang(site.voortgangBron);
 
-  if (project.voortgang) {
-    const html = voortgangHtml(project, await laadVoortgang(site.voortgangBron));
-    if (html) { $('voortgangSlot').innerHTML = html; $('voortgangBlok').hidden = false; }
+  document.title = `${project.naam || project.id} — ${site.titel || 'Zakmonsters'}`;
+
+  function toon(welke) {
+    // De editie is het project met een paar velden overschreven; wat ze niet invult, erft ze.
+    const actief = welke === 'editie' && editie
+      ? { ...project, ...Object.fromEntries(Object.entries(editie).filter(([, v]) => v !== '' && v != null)) }
+      : project;
+    const balk = actief.voortgang ? voortgangHtml(actief, voortgang) : '';
+
+    $('pagina').innerHTML = `
+      ${TERUG}
+      ${held(actief)}
+      ${editie ? wisselHtml(project, editie, welke) : ''}
+      <div class="projectbody">
+        <article class="projecttekst">${markdown(actief.body || '')}</article>
+        <aside class="projectzij">
+          ${balk ? `<section class="blok">
+            <h2>Voortgang</h2>
+            ${balk}
+            <p class="klein">Live uit de vertaaleditor.</p>
+          </section>` : ''}
+          <section class="blok">
+            <h2>Downloads</h2>
+            ${downloadsHtml(actief)}
+          </section>
+        </aside>
+      </div>`;
+
+    for (const knop of document.querySelectorAll('.wisselknop')) {
+      knop.onclick = () => {
+        toon(knop.dataset.editie);
+        // In de URL zodat je rechtstreeks naar de speciale editie kunt linken.
+        const zoek = new URLSearchParams(location.search);
+        if (knop.dataset.editie === 'editie') zoek.set('editie', '1'); else zoek.delete('editie');
+        history.replaceState(null, '', `?${zoek}`);
+      };
+    }
   }
+
+  toon(editie && new URLSearchParams(location.search).get('editie') ? 'editie' : 'basis');
 })();
 </script>
 </body>

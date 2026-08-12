@@ -2,11 +2,21 @@
   "titel": "",
   "ondertitel": "",
   "intro": "Wij lokaliseren oude Pokémon-games naar het Nederlands. Dat is handwerk: we automatiseren ons vertaalproces niet met Google Translate of AI-vertaalsoftware. We wegen af welke teksten het beste werken en lokaliseren Pokémon-terminologie naar het Nederlands. Dat doen we met een groep fanatieke vrijwilligers.",
-  "projecten": [
-    "kristal",
-    "goud-zilver",
-    "geel",
-    "rood"
+  "groepen": [
+    {
+      "titel": "Generatie 1",
+      "projecten": [
+        "rood",
+        "geel"
+      ]
+    },
+    {
+      "titel": "Generatie 2",
+      "projecten": [
+        "goud-zilver",
+        "kristal"
+      ]
+    }
   ],
   "voortgangBron": "https://vertalen.zakmonsters.nl/api/public/progress",
   "meedoen": {

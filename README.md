@@ -30,7 +30,7 @@ Open `content/site.json`:
 | `titel` | Naam bovenaan en in het browsertabblad |
 | `ondertitel` | Zin onder de titel |
 | `intro` | Het introverhaal (Markdown; `\n\n` is een nieuwe alinea) |
-| `projecten` | **De volgorde van de knoppen** — bestandsnamen uit `content/projecten/` zonder `.md` |
+| `groepen` | **De indeling van de knoppen.** Een lijst van `{ titel, projecten }`; elke groep krijgt zijn eigen kop op de homepagina ("Generatie 1", "Generatie 2", …). De projecten zijn bestandsnamen uit `content/projecten/` zonder `.md` |
 | `voortgangBron` | Waar de voortgangsbalken vandaan komen; laat staan |
 | `meedoen` | Het blok onderaan: `titel`, `tekst` en de Discord-knop (zie onder). Laat `titel` en `tekst` leeg om het hele blok te verbergen |
 | `footer` | De kleine tekst onderaan |
@@ -92,6 +92,47 @@ Gewone tekst met **nadruk**, [links](https://voorbeeld.nl) en lijstjes.
 
 Alle velden mogen weg als je ze niet gebruikt; alleen `naam` is echt nodig.
 
+### Groepen op de homepagina
+
+De projecten staan gebundeld per generatie:
+
+```json
+"groepen": [
+  { "titel": "Generatie 1", "projecten": ["rood", "geel"] },
+  { "titel": "Generatie 2", "projecten": ["goud-zilver", "kristal"] }
+]
+```
+
+De titel is vrije tekst — "Spin-offs" of "Romhacks" mag net zo goed. Een project dat in geen
+enkele groep staat, verschijnt niet op de homepagina; in het CMS zie je zulke projecten
+apart staan onder "Nog niet ingedeeld".
+
+### Speciale editie van een project
+
+Optioneel. Zet een tweede bestand naast het project met `.editie.md` erachter — bijvoorbeeld
+`content/projecten/kristal.editie.md` — en de projectpagina krijgt een knopje waarmee
+bezoekers tussen beide uitvoeringen wisselen.
+
+Dat bestand heeft dezelfde velden, maar **wat je weglaat erft het van het project zelf**.
+Alleen `naam` is verplicht: die staat op het knopje.
+
+```markdown
+---
+naam: Special Edition
+voortgang: pokecrystal-nl-se
+downloads:
+  - label: Patch (Special Edition)
+    url: https://github.com/…/releases
+---
+
+## Wat is er anders?
+
+Eigen tekst voor deze uitvoering.
+```
+
+Met `?editie=1` achter de URL open je de pagina meteen op de speciale editie, zodat je er
+rechtstreeks naartoe kunt linken.
+
 ### Nieuw project toevoegen
 
 1. Maak `content/projecten/mijn-project.md` (kleine letters en streepjes in de naam — die
@@ -101,13 +142,17 @@ Alle velden mogen weg als je ze niet gebruikt; alleen `naam` is echt nodig.
 
 ### Een project verwijderen of verbergen
 
-Haal de naam uit de lijst `projecten` in `site.json`. Het bestand mag blijven staan; het is
-dan alleen niet meer via de homepagina te vinden.
+Haal de naam uit zijn groep in `site.json`. Het bestand mag blijven staan; het is dan alleen
+niet meer via de homepagina te vinden.
 
 ## De voortgangsbalk
 
-Bij projecten met `status: bezig` én een `voortgang`-veld verschijnt een balk met het
-percentage vertaalde regels. Dat cijfer komt live uit de vertaaleditor
+Een project met `status: voltooid` staat **altijd op 100%**, wat de editor ook zegt: daar
+blijft altijd wat ruis staan (regels die niet vertaald hoeven worden), en "Voltooid" naast een
+balk op 97% spreekt zichzelf tegen. De status is de bron van waarheid.
+
+Bij de overige projecten verschijnt een balk zodra er een `voortgang`-veld staat. Dat cijfer
+komt live uit de vertaaleditor
 (`vertalen.zakmonsters.nl/api/public/progress`) en is precies hetzelfde getal dat de
 vertalers op hun projectkaart zien.
 
