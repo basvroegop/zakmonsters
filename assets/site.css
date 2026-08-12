@@ -318,3 +318,9 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 
 /* Ingang naar de dex, onder de projecten. */
 .dexlink { margin: 2.5rem 0 0; }
+
+/* Aanvalstabel: de uitleg staat onder de naam, niet in een eigen kolom — anders wordt de tabel
+   op een telefoon onleesbaar smal. */
+.aanvaluitleg { display: block; color: var(--tekst-zacht); font-size: .82rem; line-height: 1.4; }
+.aanvallen td.kracht { width: 4.5rem; text-align: right; font-variant-numeric: tabular-nums; }
+.aanvallen th:last-child { text-align: right; }

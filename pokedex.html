@@ -59,12 +59,14 @@ function lijstHtml(zoek) {
       </a>`).join('')}</div>`;
 }
 
-const STATNAMEN = { hp: 'KP', atk: 'Aanval', def: 'Verdediging', satk: 'Sp. Aanval', sdef: 'Sp. Verdediging', spd: 'Snelheid' };
+// De namen van de basiswaarden komen mee uit de vertaling zelf (AANVAL, AFWEER, …), zodat de
+// dex dezelfde termen gebruikt als het spel in plaats van een eigen lijstje.
+const statNaam = (sleutel) => (dex.statLabels || {})[sleutel] || sleutel;
 
 function detailHtml(s) {
   const stats = Object.entries(s.stats || {})
     .map(([sleutel, waarde]) => `<div class="statrij">
-        <span>${STATNAMEN[sleutel] || sleutel}</span>
+        <span>${esc(statNaam(sleutel))}</span>
         <span class="statwaarde">${waarde}</span>
         <span class="balk" aria-hidden="true"><i style="width:${Math.min(100, Math.round(waarde / 255 * 100))}%"></i></span>
       </div>`).join('');
@@ -80,8 +82,12 @@ function detailHtml(s) {
     : '<p class="uitleg">Evolueert niet.</p>';
 
   const aanvallen = (s.aanvallen || []).length
-    ? `<table class="aanvallen"><thead><tr><th>Level</th><th>Aanval</th></tr></thead><tbody>
-        ${s.aanvallen.map((a) => `<tr><td>${a.level === 1 ? '—' : a.level}</td><td>${esc(a.naam)}</td></tr>`).join('')}
+    ? `<table class="aanvallen"><thead><tr><th>Level</th><th>Aanval</th><th>Kracht</th></tr></thead><tbody>
+        ${s.aanvallen.map((a) => `<tr>
+          <td>${a.level === 1 ? '—' : a.level}</td>
+          <td>${esc(a.naam)}${a.uitleg ? `<span class="aanvaluitleg">${esc(a.uitleg)}</span>` : ''}</td>
+          <td class="kracht">${a.kracht || '—'}</td>
+        </tr>`).join('')}
       </tbody></table>`
     : '<p class="uitleg">Geen aanvallen door levelen.</p>';
 
