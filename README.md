@@ -121,9 +121,28 @@ Het cijfer ververst maximaal één keer per tien minuten (dat scheelt de editor 
 ## Teaserplaten
 
 Zet ze in `content/teasers/` en verwijs ernaar met `teaser: teasers/<bestand>.png`.
-Richtlijn: **16:9**, minstens 1200 × 675 px, en houd er rekening mee dat op de projectpagina
-onderaan een donkere balk over de plaat valt waar de titel in staat. Zolang er geen plaat is,
-toont de site het gekleurde vlak uit `kleur` — de site blijft dus heel.
+Richtlijn: **4:3**, minstens 1200 × 900 px. De plaat is de knop: er staat geen naam of
+samenvatting meer onder, alleen de statusbadge linksonder. Zet de titel van het spel dus op de
+plaat zelf, en houd de linkeronderhoek vrij.
+
+Op de projectpagina wordt dezelfde plaat tot **16:9** gecropt (midden vasthoudend), zodat hij
+bovenaan niet het halve scherm inneemt. Wat er aan de boven- en onderkant staat, kan daar dus
+wegvallen.
+
+Zolang er geen plaat is, toont de site het gekleurde vlak uit `kleur` mét de projectnaam erin —
+een nieuw project is dus nooit een leeg vlak.
+
+## Afbeeldingen in de projecttekst
+
+Zet ze in `content/afbeeldingen/` en verwijs ernaar in de tekst:
+
+```markdown
+![Korte omschrijving](afbeeldingen/johto-kaart.png)
+```
+
+Die omschrijving is geen bijzaak: dat is wat iemand hoort die de afbeelding niet ziet. In het
+CMS gaat dit vanzelf — daar upload je een afbeelding en zet hij de regel op de plek van je
+cursor, met de cursor tussen de haakjes voor de omschrijving.
 
 ## Lokaal bekijken
 

@@ -55,6 +55,13 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
+/* Wel in de code, niet in beeld: koppen die de plaat al draagt, maar die een schermlezer en een
+   zoekmachine nodig hebben om te weten waar een pagina over gaat. */
+.verborgen {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
 /* De site heeft bewust geen menubalk: de projectknoppen op de home zíjn de navigatie. Op een
    projectpagina blijft alleen deze terugweg over — zonder die link kom je vanaf een gedeelde
    projectlink nergens anders naartoe. */
@@ -85,20 +92,27 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 }
 .kaart:hover { transform: translateY(-3px); border-color: var(--accent); color: inherit; }
 
-/* De teaserplaat is bewust groot: dat is de knop. Zonder plaat blijft de projectkleur over,
-   zodat een nieuw project er meteen af is voordat je een afbeelding hebt gemaakt. */
+/* De plaat ís de kaart: 4:3, en de titel van het spel staat er zelf al op. Alleen de badge komt
+   er nog overheen. Zonder plaat blijft de projectkleur over mét de naam erin, zodat een nieuw
+   project geen leeg vlak is. */
 .kaart-plaat {
-  display: block; aspect-ratio: 16 / 9; background-size: cover; background-position: center;
+  display: flex; align-items: center; justify-content: center; position: relative;
+  aspect-ratio: 4 / 3; background-size: cover; background-position: center;
   background-color: var(--kaartkleur, #3b4a63);
-  border-bottom: 1px solid var(--vlak-rand);
 }
 .kaart--zonderplaat .kaart-plaat {
   background-image: linear-gradient(135deg, color-mix(in srgb, var(--kaartkleur) 85%, #000) 0%, color-mix(in srgb, var(--kaartkleur) 45%, #000) 100%);
 }
-.kaart-inhoud { display: block; padding: 1.1rem 1.25rem 1.35rem; }
-.kaart-kop { display: flex; align-items: center; gap: .75rem; justify-content: space-between; }
-.kaart-naam { font-size: 1.2rem; font-weight: 700; }
-.kaart-tekst { display: block; color: var(--tekst-zacht); margin-top: .4rem; font-size: .95rem; }
+.kaart-naam { font-size: 1.35rem; font-weight: 700; text-align: center; padding: 0 1rem; }
+
+/* De badge ligt op de plaat en moet dus leesbaar blijven op een lichte én een donkere
+   afbeelding. Vandaar een eigen ondergrond in plaats van alleen de rand. */
+.kaart-plaat .status,
+.projectheld .status {
+  position: absolute; left: .85rem; bottom: .85rem;
+  background: rgba(8, 11, 16, .82); border-color: transparent;
+  backdrop-filter: blur(4px);
+}
 
 /* ---- Status ---- */
 .status {
@@ -150,21 +164,19 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .meedoen-tekst { color: var(--tekst-zacht); max-width: 62ch; }
 
 /* ---- Projectpagina ---- */
+/* De bronplaat is 4:3 (voor de kaarten); hier snijden we hem tot 16:9 zodat hij bovenaan de
+   pagina niet het halve scherm inneemt. object-fit-gedrag komt van background-size: cover. */
 .projectheld {
-  margin: 1rem 0 2rem; border-radius: var(--ronding); overflow: hidden; min-height: 260px;
-  display: flex; align-items: flex-end; background-size: cover; background-position: center;
+  margin: 1rem 0 2rem; border-radius: var(--ronding); overflow: hidden;
+  aspect-ratio: 16 / 9; max-height: 420px; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  background-size: cover; background-position: center;
   background-color: var(--kaartkleur, #3b4a63); border: 1px solid var(--vlak-rand);
 }
 .projectheld--zonderplaat {
   background-image: linear-gradient(135deg, color-mix(in srgb, var(--kaartkleur) 85%, #000) 0%, color-mix(in srgb, var(--kaartkleur) 40%, #000) 100%);
 }
-/* Tekst moet leesbaar blijven op elke teaserplaat, ook een lichte. */
-.projectheld-tekst {
-  width: 100%; padding: clamp(1.25rem, 4vw, 2.25rem);
-  background: linear-gradient(to top, rgba(8, 11, 16, .92) 30%, rgba(8, 11, 16, 0) 100%);
-}
-.projectheld-tekst h1 { margin-bottom: .2em; }
-.projectheld-tekst .ondertitel { margin-bottom: .75rem; }
+.projectheld-naam { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; }
 
 .projectbody { display: grid; gap: 2rem; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); align-items: start; padding-bottom: 3rem; }
 @media (max-width: 800px) { .projectbody { grid-template-columns: 1fr; } }
@@ -172,6 +184,12 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .projecttekst h2:first-child { margin-top: 0; }
 .projecttekst { color: var(--tekst-zacht); }
 .projecttekst strong { color: var(--tekst); }
+/* In-line afbeeldingen in de projecttekst: `![omschrijving](afbeeldingen/kaart.png)`.
+   Schermvullend is te veel, dus ze krijgen dezelfde omlijsting als de rest van de pagina. */
+.projecttekst img, .intro img, .meedoen-tekst img {
+  display: block; margin: 1.5rem 0; border-radius: var(--ronding);
+  border: 1px solid var(--vlak-rand);
+}
 .projectzij { display: grid; gap: 1rem; position: sticky; top: 1.5rem; }
 @media (max-width: 800px) { .projectzij { position: static; } }
 .blok {

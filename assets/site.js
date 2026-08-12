@@ -1,7 +1,7 @@
 // Weergave die de home- en projectpagina delen: statuslabels, teaserkaarten en de
 // voortgangsbalk. De pagina's zelf halen alleen de inhoud op en roepen dit aan.
 
-import { esc, veiligeUrl, markdown } from './content.js';
+import { esc, veiligeUrl, contentUrl, markdown } from './content.js';
 
 export const STATUS = {
   voltooid: { label: 'Voltooid', klasse: 'is-voltooid' },
@@ -32,35 +32,31 @@ export function voortgangHtml(project, voortgang) {
     </div>`;
 }
 
-// Een teaserpad in een projectbestand is relatief aan content/ — daar staan de platen ook, naast
-// de projectbestanden die ernaar verwijzen. De pagina's staan een map hoger, dus zonder dit
-// voorvoegsel zoekt de browser de plaat naast index.html en krijg je een 404 in plaats van
-// een plaat.
-export function teaserUrl(pad) {
-  const url = veiligeUrl(pad || '');
-  if (!url) return '';
-  if (/^https?:/i.test(url) || url.startsWith('/') || url.startsWith('content/')) return url;
-  return `content/${url}`;
-}
-
 // Teaserplaat als achtergrond; ontbreekt hij, dan blijft de kleur uit het projectbestand over.
 // Zo ziet een pas toegevoegd project er meteen af, ook voordat je een plaatje hebt gemaakt.
 function teaserStijl(project) {
   const kleur = /^#[0-9a-f]{3,8}$/i.test(String(project.kleur || '')) ? project.kleur : '#3b4a63';
-  const url = teaserUrl(project.teaser);
+  const url = contentUrl(project.teaser);
   const plaat = url ? `background-image:url('${esc(url)}');` : '';
   return `--kaartkleur:${esc(kleur)};${plaat}`;
 }
 
-export function kaartHtml(project, voortgang) {
-  const naam = esc(project.naam || project.id);
-  const teaser = teaserUrl(project.teaser);
-  return `<a class="kaart${teaser ? '' : ' kaart--zonderplaat'}" href="project.html?p=${encodeURIComponent(project.id)}">
-      <span class="kaart-plaat" style="${teaserStijl(project)}" aria-hidden="true"></span>
-      <span class="kaart-inhoud">
-        <span class="kaart-kop"><span class="kaart-naam">${naam}</span>${statusHtml(project)}</span>
-        ${project.samenvatting ? `<span class="kaart-tekst">${esc(project.samenvatting)}</span>` : ''}
-        ${voortgangHtml(project, voortgang)}
+// De kaart is de plaat: die bevat de titel van het spel al, dus eronder staat geen naam meer.
+// Twee dingen houden hem toch bruikbaar:
+//   - de naam blijft in de aria-label staan, anders is de link voor een schermlezer naamloos
+//     en voor een zoekmachine betekenisloos;
+//   - is er géén plaat, dan verschijnt de naam wél in beeld. Anders zou een pas toegevoegd
+//     project een leeg gekleurd vlak zijn waar niemand iets aan heeft.
+export function kaartHtml(project) {
+  const naam = project.naam || project.id;
+  const teaser = contentUrl(project.teaser);
+  const omschrijving = [naam, statusVan(project).label, project.samenvatting]
+    .filter(Boolean).join(' — ');
+  return `<a class="kaart${teaser ? '' : ' kaart--zonderplaat'}" href="project.html?p=${encodeURIComponent(project.id)}"
+       aria-label="${esc(omschrijving)}">
+      <span class="kaart-plaat" style="${teaserStijl(project)}">
+        ${teaser ? '' : `<span class="kaart-naam">${esc(naam)}</span>`}
+        ${statusHtml(project)}
       </span>
     </a>`;
 }

@@ -41,7 +41,7 @@
 </footer>
 
 <script type="module">
-import { esc, veiligeUrl, markdown, laadSite, laadProjecten, laadVoortgang } from './assets/content.js';
+import { esc, veiligeUrl, markdown, laadSite, laadProjecten } from './assets/content.js';
 import { kaartHtml } from './assets/site.js';
 
 const $ = (id) => document.getElementById(id);
@@ -82,14 +82,10 @@ function discordHtml(knop) {
     $('kaarten').innerHTML = '<p class="leeg">Er staan nog geen projecten in de lijst.</p>';
     return;
   }
-  // Eerst de kaarten tonen, daarna pas de balken: de voortgang komt van een andere server en
-  // mag de pagina niet ophouden als die traag is of plat ligt.
-  const teken = (voortgang) => {
-    $('kaarten').innerHTML = projecten.map((p) => kaartHtml(p, voortgang)).join('');
-  };
-  teken({});
-  const heeftLopend = projecten.some((p) => p.voortgang && String(p.status || 'bezig').toLowerCase() === 'bezig');
-  if (heeftLopend) teken(await laadVoortgang(site.voortgangBron));
+  // De kaarten dragen alleen de plaat en de badge; de voortgangsbalk staat op de projectpagina.
+  // Daarom haalt de home de voortgang ook niet meer op — dat scheelt een verzoek naar een
+  // andere server voor iets dat hier toch niet getoond wordt.
+  $('kaarten').innerHTML = projecten.map((p) => kaartHtml(p)).join('');
 })();
 </script>
 </body>

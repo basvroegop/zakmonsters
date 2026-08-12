@@ -4,7 +4,6 @@ status: bezig
 samenvatting: Kanto met Pikachu achter je aan — de versie die de tekenfilmserie volgt.
 kleur: "#e6c229"
 voortgang: pokeyellow-nl
-bron: https://github.com/wfowler1/pokeyellow-nl
 downloads:
   - label: Patch (Geel)
     url: https://github.com/wfowler1/pokeyellow-nl/releases

@@ -5,7 +5,6 @@ samenvatting: De uitgebreide versie van Goud en Zilver, met de Suicune-verhaalli
 teaser: teasers/kristal-16-9.png
 kleur: "#4f9bd9"
 voortgang: pokecrystal-nl
-bron: https://github.com/wfowler1/pokecrystal-nl
 downloads:
   - label: Patch (Kristal)
     url: https://github.com/wfowler1/pokecrystal-nl/releases

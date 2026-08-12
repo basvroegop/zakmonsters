@@ -17,8 +17,8 @@
 </footer>
 
 <script type="module">
-import { esc, veiligeUrl, markdown, laadSite, laadProject, laadVoortgang } from './assets/content.js';
-import { statusHtml, voortgangHtml, downloadsHtml, teaserUrl } from './assets/site.js';
+import { esc, contentUrl, markdown, laadSite, laadProject, laadVoortgang } from './assets/content.js';
+import { statusHtml, voortgangHtml, downloadsHtml } from './assets/site.js';
 
 const $ = (id) => document.getElementById(id);
 const id = new URLSearchParams(location.search).get('p') || '';
@@ -27,16 +27,20 @@ const id = new URLSearchParams(location.search).get('p') || '';
 // een gedeelde projectlink alleen met de terugknop van de browser bij de rest van de site.
 const TERUG = '<a class="terug" href="index.html">← Alle projecten</a>';
 
+// De plaat draagt de titel al, dus er staat geen kop overheen. Hij wordt hier tot 16:9 gecropt
+// (de bron is 4:3, voor de kaarten op de home) zodat hij niet het halve scherm inneemt.
+//
+// De <h1> blijft wél bestaan, alleen onzichtbaar: een pagina zonder kop is voor een schermlezer
+// en voor een zoekmachine een naamloze pagina, en de plaat kan die rol niet overnemen.
 function held(project) {
-  const url = teaserUrl(project.teaser);
+  const url = contentUrl(project.teaser);
   const kleur = /^#[0-9a-f]{3,8}$/i.test(String(project.kleur || '')) ? project.kleur : '#3b4a63';
-  return `<div class="projectheld${url ? '' : ' projectheld--zonderplaat'}"
+  const naam = project.naam || project.id;
+  return `<h1 class="verborgen">${esc(naam)}</h1>
+    <div class="projectheld${url ? '' : ' projectheld--zonderplaat'}"
        style="--kaartkleur:${esc(kleur)};${url ? `background-image:url('${esc(url)}');` : ''}">
-      <div class="projectheld-tekst">
-        <h1>${esc(project.naam || project.id)}</h1>
-        ${project.samenvatting ? `<p class="ondertitel">${esc(project.samenvatting)}</p>` : ''}
-        ${statusHtml(project)}
-      </div>
+      ${url ? '' : `<span class="projectheld-naam">${esc(naam)}</span>`}
+      ${statusHtml(project)}
     </div>`;
 }
 
@@ -73,10 +77,6 @@ function held(project) {
           <h2>Downloads</h2>
           ${downloadsHtml(project)}
         </section>
-        ${project.bron ? `<section class="blok">
-          <h2>Broncode</h2>
-          <p><a href="${esc(veiligeUrl(project.bron))}" target="_blank" rel="noopener">Bekijk het project op GitHub</a></p>
-        </section>` : ''}
       </aside>
     </div>`;
 

@@ -23,6 +23,16 @@ export function veiligeUrl(url) {
   return '';
 }
 
+// Paden naar platen en in-line afbeeldingen staan in een contentbestand relatief aan content/ —
+// daar liggen ze ook, naast de bestanden die ernaar verwijzen. De pagina's staan een map hoger,
+// dus zonder dit voorvoegsel zoekt de browser ze naast index.html en krijg je een 404.
+export function contentUrl(pad) {
+  const url = veiligeUrl(pad || '');
+  if (!url) return '';
+  if (/^https?:/i.test(url) || url.startsWith('/') || url.startsWith('content/')) return url;
+  return `content/${url}`;
+}
+
 // ---- Frontmatter ----
 // Ondersteund:
 //   sleutel: waarde
@@ -80,9 +90,12 @@ export function parseFrontmatter(tekst) {
 function inline(tekst) {
   let uit = esc(tekst);
   // Afbeelding vóór link, anders eet de linkregel de ! op.
+  // In-line afbeelding: `![omschrijving](afbeeldingen/kaart.png)`. Het pad loopt via contentUrl,
+  // net als een teaser, zodat je in de tekst gewoon naar content/ kunt verwijzen. loading=lazy
+  // omdat een projectpagina er een handvol kan bevatten.
   uit = uit.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, alt, src) => {
-    const url = veiligeUrl(src);
-    return url ? `<img src="${esc(url)}" alt="${alt}">` : '';
+    const url = contentUrl(src);
+    return url ? `<img src="${esc(url)}" alt="${alt}" loading="lazy">` : '';
   });
   uit = uit.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (heel, tekst_, href) => {
     const url = veiligeUrl(href);
