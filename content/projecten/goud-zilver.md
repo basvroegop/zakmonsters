@@ -1,6 +1,7 @@
 ---
 naam: Pokémon Goud & Zilver
 status: bezig
+teaser: teasers/zilver.png
 kleur: "#c9a227"
 voortgang: pokegold-nl
 downloads:
