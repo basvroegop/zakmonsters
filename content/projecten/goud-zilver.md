@@ -2,7 +2,6 @@
 naam: Goud & Zilver
 status: bezig
 samenvatting: Terug naar Johto — twee regio's, zestien gymleiders en de dag-en-nachtcyclus.
-teaser: teasers/goud-zilver.png
 kleur: "#c9a227"
 voortgang: pokegold-nl
 bron: https://github.com/wfowler1/pokegold-nl

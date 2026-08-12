@@ -18,7 +18,7 @@
 
 <script type="module">
 import { esc, veiligeUrl, markdown, laadSite, laadProject, laadVoortgang } from './assets/content.js';
-import { statusHtml, voortgangHtml, downloadsHtml } from './assets/site.js';
+import { statusHtml, voortgangHtml, downloadsHtml, teaserUrl } from './assets/site.js';
 
 const $ = (id) => document.getElementById(id);
 const id = new URLSearchParams(location.search).get('p') || '';
@@ -28,7 +28,7 @@ const id = new URLSearchParams(location.search).get('p') || '';
 const TERUG = '<a class="terug" href="index.html">← Alle projecten</a>';
 
 function held(project) {
-  const url = veiligeUrl(project.teaser || '');
+  const url = teaserUrl(project.teaser);
   const kleur = /^#[0-9a-f]{3,8}$/i.test(String(project.kleur || '')) ? project.kleur : '#3b4a63';
   return `<div class="projectheld${url ? '' : ' projectheld--zonderplaat'}"
        style="--kaartkleur:${esc(kleur)};${url ? `background-image:url('${esc(url)}');` : ''}">

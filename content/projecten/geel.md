@@ -2,7 +2,6 @@
 naam: Geel
 status: bezig
 samenvatting: Kanto met Pikachu achter je aan — de versie die de tekenfilmserie volgt.
-teaser: teasers/geel.png
 kleur: "#e6c229"
 voortgang: pokeyellow-nl
 bron: https://github.com/wfowler1/pokeyellow-nl

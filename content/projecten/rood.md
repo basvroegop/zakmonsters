@@ -2,7 +2,6 @@
 naam: Rood & Blauw
 status: bezig
 samenvatting: Waar het allemaal begon: Kanto, 151 Pokémon en de reis naar de Elite Vier.
-teaser: teasers/rood-blauw.png
 kleur: "#d1534a"
 voortgang: pokered-nl
 bron: https://github.com/wfowler1/pokered-nl
