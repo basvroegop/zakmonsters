@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zakmonsters — Nederlandse fanvertalingen</title>
+<meta name="description" content="Fans en vrijwilligers die de klassieke Pokémon-games in het Nederlands vertalen. Bekijk de projecten en download de patches.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="overslaan" href="#inhoud">Naar de inhoud</a>
+
+<header class="kop">
+  <div class="omhulsel">
+    <p class="merk" id="merk">Zakmonsters</p>
+    <nav class="kop-nav" id="kopNav"></nav>
+  </div>
+</header>
+
+<main id="inhoud">
+  <section class="held">
+    <div class="omhulsel">
+      <h1 id="titel">Zakmonsters</h1>
+      <p class="ondertitel" id="ondertitel"></p>
+      <div class="intro" id="intro"></div>
+    </div>
+  </section>
+
+  <section class="projecten">
+    <div class="omhulsel">
+      <h2>Onze projecten</h2>
+      <div class="kaarten" id="kaarten">
+        <p class="laden">Projecten laden…</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="meedoen" id="meedoen" hidden>
+    <div class="omhulsel">
+      <h2 id="meedoenTitel"></h2>
+      <div class="meedoen-tekst" id="meedoenTekst"></div>
+      <div class="knoppen" id="meedoenKnoppen"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="voet">
+  <div class="omhulsel"><p id="voet"></p></div>
+</footer>
+
+<script type="module">
+import { esc, veiligeUrl, markdown, laadSite, laadProjecten, laadVoortgang } from './assets/content.js';
+import { kaartHtml } from './assets/site.js';
+
+const $ = (id) => document.getElementById(id);
+
+function navHtml(knoppen) {
+  return (knoppen || [])
+    .filter((k) => k && veiligeUrl(k.url))
+    .map((k) => `<a class="knop knop--klein" href="${esc(veiligeUrl(k.url))}" target="_blank" rel="noopener">${esc(k.label || 'Link')}</a>`)
+    .join('');
+}
+
+(async () => {
+  let site;
+  try {
+    site = await laadSite();
+  } catch (err) {
+    $('kaarten').innerHTML = '<p class="fout">De inhoud kon niet worden geladen. Ververs de pagina of probeer het later opnieuw.</p>';
+    console.error(err);
+    return;
+  }
+
+  document.title = `${site.titel || 'Zakmonsters'} — ${site.ondertitel || 'Nederlandse fanvertalingen'}`;
+  $('merk').textContent = site.titel || 'Zakmonsters';
+  $('titel').textContent = site.titel || 'Zakmonsters';
+  $('ondertitel').textContent = site.ondertitel || '';
+  $('intro').innerHTML = markdown(site.intro || '');
+  $('kopNav').innerHTML = navHtml(site.knoppen);
+  $('voet').innerHTML = markdown(site.footer || '');
+
+  if (site.meedoen && (site.meedoen.titel || site.meedoen.tekst)) {
+    $('meedoen').hidden = false;
+    $('meedoenTitel').textContent = site.meedoen.titel || 'Meehelpen?';
+    $('meedoenTekst').innerHTML = markdown(site.meedoen.tekst || '');
+    $('meedoenKnoppen').innerHTML = navHtml(site.knoppen);
+  }
+
+  const projecten = await laadProjecten(site.projecten);
+  if (!projecten.length) {
+    $('kaarten').innerHTML = '<p class="leeg">Er staan nog geen projecten in de lijst.</p>';
+    return;
+  }
+  // Eerst de kaarten tonen, daarna pas de balken: de voortgang komt van een andere server en
+  // mag de pagina niet ophouden als die traag is of plat ligt.
+  const teken = (voortgang) => {
+    $('kaarten').innerHTML = projecten.map((p) => kaartHtml(p, voortgang)).join('');
+  };
+  teken({});
+  const heeftLopend = projecten.some((p) => p.voortgang && String(p.status || 'bezig').toLowerCase() === 'bezig');
+  if (heeftLopend) teken(await laadVoortgang(site.voortgangBron));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "titel": "Zakmonsters",
+  "ondertitel": "Nederlandse fanvertalingen van de klassieke Pokémon-games",
+
+  "intro": "Wij zijn een club fans en vrijwilligers die de oude Pokémon-games in het\nNederlands vertalen. Geen commercieel project, geen deadlines — gewoon een groep\nmensen die vindt dat deze spellen ook in onze eigen taal gespeeld moeten kunnen\nworden.\n\nElk spel krijgt een volledige, zorgvuldige vertaling: verhaal, Pokédex, aanvallen,\nvoorwerpen en alle tekst daartussenin. Wat af is, delen we als **patch** — die pas\nje toe op je eigen, legaal verkregen ROM.",
+
+  "projecten": [
+    "goud-zilver",
+    "kristal",
+    "geel",
+    "rood",
+    "kristal-legacy"
+  ],
+
+  "voortgangBron": "https://vertalen.zakmonsters.nl/api/public/progress",
+
+  "knoppen": [
+    { "label": "Meevertalen", "url": "https://vertalen.zakmonsters.nl" }
+  ],
+
+  "meedoen": {
+    "titel": "Meehelpen?",
+    "tekst": "Vertalen doe je bij ons gewoon in de browser: inloggen met GitHub, een bestand\nkiezen en typen. Je hebt geen programmeerkennis nodig — wél gevoel voor taal en\nzin om het goed te doen.\n\nInteresse? Laat het weten via de knop hieronder."
+  },
+
+  "footer": "Fanproject zonder winstoogmerk. Pokémon is eigendom van Nintendo, Game Freak en\nThe Pokémon Company. Wij verspreiden geen ROM's — alleen patches die je op je\neigen exemplaar toepast."
+}

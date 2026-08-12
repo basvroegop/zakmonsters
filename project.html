@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project — Zakmonsters</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="overslaan" href="#inhoud">Naar de inhoud</a>
+
+<header class="kop">
+  <div class="omhulsel">
+    <a class="merk merk--link" href="index.html" id="merk">Zakmonsters</a>
+    <nav class="kop-nav"><a class="knop knop--klein" href="index.html">Alle projecten</a></nav>
+  </div>
+</header>
+
+<main id="inhoud">
+  <div id="pagina" class="omhulsel"><p class="laden">Laden…</p></div>
+</main>
+
+<footer class="voet">
+  <div class="omhulsel"><p id="voet"></p></div>
+</footer>
+
+<script type="module">
+import { esc, veiligeUrl, markdown, laadSite, laadProject, laadVoortgang } from './assets/content.js';
+import { statusHtml, voortgangHtml, downloadsHtml } from './assets/site.js';
+
+const $ = (id) => document.getElementById(id);
+const id = new URLSearchParams(location.search).get('p') || '';
+
+function held(project) {
+  const url = veiligeUrl(project.teaser || '');
+  const kleur = /^#[0-9a-f]{3,8}$/i.test(String(project.kleur || '')) ? project.kleur : '#3b4a63';
+  return `<div class="projectheld${url ? '' : ' projectheld--zonderplaat'}"
+       style="--kaartkleur:${esc(kleur)};${url ? `background-image:url('${esc(url)}');` : ''}">
+      <div class="projectheld-tekst">
+        <h1>${esc(project.naam || project.id)}</h1>
+        ${project.samenvatting ? `<p class="ondertitel">${esc(project.samenvatting)}</p>` : ''}
+        ${statusHtml(project)}
+      </div>
+    </div>`;
+}
+
+(async () => {
+  const site = await laadSite().catch(() => ({}));
+  $('merk').textContent = site.titel || 'Zakmonsters';
+  $('voet').innerHTML = markdown(site.footer || '');
+
+  let project;
+  try {
+    project = await laadProject(id);
+  } catch (err) {
+    console.error(err);
+    $('pagina').innerHTML = `<div class="fout-blok">
+        <h1>Project niet gevonden</h1>
+        <p>Dit project bestaat (nog) niet. <a href="index.html">Terug naar alle projecten</a>.</p>
+      </div>`;
+    return;
+  }
+
+  document.title = `${project.naam || project.id} — ${site.titel || 'Zakmonsters'}`;
+  $('pagina').innerHTML = `
+    ${held(project)}
+    <div class="projectbody">
+      <article class="projecttekst">${markdown(project.body || '')}</article>
+      <aside class="projectzij">
+        <section class="blok" id="voortgangBlok" hidden>
+          <h2>Voortgang</h2>
+          <div id="voortgangSlot"></div>
+          <p class="klein">Live uit de vertaaleditor.</p>
+        </section>
+        <section class="blok">
+          <h2>Downloads</h2>
+          ${downloadsHtml(project)}
+        </section>
+        ${project.bron ? `<section class="blok">
+          <h2>Broncode</h2>
+          <p><a href="${esc(veiligeUrl(project.bron))}" target="_blank" rel="noopener">Bekijk het project op GitHub</a></p>
+        </section>` : ''}
+      </aside>
+    </div>`;
+
+  if (project.voortgang) {
+    const html = voortgangHtml(project, await laadVoortgang(site.voortgangBron));
+    if (html) { $('voortgangSlot').innerHTML = html; $('voortgangBlok').hidden = false; }
+  }
+})();
+</script>
+</body>
+</html>
