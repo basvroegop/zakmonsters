@@ -147,7 +147,8 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .is-gepland { color: var(--grijs); }
 
 /* ---- Voortgang ---- */
-.voortgang { margin-top: 1rem; }
+.voortgang { margin-top: 1rem; display: grid; gap: .85rem; }
+.voortgang-rij { display: block; }
 .voortgang-kop {
   display: flex; justify-content: space-between; font-size: .82rem;
   color: var(--tekst-zacht); margin-bottom: .35rem;
@@ -213,8 +214,23 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .wisselknop:hover { color: var(--tekst); }
 .wisselknop.is-actief { background: var(--accent); color: var(--accent-tekst); }
 
-.projectbody { display: grid; gap: 2rem; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); align-items: start; padding-bottom: 3rem; }
-@media (max-width: 800px) { .projectbody { grid-template-columns: 1fr; } }
+/* Plaat links, Voortgang en Downloads rechts ernaast. De blokken verdelen samen precies de
+   hoogte van de plaat, zodat de drie boven- en onderrand gelijk liggen. Passen ze niet, dan
+   groeit de rij mee en blijft alleen de bovenrand uitgelijnd. */
+.projectkop {
+  display: grid; gap: 1.5rem; align-items: stretch; margin-bottom: 2rem;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+}
+.projectkop .projectheld { margin: 0; align-self: stretch; height: 100%; }
+/* space-between i.p.v. uitrekken: de blokken houden hun eigen hoogte en verdelen de ruimte
+   ertussen. Zo liggen de bovenrand van het eerste en de onderrand van het laatste blok gelijk
+   met de plaat, zonder dat de blokken vanbinnen hol worden. */
+.projectkop .projectzij { align-content: space-between; position: static; }
+@media (max-width: 800px) {
+  .projectkop { grid-template-columns: 1fr; }
+  .projectkop .projectzij { align-content: start; }
+}
+.projecttekst { padding-bottom: 3rem; }
 .projecttekst h2 { margin-top: 2rem; }
 .projecttekst h2:first-child { margin-top: 0; }
 .projecttekst { color: var(--tekst-zacht); }

@@ -159,6 +159,22 @@ export function markdown(tekst) {
 }
 
 // ---- Laden ----
+// Bij het publiceren bakt bouw.js alle inhoud als JSON in de pagina. Staat die er, dan is er
+// niets op te halen en staat de pagina meteen. Staat hij er niet — zoals in de voorvertoning
+// van het CMS, die de bronbestanden serveert — dan halen we hem alsnog op.
+let ingebakken;
+function uitPagina() {
+  if (ingebakken === undefined) {
+    const blok = typeof document === 'undefined' ? null : document.getElementById('ingebakken');
+    try {
+      ingebakken = blok ? JSON.parse(blok.textContent) : null;
+    } catch {
+      ingebakken = null; // liever ophalen dan een halve pagina
+    }
+  }
+  return ingebakken;
+}
+
 async function haal(pad) {
   const res = await fetch(pad, { cache: 'no-cache' });
   if (!res.ok) throw new Error(`${pad}: ${res.status}`);
@@ -166,6 +182,8 @@ async function haal(pad) {
 }
 
 export async function laadSite() {
+  const klaar = uitPagina();
+  if (klaar && klaar.site) return klaar.site;
   return JSON.parse(await haal('content/site.json'));
 }
 
@@ -174,6 +192,11 @@ export async function laadSite() {
 export async function laadProject(id) {
   const veilig = String(id).replace(/[^a-z0-9-]/gi, '');
   if (!veilig) throw new Error('Onbekend project');
+  const klaar = uitPagina();
+  if (klaar && klaar.projecten) {
+    if (!klaar.projecten[veilig]) throw new Error(`Onbekend project: ${veilig}`);
+    return klaar.projecten[veilig];
+  }
   const { data, body } = parseFrontmatter(await haal(`content/projecten/${veilig}.md`));
   return { id: veilig, ...data, body };
 }
@@ -199,6 +222,8 @@ export async function laadProjecten(ids) {
 export async function laadEditie(id) {
   const veilig = String(id).replace(/[^a-z0-9-]/gi, '');
   if (!veilig) return null;
+  const klaar = uitPagina();
+  if (klaar && klaar.edities) return klaar.edities[veilig] || null;
   try {
     const { data, body } = parseFrontmatter(await haal(`content/projecten/${veilig}.editie.md`));
     return { id: veilig, ...data, body };

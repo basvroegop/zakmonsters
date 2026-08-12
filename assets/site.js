@@ -4,13 +4,22 @@
 import { esc, veiligeUrl, contentUrl, markdown } from './content.js';
 
 export const STATUS = {
-  voltooid: { label: 'Voltooid', klasse: 'is-voltooid' },
-  bezig: { label: 'Mee bezig', klasse: 'is-bezig' },
-  gepland: { label: 'Gepland', klasse: 'is-gepland' },
+  voltooid: { label: 'Voltooid', klasse: 'is-voltooid', rang: 0 },
+  bezig: { label: 'Mee bezig', klasse: 'is-bezig', rang: 1 },
+  gepland: { label: 'Gepland', klasse: 'is-gepland', rang: 2 },
 };
 
 export function statusVan(project) {
   return STATUS[String(project.status || '').toLowerCase()] || STATUS.bezig;
+}
+
+// De volgorde binnen een generatie ligt niet in het contentbestand maar hier: afgeronde
+// projecten eerst, dan lopend werk, dan wat nog moet beginnen; binnen dezelfde status op naam.
+// Zo hoeft niemand een lijst bij te houden en klopt de volgorde vanzelf zodra een status wijzigt.
+export function sorteerProjecten(projecten) {
+  return [...projecten].sort((a, b) =>
+    statusVan(a).rang - statusVan(b).rang ||
+    String(a.naam || a.id).localeCompare(String(b.naam || b.id), 'nl'));
 }
 
 export function statusHtml(project) {
@@ -35,14 +44,34 @@ export function procentVan(project, voortgang) {
 // kleur en label hetzelfde zeggen in plaats van elk iets anders.
 const afKlasse = (project) => (statusVan(project) === STATUS.voltooid ? ' is-af' : '');
 
+// De drie stappen die een regel doorloopt: eerst vertaald, dan door een tweede persoon
+// geredigeerd, en uiteindelijk opgenomen in het spel zelf.
+const BALKEN = [
+  { sleutel: 'vertaald', label: 'Vertaald' },
+  { sleutel: 'geredigeerd', label: 'Geredigeerd' },
+  { sleutel: 'inSpel', label: 'In game' },
+];
+
 export function voortgangHtml(project, voortgang) {
-  const pct = procentVan(project, voortgang);
-  if (pct === null) return '';
-  return `<div class="voortgang">
-      <div class="voortgang-kop"><span>Vertaald</span><span class="voortgang-pct">${pct}%</span></div>
-      <div class="balk${afKlasse(project)}" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
-           aria-label="Voortgang vertaling ${esc(project.naam || project.id)}"><i style="width:${pct}%"></i></div>
-    </div>`;
+  const af = statusVan(project) === STATUS.voltooid;
+  const cijfers = voortgang && voortgang[project.voortgang];
+  if (!af && (!cijfers || !cijfers.totaal)) return '';
+
+  const rijen = BALKEN.map(({ sleutel, label }) => {
+    const waarde = cijfers ? cijfers[sleutel] : null;
+    // Een stap waarover de editor niets zegt, laten we weg. Anders zou een ontbrekend cijfer
+    // als "0%" op de site verschijnen, en dat is een bewering die we niet kunnen waarmaken.
+    if (!af && (waarde === null || waarde === undefined)) return '';
+    const pct = af ? 100 : Math.max(0, Math.min(100, Math.round((Number(waarde) || 0) / cijfers.totaal * 100)));
+    return `<div class="voortgang-rij">
+        <div class="voortgang-kop"><span>${label}</span><span class="voortgang-pct">${pct}%</span></div>
+        <div class="balk${afKlasse(project)}" role="progressbar" aria-valuenow="${pct}"
+             aria-valuemin="0" aria-valuemax="100"
+             aria-label="${label} — ${esc(project.naam || project.id)}"><i style="width:${pct}%"></i></div>
+      </div>`;
+  }).filter(Boolean).join('');
+
+  return rijen ? `<div class="voortgang">${rijen}</div>` : '';
 }
 
 // Teaserplaat als achtergrond; ontbreekt hij, dan blijft de kleur uit het projectbestand over.
