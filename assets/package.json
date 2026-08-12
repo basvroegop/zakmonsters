@@ -1,0 +1,4 @@
+{
+  "//": "Deze map bevat ES-modules (content.js, site.js). Zonder dit bestand leest Node ze als CommonJS — de package.json van de hoofdrepo zet 'type: commonjs' — en dan kan het CMS parseFrontmatter niet lenen. De browser merkt er niets van.",
+  "type": "module"
+}
