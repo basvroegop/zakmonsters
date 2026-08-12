@@ -8,15 +8,6 @@
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
-<a class="overslaan" href="#inhoud">Naar de inhoud</a>
-
-<header class="kop">
-  <div class="omhulsel">
-    <a class="merk merk--link" href="index.html" id="merk">Zakmonsters</a>
-    <nav class="kop-nav"><a class="knop knop--klein" href="index.html">Alle projecten</a></nav>
-  </div>
-</header>
-
 <main id="inhoud">
   <div id="pagina" class="omhulsel"><p class="laden">Laden…</p></div>
 </main>
@@ -31,6 +22,10 @@ import { statusHtml, voortgangHtml, downloadsHtml } from './assets/site.js';
 
 const $ = (id) => document.getElementById(id);
 const id = new URLSearchParams(location.search).get('p') || '';
+
+// De site heeft geen menubalk meer. Eén terugweg blijft nodig: zonder die link kom je vanaf
+// een gedeelde projectlink alleen met de terugknop van de browser bij de rest van de site.
+const TERUG = '<a class="terug" href="index.html">← Alle projecten</a>';
 
 function held(project) {
   const url = veiligeUrl(project.teaser || '');
@@ -47,7 +42,6 @@ function held(project) {
 
 (async () => {
   const site = await laadSite().catch(() => ({}));
-  $('merk').textContent = site.titel || 'Zakmonsters';
   $('voet').innerHTML = markdown(site.footer || '');
 
   let project;
@@ -55,7 +49,8 @@ function held(project) {
     project = await laadProject(id);
   } catch (err) {
     console.error(err);
-    $('pagina').innerHTML = `<div class="fout-blok">
+    $('pagina').innerHTML = `${TERUG}
+      <div class="fout-blok">
         <h1>Project niet gevonden</h1>
         <p>Dit project bestaat (nog) niet. <a href="index.html">Terug naar alle projecten</a>.</p>
       </div>`;
@@ -64,6 +59,7 @@ function held(project) {
 
   document.title = `${project.naam || project.id} — ${site.titel || 'Zakmonsters'}`;
   $('pagina').innerHTML = `
+    ${TERUG}
     ${held(project)}
     <div class="projectbody">
       <article class="projecttekst">${markdown(project.body || '')}</article>

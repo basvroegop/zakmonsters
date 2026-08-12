@@ -32,9 +32,27 @@ Open `content/site.json`:
 | `intro` | Het introverhaal (Markdown; `\n\n` is een nieuwe alinea) |
 | `projecten` | **De volgorde van de knoppen** — bestandsnamen uit `content/projecten/` zonder `.md` |
 | `voortgangBron` | Waar de voortgangsbalken vandaan komen; laat staan |
-| `knoppen` | Knoppen rechtsboven en onderaan (`label` + `url`) |
-| `meedoen` | Het blok onderaan; laat `titel` en `tekst` leeg om het te verbergen |
+| `meedoen` | Het blok onderaan: `titel`, `tekst` en de Discord-knop (zie onder). Laat `titel` en `tekst` leeg om het hele blok te verbergen |
 | `footer` | De kleine tekst onderaan |
+
+De site heeft bewust **geen menubalk**: de projectknoppen zijn de navigatie. Op een
+projectpagina staat linksboven alleen een discrete "← Alle projecten".
+
+### De Discord-knop
+
+Onder de tekst van het "Meehelpen?"-blok staat één knop, in Discord-kleur:
+
+```json
+"meedoen": {
+  "titel": "Meehelpen?",
+  "tekst": "…jouw tekst…",
+  "discord": { "label": "Kom langs op onze Discord", "url": "https://discord.gg/xxxxxxx" }
+}
+```
+
+**Zolang `url` leeg is, verschijnt er geen knop.** Dat is expres: een doodlopende
+Discord-link kost een geïnteresseerde vrijwilliger een klik en vertrouwen. Vul je
+uitnodigingslink in en de knop staat er.
 
 ## Een project aanpassen
 

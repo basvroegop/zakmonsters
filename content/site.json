@@ -8,19 +8,18 @@
     "goud-zilver",
     "kristal",
     "geel",
-    "rood",
-    "kristal-legacy"
+    "rood"
   ],
 
   "voortgangBron": "https://vertalen.zakmonsters.nl/api/public/progress",
 
-  "knoppen": [
-    { "label": "Meevertalen", "url": "https://vertalen.zakmonsters.nl" }
-  ],
-
   "meedoen": {
     "titel": "Meehelpen?",
-    "tekst": "Vertalen doe je bij ons gewoon in de browser: inloggen met GitHub, een bestand\nkiezen en typen. Je hebt geen programmeerkennis nodig — wél gevoel voor taal en\nzin om het goed te doen.\n\nInteresse? Laat het weten via de knop hieronder."
+    "tekst": "Vertalen doe je bij ons gewoon in de browser: inloggen met GitHub, een bestand\nkiezen en typen. Je hebt geen programmeerkennis nodig — wél gevoel voor taal en\nzin om het goed te doen.\n\nMeld je op onze Discord; daar bespreken we het werk en helpen we je op weg.",
+    "discord": {
+      "label": "Kom langs op onze Discord",
+      "url": ""
+    }
   },
 
   "footer": "Fanproject zonder winstoogmerk. Pokémon is eigendom van Nintendo, Game Freak en\nThe Pokémon Company. Wij verspreiden geen ROM's — alleen patches die je op je\neigen exemplaar toepast."

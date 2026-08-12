@@ -9,15 +9,6 @@
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
-<a class="overslaan" href="#inhoud">Naar de inhoud</a>
-
-<header class="kop">
-  <div class="omhulsel">
-    <p class="merk" id="merk">Zakmonsters</p>
-    <nav class="kop-nav" id="kopNav"></nav>
-  </div>
-</header>
-
 <main id="inhoud">
   <section class="held">
     <div class="omhulsel">
@@ -40,7 +31,7 @@
     <div class="omhulsel">
       <h2 id="meedoenTitel"></h2>
       <div class="meedoen-tekst" id="meedoenTekst"></div>
-      <div class="knoppen" id="meedoenKnoppen"></div>
+      <div class="knoppen" id="meedoenKnop"></div>
     </div>
   </section>
 </main>
@@ -55,11 +46,12 @@ import { kaartHtml } from './assets/site.js';
 
 const $ = (id) => document.getElementById(id);
 
-function navHtml(knoppen) {
-  return (knoppen || [])
-    .filter((k) => k && veiligeUrl(k.url))
-    .map((k) => `<a class="knop knop--klein" href="${esc(veiligeUrl(k.url))}" target="_blank" rel="noopener">${esc(k.label || 'Link')}</a>`)
-    .join('');
+// Zonder ingevulde uitnodigingslink verschijnt er geen knop. Een doodlopende Discord-link is
+// erger dan geen knop: die kost een geïnteresseerde vrijwilliger een klik en vertrouwen.
+function discordHtml(knop) {
+  const url = veiligeUrl(knop && knop.url);
+  if (!url) return '';
+  return `<a class="knop knop--discord" href="${esc(url)}" target="_blank" rel="noopener">${esc(knop.label || 'Kom langs op onze Discord')}</a>`;
 }
 
 (async () => {
@@ -73,18 +65,16 @@ function navHtml(knoppen) {
   }
 
   document.title = `${site.titel || 'Zakmonsters'} — ${site.ondertitel || 'Nederlandse fanvertalingen'}`;
-  $('merk').textContent = site.titel || 'Zakmonsters';
   $('titel').textContent = site.titel || 'Zakmonsters';
   $('ondertitel').textContent = site.ondertitel || '';
   $('intro').innerHTML = markdown(site.intro || '');
-  $('kopNav').innerHTML = navHtml(site.knoppen);
   $('voet').innerHTML = markdown(site.footer || '');
 
   if (site.meedoen && (site.meedoen.titel || site.meedoen.tekst)) {
     $('meedoen').hidden = false;
     $('meedoenTitel').textContent = site.meedoen.titel || 'Meehelpen?';
     $('meedoenTekst').innerHTML = markdown(site.meedoen.tekst || '');
-    $('meedoenKnoppen').innerHTML = navHtml(site.knoppen);
+    $('meedoenKnop').innerHTML = discordHtml(site.meedoen.discord);
   }
 
   const projecten = await laadProjecten(site.projecten);
