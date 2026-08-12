@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pokédex — Zakmonsters</title>
+<meta name="description" content="Alle Pokémon uit onze afgeronde vertalingen: aanvallen, evoluties en de Nederlandse Pokédex-beschrijvingen.">
+<link rel="icon" type="image/png" href="assets/pokeball.png">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<main id="inhoud">
+  <div id="pagina" class="omhulsel"><p class="laden">Laden…</p></div>
+</main>
+
+<footer class="voet">
+  <div class="omhulsel"><p id="voet"></p></div>
+</footer>
+
+<script type="module">
+import { esc, markdown, laadSite } from './assets/content.js';
+
+const $ = (id) => document.getElementById(id);
+const zoekparam = () => new URLSearchParams(location.search);
+
+// De dex is één bestand met alle soorten. Dat haalt de browser één keer op; daarna klikt alles
+// zonder verder verkeer — vandaar dat sorteren en zoeken hier gebeurt en niet op een server.
+let dex = null;
+let seAan = false;
+
+const naamVan = (s) => (seAan && s.naamSe ? s.naamSe : s.naam);
+const nummer = (n) => String(n).padStart(3, '0');
+
+const TERUG = '<a class="terug" href="index.html">← Terug naar de site</a>';
+
+function knoppenbalk(zoek) {
+  return `<div class="dexbalk">
+      <input id="zoek" type="search" placeholder="Zoek op naam of nummer" value="${esc(zoek || '')}"
+             aria-label="Zoek een Pokémon">
+      ${dex.seNamen ? `<div class="wissel">
+        <button class="wisselknop${seAan ? '' : ' is-actief'}" data-se="0">${esc(dex.spel)}</button>
+        <button class="wisselknop${seAan ? ' is-actief' : ''}" data-se="1">Speciale Editie</button>
+      </div>` : ''}
+    </div>`;
+}
+
+function lijstHtml(zoek) {
+  const term = String(zoek || '').trim().toLowerCase();
+  const treffers = dex.soorten.filter((s) => !term
+    || naamVan(s).toLowerCase().includes(term)
+    || s.naam.toLowerCase().includes(term)
+    || String(s.nr) === term.replace(/^0+/, ''));
+  if (!treffers.length) return '<p class="leeg">Geen Pokémon gevonden.</p>';
+  return `<div class="dexlijst">${treffers.map((s) => `
+      <a class="dexknop" href="pokedex.html?nr=${s.nr}${seAan ? '&se=1' : ''}">
+        <span class="dexnr">${nummer(s.nr)}</span>
+        <span class="dexnaam">${esc(naamVan(s))}</span>
+        <span class="dextypen">${s.typen.map((t) => `<span class="type">${esc(t.toLowerCase())}</span>`).join('')}</span>
+      </a>`).join('')}</div>`;
+}
+
+const STATNAMEN = { hp: 'KP', atk: 'Aanval', def: 'Verdediging', satk: 'Sp. Aanval', sdef: 'Sp. Verdediging', spd: 'Snelheid' };
+
+function detailHtml(s) {
+  const stats = Object.entries(s.stats || {})
+    .map(([sleutel, waarde]) => `<div class="statrij">
+        <span>${STATNAMEN[sleutel] || sleutel}</span>
+        <span class="statwaarde">${waarde}</span>
+        <span class="balk" aria-hidden="true"><i style="width:${Math.min(100, Math.round(waarde / 255 * 100))}%"></i></span>
+      </div>`).join('');
+
+  const evoluties = (s.evoluties || []).length
+    ? `<ul class="evolijst">${s.evoluties.map((e) => {
+        const doel = e.naar ? dex.soorten.find((x) => x.nr === e.naar) : null;
+        const label = doel ? naamVan(doel) : e.soort;
+        return `<li>${e.naar
+          ? `<a href="pokedex.html?nr=${e.naar}${seAan ? '&se=1' : ''}">${esc(label)}</a>`
+          : esc(label)} <span class="evohoe">${esc(e.hoe)}</span></li>`;
+      }).join('')}</ul>`
+    : '<p class="uitleg">Evolueert niet.</p>';
+
+  const aanvallen = (s.aanvallen || []).length
+    ? `<table class="aanvallen"><thead><tr><th>Level</th><th>Aanval</th></tr></thead><tbody>
+        ${s.aanvallen.map((a) => `<tr><td>${a.level === 1 ? '—' : a.level}</td><td>${esc(a.naam)}</td></tr>`).join('')}
+      </tbody></table>`
+    : '<p class="uitleg">Geen aanvallen door levelen.</p>';
+
+  return `<a class="terug" href="pokedex.html${seAan ? '?se=1' : ''}">← Alle Pokémon</a>
+    <div class="dexkop">
+      <span class="dexnr dexnr--groot">${nummer(s.nr)}</span>
+      <h1>${esc(naamVan(s))}</h1>
+      ${seAan && s.naamSe ? `<p class="uitleg">Heet <strong>${esc(s.naam)}</strong> in ${esc(dex.spel)}.</p>`
+        : (s.naamSe ? `<p class="uitleg">Heet <strong>${esc(s.naamSe)}</strong> in de Speciale Editie.</p>` : '')}
+      <p class="dextypen">${s.typen.map((t) => `<span class="type">${esc(t.toLowerCase())}</span>`).join('')}</p>
+    </div>
+
+    ${s.dex ? `<div class="blok dexbeschrijving">
+      <p class="dexmeta">${esc(s.dex.categorie || '')}${s.dex.hoogte ? ` · ${esc(s.dex.hoogte)}` : ''}${s.dex.gewicht ? ` · ${esc(s.dex.gewicht)}` : ''}</p>
+      <p>${esc(s.dex.tekst || '')}</p>
+    </div>` : ''}
+
+    <div class="dexdetail">
+      <section class="blok"><h2>Basiswaarden</h2><div class="stats">${stats}</div></section>
+      <section class="blok"><h2>Evolutie</h2>${evoluties}</section>
+      <section class="blok blok--breed"><h2>Aanvallen per level</h2>${aanvallen}</section>
+    </div>`;
+}
+
+function teken() {
+  const nr = Number(zoekparam().get('nr'));
+  if (nr) {
+    const soort = dex.soorten.find((s) => s.nr === nr);
+    $('pagina').innerHTML = soort ? detailHtml(soort)
+      : `${TERUG}<div class="fout-blok"><h1>Niet gevonden</h1><p>Deze Pokémon staat niet in de dex.</p></div>`;
+    document.title = soort ? `${naamVan(soort)} — Pokédex` : 'Pokédex';
+  } else {
+    const zoek = zoekparam().get('q') || '';
+    $('pagina').innerHTML = `${TERUG}
+      <h1>Pokédex</h1>
+      <p class="uitleg">De ${dex.soorten.length} Pokémon uit onze vertaling van ${esc(dex.spel)}.</p>
+      ${knoppenbalk(zoek)}
+      <div id="lijst">${lijstHtml(zoek)}</div>`;
+    const veld = $('zoek');
+    if (veld) {
+      veld.oninput = () => { $('lijst').innerHTML = lijstHtml(veld.value); };
+      if (zoek) { veld.focus(); veld.setSelectionRange(zoek.length, zoek.length); }
+    }
+  }
+
+  for (const knop of document.querySelectorAll('[data-se]')) {
+    knop.onclick = () => {
+      seAan = knop.dataset.se === '1';
+      const p = zoekparam();
+      if (seAan) p.set('se', '1'); else p.delete('se');
+      history.replaceState(null, '', `?${p}`);
+      teken();
+    };
+  }
+}
+
+(async () => {
+  const site = await laadSite().catch(() => ({}));
+  $('voet').innerHTML = markdown(site.footer || '');
+
+  try {
+    const index = await (await fetch('content/pokedex/index.json', { cache: 'no-cache' })).json();
+    const eerste = (index.dexen || [])[0];
+    if (!eerste) throw new Error('geen dex');
+    dex = await (await fetch(`content/pokedex/${eerste.project}.json`, { cache: 'no-cache' })).json();
+  } catch (err) {
+    console.error(err);
+    $('pagina').innerHTML = `${TERUG}<div class="fout-blok"><h1>Pokédex nog niet beschikbaar</h1>
+      <p>Zodra een vertaling is afgerond, verschijnt hij hier.</p></div>`;
+    return;
+  }
+
+  seAan = !!zoekparam().get('se');
+  teken();
+})();
+</script>
+</body>
+</html>

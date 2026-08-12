@@ -258,3 +258,63 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 /* ---- Voet ---- */
 .voet { border-top: 1px solid var(--vlak-rand); padding: 2rem 0 3rem; color: var(--tekst-zacht); font-size: .9rem; }
 .voet p { max-width: 70ch; margin: 0; }
+
+/* ---- Pokédex ---- */
+/* De hele dex is één opgehaald bestand; zoeken en filteren gebeurt in de pagina zelf. */
+.dexbalk { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin: 1.5rem 0; }
+.dexbalk input {
+  flex: 1 1 260px; padding: .7rem .9rem; border-radius: 10px; font: inherit;
+  background: #0d1219; color: var(--tekst); border: 1px solid var(--vlak-rand);
+}
+.dexbalk input:focus { border-color: var(--accent); }
+.dexbalk .wissel { margin: 0; }
+
+.dexlijst {
+  display: grid; gap: .6rem; padding-bottom: 3rem;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+}
+.dexknop {
+  display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--tekst);
+  background: var(--vlak); border: 1px solid var(--vlak-rand); border-radius: 10px;
+  padding: .6rem .75rem; transition: border-color .15s ease;
+}
+.dexknop:hover { border-color: var(--accent); color: var(--tekst); }
+.dexnr { color: var(--tekst-zacht); font-variant-numeric: tabular-nums; font-size: .85rem; flex: none; }
+.dexnr--groot { font-size: 1rem; }
+.dexnaam { font-weight: 600; }
+.dextypen { margin-left: auto; display: flex; gap: .3rem; }
+.type {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; padding: .15rem .45rem;
+  border-radius: 999px; border: 1px solid var(--vlak-rand); color: var(--tekst-zacht);
+}
+
+.dexkop { margin: 1.5rem 0; }
+.dexkop h1 { margin: .2em 0 .3em; }
+.dexkop .dextypen { margin-left: 0; }
+.dexbeschrijving { margin-bottom: 1.5rem; }
+.dexbeschrijving p { margin: 0; }
+.dexmeta { color: var(--tekst-zacht); font-size: .85rem; margin-bottom: .5rem !important; }
+
+.dexdetail {
+  display: grid; gap: 1rem; padding-bottom: 3rem; align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.blok--breed { grid-column: 1 / -1; }
+
+.stats { display: grid; gap: .5rem; }
+.statrij { display: grid; grid-template-columns: 8.5rem 2.5rem 1fr; align-items: center; gap: .5rem; font-size: .9rem; }
+.statwaarde { text-align: right; font-variant-numeric: tabular-nums; color: var(--tekst); }
+.statrij .balk { height: 7px; }
+
+.evolijst { list-style: none; padding: 0; margin: 0; display: grid; gap: .5rem; }
+.evolijst li { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+.evohoe { color: var(--tekst-zacht); font-size: .85rem; text-align: right; }
+
+.aanvallen { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.aanvallen th { text-align: left; color: var(--tekst-zacht); font-weight: 600; font-size: .8rem;
+  text-transform: uppercase; letter-spacing: .04em; padding-bottom: .4rem; }
+.aanvallen td { padding: .35rem 0; border-top: 1px solid var(--vlak-rand); }
+.aanvallen td:first-child { width: 4rem; color: var(--tekst-zacht); font-variant-numeric: tabular-nums; }
+
+/* Ingang naar de dex, onder de projecten. */
+.dexlink { margin: 2.5rem 0 0; }
