@@ -2,6 +2,7 @@
 naam: Pokémon Rood & Blauw
 status: bezig
 samenvatting: Waar het allemaal begon: Kanto, 151 Pokémon en de reis naar de Elite Vier.
+teaser: teasers/poke-mon-red-aug-25-2023.jpg
 kleur: "#d1534a"
 voortgang: pokered-nl
 downloads:
