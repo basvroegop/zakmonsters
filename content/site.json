@@ -1,26 +1,21 @@
 {
-  "titel": "Zakmonsters",
-  "ondertitel": "Nederlandse fanvertalingen van de klassieke Pokémon-games",
-
-  "intro": "Wij zijn een club fans en vrijwilligers die de oude Pokémon-games in het\nNederlands vertalen. Geen commercieel project, geen deadlines — gewoon een groep\nmensen die vindt dat deze spellen ook in onze eigen taal gespeeld moeten kunnen\nworden.\n\nElk spel krijgt een volledige, zorgvuldige vertaling: verhaal, Pokédex, aanvallen,\nvoorwerpen en alle tekst daartussenin. Wat af is, delen we als **patch** — die pas\nje toe op je eigen, legaal verkregen ROM.",
-
+  "titel": "",
+  "ondertitel": "",
+  "intro": "Wij lokaliseren oude Pokémon-games naar het Nederlands. Dat is handwerk: we automatiseren ons vertaalproces niet met Google Translate of AI-vertaalsoftware. We wegen af welke teksten het beste werken en lokaliseren Pokémon-terminologie naar het Nederlands. Dat doen we met een groep fanatieke vrijwilligers.",
   "projecten": [
-    "goud-zilver",
     "kristal",
+    "goud-zilver",
     "geel",
     "rood"
   ],
-
   "voortgangBron": "https://vertalen.zakmonsters.nl/api/public/progress",
-
   "meedoen": {
     "titel": "Meehelpen?",
-    "tekst": "Vertalen doe je bij ons gewoon in de browser: inloggen met GitHub, een bestand\nkiezen en typen. Je hebt geen programmeerkennis nodig — wél gevoel voor taal en\nzin om het goed te doen.\n\nMeld je op onze Discord; daar bespreken we het werk en helpen we je op weg.",
+    "tekst": "Lijkt het je leuk om te helpen vertalen, redigeren of testen? Of wil je gewoon met ons komen kletsen? Kom gerust eens langs in onze Discord.",
     "discord": {
-      "label": "Kom langs op onze Discord",
-      "url": ""
+      "label": "Discord",
+      "url": "https://discord.gg/ftebcBBMRd"
     }
   },
-
-  "footer": "Fanproject zonder winstoogmerk. Pokémon is eigendom van Nintendo, Game Freak en\nThe Pokémon Company. Wij verspreiden geen ROM's — alleen patches die je op je\neigen exemplaar toepast."
+  "footer": "Fanproject zonder winstoogmerk. Pokémon is eigendom van The Pokémon Company. Wij bieden geen ROMs aan, alleen patches die je kunt toepassen op jouw legaal verworven ROM-dumps. We helpen je niet met het vinden van ROMs."
 }

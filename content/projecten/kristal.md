@@ -2,6 +2,7 @@
 naam: Kristal
 status: voltooid
 samenvatting: De uitgebreide versie van Goud en Zilver, met de Suicune-verhaallijn.
+teaser: teasers/kristal-16-9.png
 kleur: "#4f9bd9"
 voortgang: pokecrystal-nl
 bron: https://github.com/wfowler1/pokecrystal-nl
@@ -10,8 +11,6 @@ downloads:
     url: https://github.com/wfowler1/pokecrystal-nl/releases
     toelichting: Nieuwste patch op de releasepagina
 ---
-
-## Over dit project
 
 Pokémon Kristal is een volledige, Nederlandstalige lokalisatie van Pokémon Crystal, gebaseerd op de disassembly van Pokémon Crystal door pret. Daarbij is veel gekeken naar andere Pokémon-media die naar het Nederlands zijn vertaald, zoals het ruilkaartspel, de animatieserie en de manga.
 
