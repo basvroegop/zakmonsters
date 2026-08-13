@@ -267,8 +267,13 @@ Wil je vóór het publiceren zien wat je gedaan hebt, gebruik dan `node site/ser
 ## De Pokédex
 
 `pokedex.html` toont de Pokémon uit onze **afgeronde** vertalingen: naam, typen, basiswaarden,
-evoluties, aanvallen per level en de Nederlandse dex-beschrijving. Een project komt er vanzelf
-bij zodra het op `voltooid` staat en een `voortgang`-veld heeft.
+de evolutielijn, aanvallen per level en de Nederlandse dex-beschrijving **van elk spel**. Een
+project komt er vanzelf bij zodra het op `voltooid` staat en een `voortgang`-veld heeft.
+
+Eén project beslaat meerdere spellen: Gen 2 is Kristal, Goud én Zilver, en die drie tekenden elk
+beestje apart én schreven er elk een eigen dex-tekst bij. Welke versies bij een project horen —
+en uit welke repo hun sprites en teksten komen — staat in de tabel `VERSIES` bovenin
+`cms/pokedex.js`. Staat een repo daar niet in, dan krijgt hij één versie: die van zichzelf.
 
 De inhoud staat in `content/pokedex/` en wordt **gemaakt, niet geschreven**: bewerk die
 bestanden dus niet met de hand, ze worden bij elke verversing overschreven. Verversen doe je
@@ -296,11 +301,38 @@ De dexdata kent alleen de stap vooruit; de stap terug leidt `pokedex.html` af do
 er naar deze soort evolueert. Een lijn die splitst (Eevee, Poliwhirl) zet zijn takken onder
 elkaar in dezelfde kolom.
 
+De reeks staat óf helemaal naast elkaar óf (op een smal scherm) helemaal onder elkaar. Niet
+halverwege omgeklapt: dan lees je één reeks als twee losse rijtjes.
+
+### De beschrijvingen
+
+Onder "Pokédex" staat de tekst van elk spel apart, met de naam van dat spel erboven — Goud,
+Zilver en Kristal vertellen over hetzelfde beestje elk een ander verhaal.
+
+De soortnaam uit het spel (ZAAD, VLAM) staat bovenaan onder de naam, zolang de spellen het
+daarover eens zijn; verschillen ze, dan komt hij per spel bij zijn eigen beschrijving te staan.
+
+Heet een soort in de Speciale Editie anders, dan staat die naam er grijs achter:
+**VENUSAUR** (VENUSAURUS), en andersom zodra je op de Speciale Editie staat.
+
+De teksten komen uit `data/pokemon/dex_entries/` van de bijbehorende repo — bij pokegold met een
+submap per versie (`gold/`, `silver/`). Ontbreekt er één (nog niet vertaald), dan valt alleen
+die weg en blijven de andere staan.
+
+De namen van de basiswaarden komen uit `data/battle/stat_names.asm` van de vertaling zelf, zodat
+de dex dezelfde termen gebruikt als het spel. Op één na: die tabel begint bij AANVAL, want de
+levenspunten tekent het spel als plaatje op het statusscherm. De vertaling schrijft ze overal
+als **LP** ("Herstelt LP", het voorwerp LP-PLUS); dat staat als enige met de hand in
+`cms/pokedex.js`.
+
 ### De sprites
 
 Elke soort staat er met zijn spelsprite bij: in de lijst en in de evolutielijn klein, op de
-detailpagina groot. Bij een Gen 2-project staan **Kristal, Goud en Zilver naast elkaar** — die
-drie zien er elk anders uit, en dat verschil is nu juist wat je in een dex wilt zien.
+detailpagina groot rechtsboven. Daaronder staan knoppen om van spelversie te wisselen — Kristal,
+Goud en Zilver zien er elk anders uit, en dat verschil is nu juist wat je in een dex wilt zien.
+Die keuze wordt onthouden (`localStorage`, sleutel `dexsprite`): elke Pokémon is een eigen
+pagina, en zonder geheugen sprong hij bij de eerste klik terug naar Kristal — precies wanneer je
+aan het vergelijken bent. De kleine sprites in de lijst blijven altijd die van het spel zelf.
 
 Die sprites komen uit één atlas per spel (`content/sprites/<repo>.png`): alle beestjes naast
 elkaar, 16 per rij, 56 × 56 per vak. De pagina schuift die atlas met `background-position` naar

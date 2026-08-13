@@ -51,6 +51,11 @@ const zoekparam = () => new URLSearchParams(location.search);
 // zonder verder verkeer — vandaar dat sorteren en zoeken hier gebeurt en niet op een server.
 let dex = null;
 let seAan = false;
+// Welke versie van de sprite je op de detailpagina ziet. Elke Pokémon is een eigen pagina, dus
+// zonder geheugen zou de keuze bij de eerste klik weer op Kristal springen — precies wanneer je
+// aan het vergelijken bent. Vandaar dat hij bewaard blijft, net als het thema.
+const SPRITEKEUZE = 'dexsprite';
+let spriteBron = (() => { try { return localStorage.getItem(SPRITEKEUZE); } catch { return null; } })();
 
 const naamVan = (s) => (seAan && s.naamSe ? s.naamSe : s.naam);
 const nummer = (n) => String(n).padStart(3, '0');
@@ -61,8 +66,9 @@ const nummer = (n) => String(n).padStart(3, '0');
 // schuiven we de atlas met background-position naar het juiste vak. Eén plaatje voor de hele
 // dex, dus na het eerste sprite kost er geen enkele nog verkeer.
 //
-// Gen 2 tekende elk beestje drie keer (Kristal, Goud, Zilver); die uitvoeringen staan op de
-// detailpagina naast elkaar. Zonder atlas blijft `dex.sprites` leeg en is de dex weer tekst.
+// Gen 2 tekende elk beestje drie keer (Kristal, Goud, Zilver). Op de detailpagina staat er één
+// groot rechtsboven, met knoppen om van versie te wisselen. Zonder atlas blijft `dex.sprites`
+// leeg en is de dex weer tekst.
 const bronnen = () => dex.sprites || [];
 
 function spriteHtml(soort, bron, schaal, klasse = '') {
@@ -77,11 +83,18 @@ function spriteHtml(soort, bron, schaal, klasse = '') {
       background-position:-${x}px -${y}px;background-size:${bron.kolommen * zijde}px auto;"></span>`;
 }
 
-// Het kleine sprite naast een naam (in de lijst en bij de evoluties): de eerste bron, want
-// daar staat het spel van deze dex zelf in.
+// Het kleine sprite naast een naam (in de lijst en in de evolutielijn): de eerste versie, want
+// dat is het spel van deze dex zelf. De keuze rechtsboven verandert daar niets aan — anders
+// zouden 251 lijstregels van uitvoering wisselen omdat je één sprite wilde vergelijken.
 function kleinSprite(soort) {
   const bron = bronnen()[0];
   return bron ? spriteHtml(soort, bron, 1, 'sprite--klein') : '';
+}
+
+// De versie die rechtsboven staat, of de eerste als er nog niets gekozen is.
+function gekozenBron() {
+  const lijst = bronnen();
+  return lijst.find((b) => b.sleutel === spriteBron) || lijst[0] || null;
 }
 
 // Alleen nog voor de pagina die niets te tonen heeft: daar hoort een uitweg in beeld te staan.
@@ -194,15 +207,45 @@ function detailHtml(s) {
 
   const evoluties = evolutieHtml(s);
 
-  // De sprites van dit beestje: bij Gen 2 die van Kristal, Goud en Zilver naast elkaar, met de
-  // naam van het spel eronder. Is er maar één uitvoering, dan is dat label overbodig.
-  const platen = bronnen()
-    .map((bron) => {
-      const plaat = spriteHtml(s, bron, 2, 'sprite--groot');
-      if (!plaat) return '';
-      return `<figure class="spritebron">${plaat}${bronnen().length > 1
-        ? `<figcaption>${esc(bron.label)}</figcaption>` : ''}</figure>`;
-    }).filter(Boolean).join('');
+  // Het sprite rechtsboven: één groot beeld van de gekozen versie, met knoppen eronder om
+  // tussen Kristal, Goud en Zilver te wisselen. Naast elkaar zetten kon ook, maar dan vergelijk
+  // je drie kleine plaatjes; zo zie je er één groot en wissel je ertussen.
+  const plaat = (() => {
+    const bron = gekozenBron();
+    if (!bron) return '';
+    const beeld = spriteHtml(s, bron, 3, 'sprite--groot');
+    if (!beeld) return '';
+    const knoppen = bronnen().length > 1
+      ? `<div class="wissel wissel--klein" role="tablist" aria-label="Spelversie">
+          ${bronnen().map((b) => `<button class="wisselknop${b.sleutel === bron.sleutel ? ' is-actief' : ''}"
+              data-sprite="${esc(b.sleutel)}" role="tab"
+              aria-selected="${b.sleutel === bron.sleutel}">${esc(b.label)}</button>`).join('')}
+        </div>`
+      : '';
+    return `<figure class="dexplaat">${beeld}${knoppen}</figure>`;
+  })();
+
+  // De beschrijving uit elk spel, met erbij uit welk spel hij komt: Goud, Zilver en Kristal
+  // vertellen over hetzelfde beestje elk een ander verhaal, en dat is precies wat een dex leuk
+  // maakt.
+  const dexen = s.dexen || [];
+  // De soortnaam (ZAAD, VLAM) staat onder de naam bovenaan zolang de spellen het erover eens
+  // zijn. Zijn ze het oneens, dan hoort hij per spel bij zijn eigen beschrijving.
+  const categorieën = [...new Set(dexen.map((d) => d.categorie).filter(Boolean))];
+  const soortnaam = categorieën.length === 1 ? categorieën[0] : '';
+  const beschrijving = dexen.length
+    ? `<dl class="beschrijvingen">${dexen.map((d) => `
+          <div class="beschrijving">
+            <dt>${esc(d.label)}${categorieën.length > 1 && d.categorie ? ` <span class="dexmeta">${esc(d.categorie)}</span>` : ''}</dt>
+            <dd>${esc(d.tekst)}</dd>
+          </div>`).join('')}
+       </dl>`
+    : '';
+
+  // Heet dit beestje in de andere uitvoering anders, dan staat die naam er grijs achter:
+  // VENUSAUR (VENUSAURUS). Welke van de twee vooraan staat, hangt af van de uitvoering die je
+  // hebt openstaan — zo lees je in één regel hoe hij in het andere spel heet.
+  const anderenaam = s.naamSe && s.naamSe !== s.naam ? (seAan ? s.naam : s.naamSe) : '';
 
   const aanvallen = (s.aanvallen || []).length
     ? `<table class="aanvallen"><thead><tr><th>Level</th><th>Aanval</th><th>Kracht</th></tr></thead><tbody>
@@ -215,23 +258,20 @@ function detailHtml(s) {
     : '<p class="uitleg">Geen aanvallen door levelen.</p>';
 
   return `<a class="terug" href="pokedex.html${seAan ? '?se=1' : ''}">← Alle Pokémon</a>
-    ${platen ? `<div class="spriterij">${platen}</div>` : ''}
-    <div class="dexkop">
-      <span class="dexnr dexnr--groot">${nummer(s.nr)}</span>
-      <h1>${esc(naamVan(s))}</h1>
-      ${seAan && s.naamSe ? `<p class="uitleg">Heet <strong>${esc(s.naam)}</strong> in ${esc(dex.spel)}.</p>`
-        : (s.naamSe ? `<p class="uitleg">Heet <strong>${esc(s.naamSe)}</strong> in de Speciale Editie.</p>` : '')}
-      <p class="dextypen">${s.typen.map((t) => `<span class="type">${esc(t.toLowerCase())}</span>`).join('')}</p>
+    <div class="dexboven">
+      <div class="dexkop">
+        <span class="dexnr dexnr--groot">${nummer(s.nr)}</span>
+        <h1>${esc(naamVan(s))}${anderenaam ? ` <span class="naam-anders">(${esc(anderenaam)})</span>` : ''}</h1>
+        ${soortnaam ? `<p class="dexsoort">${esc(soortnaam)}</p>` : ''}
+        <p class="dextypen">${s.typen.map((t) => `<span class="type">${esc(t.toLowerCase())}</span>`).join('')}</p>
+      </div>
+      ${plaat}
     </div>
 
-    ${s.dex ? `<div class="blok dexbeschrijving">
-      <p class="dexmeta">${esc(s.dex.categorie || '')}${s.dex.hoogte ? ` · ${esc(s.dex.hoogte)}` : ''}${s.dex.gewicht ? ` · ${esc(s.dex.gewicht)}` : ''}</p>
-      <p>${esc(s.dex.tekst || '')}</p>
-    </div>` : ''}
-
     <div class="dexdetail">
+      ${beschrijving ? `<section class="blok blok--breed"><h2>Pokédex</h2>${beschrijving}</section>` : ''}
+      <section class="blok blok--breed"><h2>Evolutie</h2>${evoluties}</section>
       <section class="blok"><h2>Basiswaarden</h2><div class="stats">${stats}</div></section>
-      <section class="blok"><h2>Evolutie</h2>${evoluties}</section>
       <section class="blok blok--breed"><h2>Aanvallen per level</h2>${aanvallen}</section>
     </div>`;
 }
@@ -265,6 +305,15 @@ function teken() {
       const p = zoekparam();
       if (seAan) p.set('se', '1'); else p.delete('se');
       history.replaceState(null, '', `?${p}`);
+      teken();
+    };
+  }
+
+  // Wisselen van spelversie voor het sprite rechtsboven.
+  for (const knop of document.querySelectorAll('[data-sprite]')) {
+    knop.onclick = () => {
+      spriteBron = knop.dataset.sprite;
+      try { localStorage.setItem(SPRITEKEUZE, spriteBron); } catch { /* privémodus */ }
       teken();
     };
   }

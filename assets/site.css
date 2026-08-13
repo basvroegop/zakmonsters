@@ -388,12 +388,34 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
   background-repeat: no-repeat;
 }
 .sprite--klein { margin: -.15rem 0; }
-/* De uitvoeringen naast elkaar: bij Gen 2 Kristal, Goud en Zilver — precies het verschil dat
-   je in een dex wilt zien. Op een smal scherm blijven ze naast elkaar staan en wikkelen ze. */
-.spriterij { display: flex; flex-wrap: wrap; gap: 1.25rem; margin: 1.5rem 0 .5rem; }
-.spritebron { margin: 0; display: grid; justify-items: center; gap: .35rem; }
-.spritebron figcaption {
+/* Het sprite van de soort staat rechtsboven op de detailpagina, met knoppen eronder om tussen
+   de spelversies te wisselen. Op een smal scherm gaat hij boven de naam staan: daar is hij het
+   eerste wat je wilt zien, en naast elkaar past er niets meer. */
+.dexboven {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1.5rem;
+  align-items: start; margin: 1.5rem 0;
+}
+.dexplaat { margin: 0; display: grid; justify-items: center; gap: .6rem; }
+.dexplaat .wissel { margin: 0; }
+.wissel--klein .wisselknop { padding: .35rem .8rem; font-size: .85rem; }
+@media (max-width: 700px) {
+  .dexboven { grid-template-columns: 1fr; justify-items: start; }
+  .dexplaat { order: -1; justify-self: center; }
+}
+
+/* De dex-tekst van elk spel, met de naam van dat spel ervoor: Goud, Zilver en Kristal
+   beschrijven hetzelfde beestje elk anders. */
+/* Elk paar (spelnaam + tekst) staat in een eigen div: zonder die omhulling zouden dt en dd
+   losse vakjes in het raster worden en belandt de tekst naast de verkeerde naam. */
+.beschrijvingen { margin: 0; display: grid; gap: 1.1rem; }
+.beschrijvingen dt {
   font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--tekst-zacht);
+  margin-bottom: .25rem;
+}
+.beschrijvingen dd { margin: 0; }
+@media (min-width: 760px) {
+  /* Naast elkaar zolang er ruimte is: dan lees je de drie verhalen in één oogopslag. */
+  .beschrijvingen { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
 }
 .type {
   font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; padding: .15rem .45rem;
@@ -402,6 +424,14 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 
 .dexkop { margin: 1.5rem 0; }
 .dexkop h1 { margin: .2em 0 .3em; }
+/* De naam uit de andere uitvoering, achter de naam die je nu leest. Grijs en een maatje kleiner:
+   het is een terzijde, geen tweede titel. */
+.naam-anders { color: var(--tekst-zacht); font-size: .62em; font-weight: 600; white-space: nowrap; }
+/* De soortnaam uit het spel zelf (ZAAD, VLAM): wat de Pokédex in de game boven de tekst zet. */
+.dexsoort {
+  color: var(--tekst-zacht); letter-spacing: .06em; font-weight: 600;
+  margin: 0 0 .6rem; font-size: .95rem;
+}
 .dexkop .dextypen { margin-left: 0; }
 .dexbeschrijving { margin-bottom: 1.5rem; }
 .dexbeschrijving p { margin: 0; }
@@ -422,10 +452,18 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 
 /* De hele evolutielijn, van basisvorm tot eindvorm, met de soort waar je naar kijkt gemarkeerd.
    Elk stadium is een kolom: een lijn die splitst (Eevee, Poliwhirl) zet zijn takken onder
-   elkaar in dezelfde kolom. Past de rij niet, dan valt de rest op een volgende regel;
-   afbreken halverwege een sprite is geen optie. */
-.evolijn { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; }
+   elkaar in dezelfde kolom. Alles staat naast elkaar of (op een smal scherm) alles onder
+   elkaar — een reeks die halverwege omklapt leest als twee losse rijtjes. */
+.evolijn { display: flex; align-items: center; flex-wrap: nowrap; gap: .35rem; }
 .evostap { display: flex; align-items: center; gap: .35rem; }
+/* Onder een bepaalde breedte past een reeks van drie er niet meer naast elkaar. Dan gaat de
+   hele lijn onder elkaar — half omgeklapt leest een evolutiereeks namelijk niet meer. */
+@media (max-width: 720px) {
+  .evolijn { flex-direction: column; align-items: flex-start; gap: .5rem; }
+  /* De pijl gaat mee omlaag en wijst dan naar beneden; zo staan alle vakjes links gelijk. */
+  .evostap { flex-direction: column; align-items: flex-start; gap: .35rem; }
+  .evopijl { transform: rotate(90deg); margin-left: 1.4rem; }
+}
 .evostadium { display: grid; gap: .35rem; flex: none; }
 .evopijl { flex: none; color: var(--tekst-zacht); }
 .evomon {
