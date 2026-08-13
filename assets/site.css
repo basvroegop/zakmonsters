@@ -108,6 +108,20 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 }
 .kaart-naam { font-size: 1.35rem; font-weight: 700; text-align: center; padding: 0 1rem; }
 
+/* De tweede plaat van een project dat eigenlijk twee spellen is (Rood/Blauw, Goud/Zilver):
+   hij ligt over de eerste heen en wordt zichtbaar bij muis-erover of toetsenbordfocus.
+   Focus telt mee omdat de kaart een link is — anders zou de wissel alleen met een muis bestaan. */
+.plaat-twee {
+  position: absolute; inset: 0; background-size: cover; background-position: center;
+  opacity: 0; transition: opacity .25s ease;
+}
+.kaart:hover .plaat-twee,
+.kaart:focus-visible .plaat-twee,
+.projectheld:hover .plaat-twee,
+.projectheld:focus-within .plaat-twee { opacity: 1; }
+/* Wie beweging heeft uitgezet, krijgt de wissel wel maar zonder overvloeien. */
+@media (prefers-reduced-motion: reduce) { .plaat-twee { transition: none; } }
+
 /* De badge ligt op de plaat en moet dus leesbaar blijven op een lichte én een donkere
    afbeelding. Vandaar een eigen ondergrond in plaats van alleen de rand. */
 .kaart-plaat .status,
@@ -271,7 +285,7 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 
 .dexlijst {
   display: grid; gap: .6rem; padding-bottom: 3rem;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 .dexknop {
   display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--tekst);
@@ -279,10 +293,29 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
   padding: .6rem .75rem; transition: border-color .15s ease;
 }
 .dexknop:hover { border-color: var(--accent); color: var(--tekst); }
+.dexregel { display: flex; flex-direction: column; align-items: flex-start; gap: .2rem; min-width: 0; }
 .dexnr { color: var(--tekst-zacht); font-variant-numeric: tabular-nums; font-size: .85rem; flex: none; }
 .dexnr--groot { font-size: 1rem; }
 .dexnaam { font-weight: 600; }
 .dextypen { margin-left: auto; display: flex; gap: .3rem; }
+.dexregel .dextypen { margin-left: 0; flex-wrap: wrap; }
+
+/* ---- Sprites ----
+   Eén atlas per spel; de pagina schuift hem met background-position naar het juiste vak.
+   image-rendering: pixelated is hier geen smaakkwestie: deze tekeningen zijn 56 pixels breed,
+   en de gebruikelijke vloeiende vergroting maakt er een vlek van. */
+.sprite {
+  display: block; flex: none; image-rendering: pixelated;
+  background-repeat: no-repeat;
+}
+.sprite--klein { margin: -.15rem 0; }
+/* De uitvoeringen naast elkaar: bij Gen 2 Kristal, Goud en Zilver — precies het verschil dat
+   je in een dex wilt zien. Op een smal scherm blijven ze naast elkaar staan en wikkelen ze. */
+.spriterij { display: flex; flex-wrap: wrap; gap: 1.25rem; margin: 1.5rem 0 .5rem; }
+.spritebron { margin: 0; display: grid; justify-items: center; gap: .35rem; }
+.spritebron figcaption {
+  font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--tekst-zacht);
+}
 .type {
   font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; padding: .15rem .45rem;
   border-radius: 999px; border: 1px solid var(--vlak-rand); color: var(--tekst-zacht);
@@ -307,7 +340,8 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .statrij .balk { height: 7px; }
 
 .evolijst { list-style: none; padding: 0; margin: 0; display: grid; gap: .5rem; }
-.evolijst li { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+.evolijst li { display: flex; justify-content: space-between; gap: .6rem; align-items: center; }
+.evonaam { margin-right: auto; }
 .evohoe { color: var(--tekst-zacht); font-size: .85rem; text-align: right; }
 
 .aanvallen { width: 100%; border-collapse: collapse; font-size: .92rem; }

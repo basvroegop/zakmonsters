@@ -14,7 +14,10 @@ site/
   content/site.json              ← titel, introtekst, projectvolgorde, voettekst
   content/projecten/<naam>.md    ← één bestand per project
   content/teasers/               ← de grote plaatjes voor de knoppen
+  content/pokedex/               ← de Pokédex-gegevens (gemaakt, niet met de hand bewerken)
+  content/sprites/               ← de sprite-atlassen bij die Pokédex (idem)
   index.html · project.html      ← de twee pagina's (raamwerk)
+  pokedex.html                   ← de Pokédex
   assets/                        ← stijl + code; alleen aankomen bij vormgeving
   serve.js                       ← minimale webserver om lokaal te bekijken
   publiceer.sh                   ← zet de site online (GitHub Pages)
@@ -67,7 +70,6 @@ samenvatting: Eén zin die op de knop komt te staan.
 teaser: teasers/goud-zilver.png
 kleur: "#c9a227"
 voortgang: pokegold-nl
-bron: https://github.com/wfowler1/pokegold-nl
 downloads:
   - label: Patches (Goud & Zilver)
     url: https://github.com/wfowler1/pokegold-nl/releases
@@ -85,9 +87,9 @@ Gewone tekst met **nadruk**, [links](https://voorbeeld.nl) en lijstjes.
 | `status` | `voltooid` → "Voltooid", `bezig` → "Mee bezig", `gepland` → "Gepland" |
 | `samenvatting` | Eén zin op de knop |
 | `teaser` | Pad naar de plaat, bv. `teasers/geel.png`. Leeg = een egaal vlak in `kleur` |
+| `teaser2` | Tweede plaat; bij muis-erover neemt die de eerste over (zie onder). Leeg = geen wissel |
 | `kleur` | Kleurcode die de teaser vervangt zolang er geen plaat is |
 | `voortgang` | Het project-id uit de vertaaleditor; hiermee vult de balk zich (zie onder) |
-| `bron` | Link naar de GitHub-repo (optioneel) |
 | `downloads` | Nul of meer knoppen met `label`, `url` en optioneel `toelichting` |
 
 Alle velden mogen weg als je ze niet gebruikt; alleen `naam` is echt nodig.
@@ -137,8 +139,8 @@ rechtstreeks naartoe kunt linken.
 
 1. Maak `content/projecten/mijn-project.md` (kleine letters en streepjes in de naam — die
    naam komt in de URL terecht).
-2. Zet `mijn-project` in de lijst `projecten` in `content/site.json`, op de plek waar je
-   de knop wilt hebben.
+2. Zet `mijn-project` in de `projecten` van de gewenste groep in `content/site.json`. Staat
+   het in geen enkele groep, dan komt het niet op de homepagina.
 
 ### Een project verwijderen of verbergen
 
@@ -176,6 +178,19 @@ wegvallen.
 
 Zolang er geen plaat is, toont de site het gekleurde vlak uit `kleur` mét de projectnaam erin —
 een nieuw project is dus nooit een leeg vlak.
+
+### Twee platen: de wissel bij muis-erover
+
+Sommige projecten zijn eigenlijk twee spellen (Rood/Blauw, Goud/Zilver). Vul je naast `teaser`
+ook `teaser2` in, dan komt die tweede plaat tevoorschijn zodra de muis op de kaart staat — en
+op de projectpagina op dezelfde manier over de grote plaat. Weg met de muis is terug naar de
+eerste. In het CMS staat er een tweede keuzelijst voor, met een eigen uploadveld.
+
+De tweede plaat wordt meteen ingeladen, niet pas bij de muis: anders zie je de eerste keer een
+wit vlak in plaats van een wissel. Bij toetsenbordbediening werkt hij ook — de kaart is een
+link, en focus telt daar mee als muis-erover.
+
+`teaser2` zonder `teaser` doet niets: er valt dan niets te wisselen.
 
 ## Afbeeldingen in de projecttekst
 
@@ -222,12 +237,76 @@ Twee bestanden horen bij Pages en mogen niet weg:
 Wil je vóór het publiceren zien wat je gedaan hebt, gebruik dan `node site/serve.js`
 (zie hierboven).
 
+## De Pokédex
+
+`pokedex.html` toont de Pokémon uit onze **afgeronde** vertalingen: naam, typen, basiswaarden,
+evoluties, aanvallen per level en de Nederlandse dex-beschrijving. Een project komt er vanzelf
+bij zodra het op `voltooid` staat en een `voortgang`-veld heeft.
+
+De inhoud staat in `content/pokedex/` en wordt **gemaakt, niet geschreven**: bewerk die
+bestanden dus niet met de hand, ze worden bij elke verversing overschreven. Verversen doe je
+met de knop **Pokédex verversen** in het CMS, of met de hand:
+
+```
+node cms/pokedex.js                       # data/cache → site/content/
+node cms/pokedex.js <cache> <site> <dexsprites>
+```
+
+De bron is de baseline die de editor toch al lokaal bijhoudt (`data/cache/<repo>.json`): de
+inhoud van de hoofdrepo, dus precies wat er in de patch zit. Werk dat nog in de editor staat te
+wachten telt bewust niet mee — de dex hoort te tonen wat je kunt downloaden.
+
+Een afgerond project dat geen Pokémon-spel is (het ruilkaartspel) wordt overgeslagen met een
+melding; de rest van de dexen gaat gewoon door.
+
+### De sprites
+
+Elke soort staat er met zijn spelsprite bij: in de lijst en bij de evoluties klein, op de
+detailpagina groot. Bij een Gen 2-project staan **Kristal, Goud en Zilver naast elkaar** — die
+drie zien er elk anders uit, en dat verschil is nu juist wat je in een dex wilt zien.
+
+Die sprites komen uit één atlas per spel (`content/sprites/<repo>.png`): alle beestjes naast
+elkaar, 16 per rij, 56 × 56 per vak. De pagina schuift die atlas met `background-position` naar
+het juiste vak. Eén plaatje voor de hele dex, dus na het eerste sprite kost er geen enkele nog
+verkeer.
+
+De atlas bakt de editor zelf zodra iemand een Pokédex-bestand opent (`server/dexSprites.js`).
+Is dat nog niet gebeurd, dan meldt de generator dat en blijft de dex tekst. Bakken kan ook
+rechtstreeks, uit de assets die al op schijf staan:
+
+```
+node server/tools/bak-dexsprites.js pokecrystal-nl pokegold-nl
+node server/tools/bak-dexsprites.js --alles
+```
+
+Welke uitvoeringen bij een project horen, staat in `SPRITEBRONNEN` bovenin `cms/pokedex.js`.
+Staat een repo daar niet bij, dan krijgt hij één sprite: die van zichzelf.
+
+De witte achtergrond waarmee de sprites in het spel staan, wordt in de kopie voor de site
+doorzichtig gemaakt — maar alleen het wit dat vanaf de rand bereikbaar is. Wit dat bij de
+tekening hoort (ogen, tanden, glans) blijft dus staan.
+
+## Nog te doen
+
+- **Pokémon Pinball** heeft geen voortgangsbalk. Dat project bestaat wel in de
+  staging-configuratie van de editor (`pokepinball`) maar niet in productie; het `voortgang`-veld
+  is daarom leeggelaten. Zodra het in productie staat, vul je het in het CMS in.
+- **Het ruilkaartspel** wijst nu naar `poketcg_v2_nl` (dat klopt met de editor), maar krijgt
+  geen Pokédex: een kaartspel heeft geen `base_stats`. Een kaartenoverzicht zou een eigen
+  generator vragen.
+
 ## Controleren of alles nog werkt
 
 ```
-npm run test:ui-site
+npm run test:ui-site     # de site in een echte browser
+npm run test:ui-cms      # het CMS in een echte browser
 ```
 
-Rendert beide pagina's in een echte browser en controleert de kaarten, de statuslabels, de
-voortgangsbalk en de downloadknoppen. Met `SHOT=/work/test/site.png` schrijft hij er
+De eerste rendert alle drie de pagina's en controleert de kaarten, de statuslabels, de
+voortgangsbalk, de downloadknoppen, de wissel naar de tweede plaat en de sprites in de dex —
+inclusief dát de vakken van Goud en Zilver verschillen, want een verkeerd berekend vak levert
+wél een plaatje op, alleen het verkeerde. Met `SHOT=/work/test/site.png` schrijft hij er
 screenshots bij.
+
+De tweede doet hetzelfde voor het CMS, op een kopie van `site/`: opslaan en "Pokédex
+verversen" schrijven écht, en dat mag nooit de echte inhoud raken.

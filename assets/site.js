@@ -83,6 +83,20 @@ function teaserStijl(project) {
   return `--kaartkleur:${esc(kleur)};${plaat}`;
 }
 
+// Een tweede plaat, die bij muis-erover over de eerste heen komt. Bedoeld voor projecten die
+// eigenlijk twee spellen zijn (Rood/Blauw, Goud/Zilver): dan draagt de kaart ze allebei zonder
+// dat er een tweede kaart bij hoeft.
+//
+// Het is een eigen laag in plaats van een omgewisselde achtergrond, want zo staat de tweede
+// plaat al ingeladen vóór de muis er is — anders zie je bij de eerste keer een wit vlak.
+// Zonder tweede plaat komt er niets bij; de kaart blijft dan precies wat hij was.
+export function tweedePlaatHtml(project) {
+  const url = contentUrl(project.teaser2);
+  if (!url || !contentUrl(project.teaser)) return '';
+  return `<span class="plaat-twee" aria-hidden="true"
+      style="background-image:url('${esc(url)}');"></span>`;
+}
+
 // De kaart is de plaat: die bevat de titel van het spel al, dus eronder staat geen naam meer.
 // Twee dingen houden hem toch bruikbaar:
 //   - de naam blijft in de aria-label staan, anders is de link voor een schermlezer naamloos
@@ -102,6 +116,7 @@ export function kaartHtml(project, voortgang) {
   return `<a class="kaart${teaser ? '' : ' kaart--zonderplaat'}" href="project.html?p=${encodeURIComponent(project.id)}"
        aria-label="${esc(omschrijving)}">
       <span class="kaart-plaat" style="${teaserStijl(project)}">
+        ${tweedePlaatHtml(project)}
         ${teaser ? '' : `<span class="kaart-naam">${esc(naam)}</span>`}
         ${statusHtml(project)}
         ${balk}

@@ -31,6 +31,35 @@ let seAan = false;
 const naamVan = (s) => (seAan && s.naamSe ? s.naamSe : s.naam);
 const nummer = (n) => String(n).padStart(3, '0');
 
+// ---- Sprites ----
+// De spelsprites zitten in één atlas per repo (content/sprites/<repo>.png): alle beestjes
+// naast elkaar, 16 per rij. cms/pokedex.js zet per soort het vaknummer in de dexdata; hier
+// schuiven we de atlas met background-position naar het juiste vak. Eén plaatje voor de hele
+// dex, dus na het eerste sprite kost er geen enkele nog verkeer.
+//
+// Gen 2 tekende elk beestje drie keer (Kristal, Goud, Zilver); die uitvoeringen staan op de
+// detailpagina naast elkaar. Zonder atlas blijft `dex.sprites` leeg en is de dex weer tekst.
+const bronnen = () => dex.sprites || [];
+
+function spriteHtml(soort, bron, schaal, klasse = '') {
+  const vak = (soort.vakken || {})[bron.sleutel];
+  if (vak === undefined) return '';
+  const zijde = bron.grootte * schaal;
+  const x = (vak % bron.kolommen) * zijde;
+  const y = Math.floor(vak / bron.kolommen) * zijde;
+  return `<span class="sprite${klasse ? ` ${klasse}` : ''}" aria-hidden="true" style="
+      width:${zijde}px;height:${zijde}px;
+      background-image:url('content/sprites/${esc(bron.bestand)}');
+      background-position:-${x}px -${y}px;background-size:${bron.kolommen * zijde}px auto;"></span>`;
+}
+
+// Het kleine sprite naast een naam (in de lijst en bij de evoluties): de eerste bron, want
+// daar staat het spel van deze dex zelf in.
+function kleinSprite(soort) {
+  const bron = bronnen()[0];
+  return bron ? spriteHtml(soort, bron, 1, 'sprite--klein') : '';
+}
+
 const TERUG = '<a class="terug" href="index.html">← Terug naar de site</a>';
 
 function knoppenbalk(zoek) {
@@ -53,9 +82,12 @@ function lijstHtml(zoek) {
   if (!treffers.length) return '<p class="leeg">Geen Pokémon gevonden.</p>';
   return `<div class="dexlijst">${treffers.map((s) => `
       <a class="dexknop" href="pokedex.html?nr=${s.nr}${seAan ? '&se=1' : ''}">
-        <span class="dexnr">${nummer(s.nr)}</span>
-        <span class="dexnaam">${esc(naamVan(s))}</span>
-        <span class="dextypen">${s.typen.map((t) => `<span class="type">${esc(t.toLowerCase())}</span>`).join('')}</span>
+        ${kleinSprite(s)}
+        <span class="dexregel">
+          <span class="dexnr">${nummer(s.nr)}</span>
+          <span class="dexnaam">${esc(naamVan(s))}</span>
+          <span class="dextypen">${s.typen.map((t) => `<span class="type">${esc(t.toLowerCase())}</span>`).join('')}</span>
+        </span>
       </a>`).join('')}</div>`;
 }
 
@@ -75,11 +107,23 @@ function detailHtml(s) {
     ? `<ul class="evolijst">${s.evoluties.map((e) => {
         const doel = e.naar ? dex.soorten.find((x) => x.nr === e.naar) : null;
         const label = doel ? naamVan(doel) : e.soort;
-        return `<li>${e.naar
+        // Het sprite hoort bij de soort waar hij naartoe evolueert; staat die niet in deze dex,
+        // dan blijft het bij de naam.
+        return `<li>${doel ? kleinSprite(doel) : ''}<span class="evonaam">${e.naar
           ? `<a href="pokedex.html?nr=${e.naar}${seAan ? '&se=1' : ''}">${esc(label)}</a>`
-          : esc(label)} <span class="evohoe">${esc(e.hoe)}</span></li>`;
+          : esc(label)}</span> <span class="evohoe">${esc(e.hoe)}</span></li>`;
       }).join('')}</ul>`
     : '<p class="uitleg">Evolueert niet.</p>';
+
+  // De sprites van dit beestje: bij Gen 2 die van Kristal, Goud en Zilver naast elkaar, met de
+  // naam van het spel eronder. Is er maar één uitvoering, dan is dat label overbodig.
+  const platen = bronnen()
+    .map((bron) => {
+      const plaat = spriteHtml(s, bron, 2, 'sprite--groot');
+      if (!plaat) return '';
+      return `<figure class="spritebron">${plaat}${bronnen().length > 1
+        ? `<figcaption>${esc(bron.label)}</figcaption>` : ''}</figure>`;
+    }).filter(Boolean).join('');
 
   const aanvallen = (s.aanvallen || []).length
     ? `<table class="aanvallen"><thead><tr><th>Level</th><th>Aanval</th><th>Kracht</th></tr></thead><tbody>
@@ -92,6 +136,7 @@ function detailHtml(s) {
     : '<p class="uitleg">Geen aanvallen door levelen.</p>';
 
   return `<a class="terug" href="pokedex.html${seAan ? '?se=1' : ''}">← Alle Pokémon</a>
+    ${platen ? `<div class="spriterij">${platen}</div>` : ''}
     <div class="dexkop">
       <span class="dexnr dexnr--groot">${nummer(s.nr)}</span>
       <h1>${esc(naamVan(s))}</h1>
