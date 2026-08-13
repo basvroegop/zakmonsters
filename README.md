@@ -38,8 +38,35 @@ Open `content/site.json`:
 | `meedoen` | Het blok onderaan: `titel`, `tekst` en de Discord-knop (zie onder). Laat `titel` en `tekst` leeg om het hele blok te verbergen |
 | `footer` | De kleine tekst onderaan |
 
-De site heeft bewust **geen menubalk**: de projectknoppen zijn de navigatie. Op een
-projectpagina staat linksboven alleen een discrete "← Alle projecten".
+De naam die je hier invult, staat ook links in de kopbalk.
+
+### De kopbalk
+
+Bovenaan elke pagina staat dezelfde balk: de naam links, twee ingangen rechts (**Projecten**
+naar de homepagina en **Pokédex**) en daarnaast de knop voor het nachtthema. Hij blijft bij het
+scrollen staan — op een dexlijst van 251 Pokémon is de weg terug anders ver naar boven.
+
+De ingang naar de Pokédex verschijnt alleen als er ook echt een dex is; zolang geen enkel
+project is afgerond, wijst het menu dus nergens naartoe waar niets staat.
+
+De balk staat als HTML in alle drie de pagina's (`index.html`, `project.html`,
+`pokedex.html`) — drie keer dezelfde tien regels. Dat is expres: zo staat het menu er meteen,
+ook als het ophalen van de inhoud misgaat. Het beetje leven dat de balk nodig heeft, staat in
+`assets/kop.js`.
+
+### Licht en donker
+
+De site is standaard licht; met de knop rechts in de kopbalk gaat hij op nacht. Die keuze wordt
+onthouden (`localStorage`, sleutel `thema`) en geldt meteen op elke pagina.
+
+Alle kleuren staan als variabelen bovenin `assets/site.css`: `:root` is het lichte thema,
+`[data-thema="donker"]` het donkere. Wil je iets aan de kleuren doen, dan is dat blok meestal
+het enige wat je aanraakt. Twee dingen om te weten:
+
+- Elke pagina zet dat `data-thema` in een klein scriptje in de `<head>`, vóór de eerste
+  tekening. Zonder dat ziet wie nacht heeft gekozen eerst een lichte flits.
+- Wat op een foto ligt (de statusbadge en het percentage op een teaser) heeft vaste kleuren.
+  Die ondergrond is altijd donker, ongeacht het thema van de pagina.
 
 ### De Discord-knop
 
@@ -259,9 +286,19 @@ wachten telt bewust niet mee — de dex hoort te tonen wat je kunt downloaden.
 Een afgerond project dat geen Pokémon-spel is (het ruilkaartspel) wordt overgeslagen met een
 melding; de rest van de dexen gaat gewoon door.
 
+### De evolutielijn
+
+Onder "Evolutie" staat niet alleen de volgende stap maar de **hele reeks**, van basisvorm tot
+eindvorm, met de soort waar je naar kijkt gemarkeerd. Bij elke stap staat de voorwaarde waarmee
+je hem bereikt (level, steen, ruilen, vriendschap).
+
+De dexdata kent alleen de stap vooruit; de stap terug leidt `pokedex.html` af door te zoeken wie
+er naar deze soort evolueert. Een lijn die splitst (Eevee, Poliwhirl) zet zijn takken onder
+elkaar in dezelfde kolom.
+
 ### De sprites
 
-Elke soort staat er met zijn spelsprite bij: in de lijst en bij de evoluties klein, op de
+Elke soort staat er met zijn spelsprite bij: in de lijst en in de evolutielijn klein, op de
 detailpagina groot. Bij een Gen 2-project staan **Kristal, Goud en Zilver naast elkaar** — die
 drie zien er elk anders uit, en dat verschil is nu juist wat je in een dex wilt zien.
 
@@ -303,7 +340,8 @@ npm run test:ui-cms      # het CMS in een echte browser
 ```
 
 De eerste rendert alle drie de pagina's en controleert de kaarten, de statuslabels, de
-voortgangsbalk, de downloadknoppen, de wissel naar de tweede plaat en de sprites in de dex —
+voortgangsbalk, de downloadknoppen, de kopbalk, de nachtknop (inclusief of die keuze de volgende
+pagina haalt), de wissel naar de tweede plaat, de evolutielijn en de sprites in de dex —
 inclusief dát de vakken van Goud en Zilver verschillen, want een verkeerd berekend vak levert
 wél een plaatje op, alleen het verkeerde. Met `SHOT=/work/test/site.png` schrijft hij er
 screenshots bij.

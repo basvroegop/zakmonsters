@@ -7,8 +7,29 @@
 <meta name="description" content="Alle Pokémon uit onze afgeronde vertalingen: aanvallen, evoluties en de Nederlandse Pokédex-beschrijvingen.">
 <link rel="icon" type="image/png" href="assets/pokeball.png">
 <link rel="stylesheet" href="assets/site.css">
+<script>
+// Vóór het tekenen, anders ziet wie nacht heeft gekozen eerst een lichte flits.
+try { if (localStorage.getItem('thema') === 'donker') document.documentElement.dataset.thema = 'donker'; } catch (e) {}
+</script>
 </head>
 <body>
+<header class="kopbalk">
+  <div class="omhulsel kopbalk-binnen">
+    <a class="merk" href="index.html">
+      <img src="assets/pokeball.png" alt="" width="26" height="26">
+      <span id="merknaam">Zakmonsters</span>
+    </a>
+    <nav class="menu" aria-label="Hoofdmenu">
+      <a href="index.html">Projecten</a>
+      <a href="pokedex.html" id="menuDex" aria-current="page">Pokédex</a>
+    </nav>
+    <button class="themaknop" id="themaknop" type="button" aria-pressed="false">
+      <svg class="maan" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="zon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-13.5a1 1 0 0 1 1 1V6a1 1 0 1 1-2 0V4.5a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1V21a1 1 0 1 1-2 0v-1.5a1 1 0 0 1 1-1zM3.5 12a1 1 0 0 1 1-1H6a1 1 0 1 1 0 2H4.5a1 1 0 0 1-1-1zm14.5 0a1 1 0 0 1 1-1h1.5a1 1 0 1 1 0 2H19a1 1 0 0 1-1-1zM5.6 5.6a1 1 0 0 1 1.4 0l1.1 1.1a1 1 0 0 1-1.4 1.4L5.6 7a1 1 0 0 1 0-1.4zm10.3 10.3a1 1 0 0 1 1.4 0l1.1 1.1a1 1 0 0 1-1.4 1.4l-1.1-1.1a1 1 0 0 1 0-1.4zm2.5-10.3a1 1 0 0 1 0 1.4L17.3 8.1a1 1 0 1 1-1.4-1.4L17 5.6a1 1 0 0 1 1.4 0zM8.1 15.9a1 1 0 0 1 0 1.4L7 18.4A1 1 0 0 1 5.6 17l1.1-1.1a1 1 0 0 1 1.4 0z"/></svg>
+    </button>
+  </div>
+</header>
+
 <main id="inhoud">
   <div id="pagina" class="omhulsel"><p class="laden">Laden…</p></div>
 </main>
@@ -19,6 +40,9 @@
 
 <script type="module">
 import { esc, markdown, laadSite } from './assets/content.js';
+import { kopbalk, merknaam } from './assets/kop.js';
+
+kopbalk();
 
 const $ = (id) => document.getElementById(id);
 const zoekparam = () => new URLSearchParams(location.search);
@@ -60,7 +84,8 @@ function kleinSprite(soort) {
   return bron ? spriteHtml(soort, bron, 1, 'sprite--klein') : '';
 }
 
-const TERUG = '<a class="terug" href="index.html">← Terug naar de site</a>';
+// Alleen nog voor de pagina die niets te tonen heeft: daar hoort een uitweg in beeld te staan.
+const TERUG = '<a class="terug" href="index.html">← Terug naar de projecten</a>';
 
 function knoppenbalk(zoek) {
   return `<div class="dexbalk">
@@ -95,6 +120,70 @@ function lijstHtml(zoek) {
 // dex dezelfde termen gebruikt als het spel in plaats van een eigen lijstje.
 const statNaam = (sleutel) => (dex.statLabels || {})[sleutel] || sleutel;
 
+// ---- Evolutielijn ----
+// Niet alleen de volgende stap, maar de hele reeks: waar dit beestje vandaan komt en waar het
+// heen gaat. De dexdata kent alleen de stap vooruit (`evoluties`), dus de stap terug leiden we
+// af door te zoeken wie er naar deze soort evolueert.
+//
+// Het resultaat is een rijtje stadia; een stadium kan meerdere soorten bevatten, want een lijn
+// splitst soms (Eevee, Poliwhirl). Elke soort draagt de voorwaarde waarmee je hém bereikt.
+function evolutielijn(soort) {
+  const perNr = new Map(dex.soorten.map((s) => [s.nr, s]));
+  const ouderVan = (nr) => dex.soorten.find((s) => (s.evoluties || []).some((e) => e.naar === nr));
+
+  // Naar de basisvorm klimmen. De teller is een noodrem: raakt er ooit een kringetje in de
+  // tabel, dan hoort deze pagina niet te blijven hangen maar gewoon iets te tonen.
+  let wortel = soort;
+  for (let stap = 0; stap < 5; stap++) {
+    const ouder = ouderVan(wortel.nr);
+    if (!ouder || ouder.nr === wortel.nr) break;
+    wortel = ouder;
+  }
+
+  const stadia = [[{ soort: wortel, hoe: '' }]];
+  const gezien = new Set([wortel.nr]);
+  for (let stap = 0; stap < 4; stap++) {
+    const volgend = [];
+    for (const { soort: s } of stadia[stadia.length - 1]) {
+      for (const e of s.evoluties || []) {
+        if (!e.naar || !perNr.has(e.naar) || gezien.has(e.naar)) continue;
+        gezien.add(e.naar);
+        volgend.push({ soort: perNr.get(e.naar), hoe: e.hoe });
+      }
+    }
+    if (!volgend.length) break;
+    stadia.push(volgend);
+  }
+  return stadia;
+}
+
+function evolutieHtml(soort) {
+  const stadia = evolutielijn(soort);
+  // Eén stadium betekent: geen voorganger en geen opvolger. Dan is een lijn met één vakje
+  // alleen maar omslachtig.
+  if (stadia.length < 2) return '<p class="uitleg">Evolueert niet.</p>';
+
+  const kaart = ({ soort: m, hoe }) => {
+    const huidig = m.nr === soort.nr;
+    const inhoud = `${kleinSprite(m)}<span class="evotekst">
+        <span class="evonaam">${esc(naamVan(m))}</span>
+        ${hoe ? `<span class="evohoe">${esc(hoe)}</span>` : ''}
+      </span>`;
+    // De soort waar je al naar kijkt is geen link maar een markering: die brengt je nergens.
+    return huidig
+      ? `<span class="evomon is-huidig" aria-current="true">${inhoud}</span>`
+      : `<a class="evomon" href="pokedex.html?nr=${m.nr}${seAan ? '&se=1' : ''}">${inhoud}</a>`;
+  };
+
+  // De pijl hoort bij het stadium dat erop volgt, niet los ertussen: valt de lijn over twee
+  // regels, dan gaat hij mee naar beneden in plaats van als losse punt achter te blijven.
+  return `<div class="evolijn">${stadia.map((stadium, i) => `
+      <div class="evostap">
+        ${i ? '<span class="evopijl" aria-hidden="true">→</span>' : ''}
+        <div class="evostadium">${stadium.map(kaart).join('')}</div>
+      </div>`).join('')}</div>`;
+}
+
 function detailHtml(s) {
   const stats = Object.entries(s.stats || {})
     .map(([sleutel, waarde]) => `<div class="statrij">
@@ -103,17 +192,7 @@ function detailHtml(s) {
         <span class="balk" aria-hidden="true"><i style="width:${Math.min(100, Math.round(waarde / 255 * 100))}%"></i></span>
       </div>`).join('');
 
-  const evoluties = (s.evoluties || []).length
-    ? `<ul class="evolijst">${s.evoluties.map((e) => {
-        const doel = e.naar ? dex.soorten.find((x) => x.nr === e.naar) : null;
-        const label = doel ? naamVan(doel) : e.soort;
-        // Het sprite hoort bij de soort waar hij naartoe evolueert; staat die niet in deze dex,
-        // dan blijft het bij de naam.
-        return `<li>${doel ? kleinSprite(doel) : ''}<span class="evonaam">${e.naar
-          ? `<a href="pokedex.html?nr=${e.naar}${seAan ? '&se=1' : ''}">${esc(label)}</a>`
-          : esc(label)}</span> <span class="evohoe">${esc(e.hoe)}</span></li>`;
-      }).join('')}</ul>`
-    : '<p class="uitleg">Evolueert niet.</p>';
+  const evoluties = evolutieHtml(s);
 
   // De sprites van dit beestje: bij Gen 2 die van Kristal, Goud en Zilver naast elkaar, met de
   // naam van het spel eronder. Is er maar één uitvoering, dan is dat label overbodig.
@@ -162,11 +241,13 @@ function teken() {
   if (nr) {
     const soort = dex.soorten.find((s) => s.nr === nr);
     $('pagina').innerHTML = soort ? detailHtml(soort)
-      : `${TERUG}<div class="fout-blok"><h1>Niet gevonden</h1><p>Deze Pokémon staat niet in de dex.</p></div>`;
+      : `<a class="terug" href="pokedex.html">← Alle Pokémon</a>
+         <div class="fout-blok"><h1>Niet gevonden</h1><p>Deze Pokémon staat niet in de dex.</p></div>`;
     document.title = soort ? `${naamVan(soort)} — Pokédex` : 'Pokédex';
   } else {
     const zoek = zoekparam().get('q') || '';
-    $('pagina').innerHTML = `${TERUG}
+    // Geen "terug naar de site" boven de lijst: dat is precies wat de kopbalk doet.
+    $('pagina').innerHTML = `
       <h1>Pokédex</h1>
       <p class="uitleg">De ${dex.soorten.length} Pokémon uit onze vertaling van ${esc(dex.spel)}.</p>
       ${knoppenbalk(zoek)}
@@ -191,6 +272,7 @@ function teken() {
 
 (async () => {
   const site = await laadSite().catch(() => ({}));
+  merknaam(site.titel);
   $('voet').innerHTML = markdown(site.footer || '');
 
   try {
