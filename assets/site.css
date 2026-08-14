@@ -595,6 +595,17 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
    voorwerp — vandaar dat hij in het etiket zelf staat. */
 .winkelprijs { font-weight: 700; font-variant-numeric: tabular-nums; }
 
+/* Vindplaatsen in de wereld, tegenover de winkels: neutrale etiketten, met erbij of je het moet
+   zoeken of van iemand krijgt. */
+.plekken { margin: 0; display: flex; flex-wrap: wrap; gap: .35rem; }
+.plek {
+  display: inline-flex; align-items: baseline; gap: .3rem;
+  font-size: .75rem; padding: .15rem .5rem; border-radius: 999px;
+  background: var(--veld); border: 1px solid var(--vlak-rand);
+}
+.plekaantal { font-weight: 700; font-variant-numeric: tabular-nums; }
+.pleksoort { color: var(--tekst-zacht); font-size: .7rem; }
+
 /* ---- Aanvallen ----
    De lijst leent de vorm van de dexlijst; op de detailpagina staat wie hem leert. Dat zijn er
    soms zestig, dus geen tabel maar etiketten die je met één blik afscant. */

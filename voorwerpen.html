@@ -88,6 +88,15 @@ function knoppenbalk(zoek) {
 const winkelsHtml = (v) => (v.winkels || []).map((w) => `<span class="winkel">${esc(w.locatie)}${w.prijs
   ? ` <span class="winkelprijs">${geld(w.prijs)}</span>` : ''}</span>`).join('');
 
+// Waar het in de wereld ligt. Een balletje zie je liggen, een verborgen voorwerp moet je zoeken
+// en de rest krijg je van iemand — dat verschil is voor een speler het halve verhaal, dus staat
+// het erbij in plaats van dat alles op één hoop gaat.
+const PLEKSOORT = { verborgen: 'verborgen', gekregen: 'van iemand' };
+const plekkenHtml = (plekken) => plekken.map((p) => `<span class="plek">
+    ${p.aantal > 1 ? `<span class="plekaantal">${p.aantal}×</span> ` : ''}${esc(p.locatie)}
+    ${PLEKSOORT[p.soort] ? `<span class="pleksoort">${PLEKSOORT[p.soort]}</span>` : ''}
+  </span>`).join('');
+
 // De aanval die een TM leert, linkt door naar de aanvalspagina; daar staat wie hem nog meer kan.
 const leertHtml = (v) => (v.leert ? `<p class="voorwerpleert">Leert <strong>${v.aanval
   ? `<a href="aanvallen.html?a=${encodeURIComponent(v.aanval)}">${esc(v.leert)}</a>`
@@ -109,6 +118,9 @@ function kaartHtml(v) {
 
 function detailHtml(v) {
   const winkels = winkelsHtml(v);
+  const plekken = v.vindplaatsen || [];
+  const teVinden = plekken.filter((p) => p.soort !== 'gekregen');
+  const teKrijgen = plekken.filter((p) => p.soort === 'gekregen');
   return `<a class="terug" href="voorwerpen.html">← Alle voorwerpen</a>
     <div class="dexkop">
       <h1>${esc(v.naam)}</h1>
@@ -122,12 +134,22 @@ function detailHtml(v) {
         ${v.beschrijving ? `<p class="aanvaltekst">${esc(v.beschrijving)}</p>` : ''}
         ${leertHtml(v)}
       </section>
-      <section class="blok blok--breed">
+      ${winkels ? `<section class="blok blok--breed">
         <h2>Te koop in</h2>
-        ${winkels
-          ? `<p class="winkels">${winkels}</p>`
-          : '<p class="uitleg">Dit voorwerp ligt in geen enkele winkel.</p>'}
-      </section>
+        <p class="winkels">${winkels}</p>
+      </section>` : ''}
+      ${teVinden.length ? `<section class="blok blok--breed">
+        <h2>Te vinden in</h2>
+        <p class="plekken">${plekkenHtml(teVinden)}</p>
+      </section>` : ''}
+      ${teKrijgen.length ? `<section class="blok blok--breed">
+        <h2>Krijg je in</h2>
+        <p class="plekken">${plekkenHtml(teKrijgen)}</p>
+      </section>` : ''}
+      ${!winkels && !teVinden.length && !teKrijgen.length ? `<section class="blok blok--breed">
+        <p class="uitleg">Dit voorwerp is niet te koop en ligt nergens in de wereld — het hoort
+          bij een gebeurtenis in het verhaal.</p>
+      </section>` : ''}
     </div>`;
 }
 

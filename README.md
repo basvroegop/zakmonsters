@@ -423,7 +423,13 @@ Waar alles vandaan komt, allemaal uit de vertaalde repo:
 | Prijs | `data/items/attributes.asm` (`$9999` is de markering "niet te koop", geen bedrag) |
 | Zak | idem, het `pocket`-veld; de zaknamen komen uit `data/items/pocket_names.asm` |
 | Winkels | `data/items/marts.asm`, plus de koopjeshoek en de dakverkoop uit hun eigen tabellen |
+| Vindplaatsen | de kaartbestanden: `itemball` (een balletje dat je ziet liggen), `hiddenitem` (zoeken) en `verbosegiveitem`/`giveitem` (van iemand krijgen) |
 | TM's en HM's | de aanval staat in de constante zelf (`TM_THUNDERPUNCH`); naam, kracht en uitleg komen uit de aanvalsgegevens |
+
+Op de pagina van een voorwerp staat ook waar het in de wereld ligt, met "te vinden" en "krijg je
+van iemand" apart: dat verschil bepaalt of je moet zoeken of moet praten. De plaatsnaam komt van
+het landmark dat die kaart in `data/maps/maps.asm` aanwijst, dus staat er IJSPAD en niet
+IcePathB1F.
 
 De winkelnamen komen uit `data/maps/landmarks.asm`: het blokje `MartGoldenrod2F1` wordt
 "GOLDENROD CITY (2F)". Zo heet een plek op de site precies zoals in het spel — en in een
