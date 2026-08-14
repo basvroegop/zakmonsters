@@ -452,7 +452,9 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .dexkop h1 { margin: .2em 0 .3em; }
 /* De naam uit de andere uitvoering, achter de naam die je nu leest. Grijs en een maatje kleiner:
    het is een terzijde, geen tweede titel. */
-.naam-anders { color: var(--tekst-zacht); font-size: .62em; font-weight: 600; white-space: nowrap; }
+.naam-anders {
+  color: var(--grijs); font-size: .62em; font-weight: 500; font-style: italic; white-space: nowrap;
+}
 /* De soortnaam uit het spel zelf (ZAAD, VLAM): wat de Pokédex in de game boven de tekst zet. */
 .dexsoort {
   color: var(--tekst-zacht); letter-spacing: .06em; font-weight: 600;
@@ -465,14 +467,19 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 
 .dexdetail {
   display: grid; gap: 1rem; padding-bottom: 3rem; align-items: start;
-  /* Twee kolommen op een breed scherm, één op een smal. Smaller dan dit past de evolutielijn
-     van een drietrapsreeks er niet in, en die hoort niet halverwege af te breken. */
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  grid-template-columns: minmax(0, 1fr);
+}
+/* Op een breed scherm staan de basiswaarden en de evolutielijn naast elkaar, maar níét in twee
+   gelijke helften: een drietrapsreeks is breder dan de helft van de pagina. De basiswaarden
+   krijgen daarom een vaste, smallere kolom — hun balken hebben die ruimte niet nodig — en de
+   lijn de rest. Onder deze breedte gaat alles onder elkaar, want dan past hij toch niet. */
+@media (min-width: 1100px) {
+  .dexdetail { grid-template-columns: 21rem minmax(0, 1fr); }
 }
 .blok--breed { grid-column: 1 / -1; }
 
 .stats { display: grid; gap: .5rem; }
-.statrij { display: grid; grid-template-columns: 8.5rem 2.5rem 1fr; align-items: center; gap: .5rem; font-size: .9rem; }
+.statrij { display: grid; grid-template-columns: 7.5rem 2.25rem minmax(0, 1fr); align-items: center; gap: .5rem; font-size: .9rem; }
 .statwaarde { text-align: right; font-variant-numeric: tabular-nums; color: var(--tekst); }
 .statrij .balk { height: 7px; }
 
@@ -480,7 +487,15 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
    Elk stadium is een kolom: een lijn die splitst (Eevee, Poliwhirl) zet zijn takken onder
    elkaar in dezelfde kolom. Alles staat naast elkaar of (op een smal scherm) alles onder
    elkaar — een reeks die halverwege omklapt leest als twee losse rijtjes. */
-.evolijn { display: flex; align-items: center; justify-content: center; flex-wrap: nowrap; gap: .35rem; }
+.evolijn {
+  display: flex; align-items: center; flex-wrap: nowrap; gap: .35rem;
+  /* Vangnet voor een reeks met ongewoon lange namen: liever schuiven dan buiten het blok.
+     `safe center` houdt daarbij het begin bereikbaar — gewoon centreren duwt bij overloop de
+     eerste vorm buiten beeld, en juist dáár begint de reeks. */
+  overflow-x: auto;
+  justify-content: center;
+  justify-content: safe center;
+}
 .evostap { display: flex; align-items: center; gap: .35rem; }
 /* Onder een bepaalde breedte past een reeks van drie er niet meer naast elkaar. Dan gaat de
    hele lijn onder elkaar — half omgeklapt leest een evolutiereeks namelijk niet meer. */

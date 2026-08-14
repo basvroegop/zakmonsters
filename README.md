@@ -304,6 +304,11 @@ elkaar in dezelfde kolom.
 De reeks staat gecentreerd, óf helemaal naast elkaar óf (op een smal scherm) helemaal onder
 elkaar. Niet halverwege omgeklapt: dan lees je één reeks als twee losse rijtjes.
 
+Vanaf 1100 pixels breed staat de lijn naast de basiswaarden. Die twee delen de rij níét gelijk:
+een drietrapsreeks is breder dan een halve pagina, dus de basiswaarden krijgen een vaste,
+smallere kolom (hun balken hebben die ruimte niet nodig) en de lijn de rest. Daaronder gaat
+alles onder elkaar.
+
 ### De typetags
 
 Elk type heeft zijn eigen kleur (ijs lichtblauw, vuur rood). Die kleur hangt aan het type-id uit
@@ -319,8 +324,8 @@ Zilver en Kristal vertellen over hetzelfde beestje elk een ander verhaal.
 De soortnaam uit het spel (ZAAD, VLAM) staat bovenaan onder de naam, zolang de spellen het
 daarover eens zijn; verschillen ze, dan komt hij per spel bij zijn eigen beschrijving te staan.
 
-Heet een soort in de Speciale Editie anders, dan staat die naam er grijs achter:
-**VENUSAUR** (VENUSAURUS), en andersom zodra je op de Speciale Editie staat.
+Heet een soort in de Speciale Editie anders, dan staat die naam er in lichtgrijze cursief
+achter: **VENUSAUR** *(VENUSAURUS)*, en andersom zodra je op de Speciale Editie staat.
 
 De teksten komen uit `data/pokemon/dex_entries/` van de bijbehorende repo — bij pokegold met een
 submap per versie (`gold/`, `silver/`). Ontbreekt er één (nog niet vertaald), dan valt alleen
