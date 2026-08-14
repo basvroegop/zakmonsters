@@ -88,19 +88,27 @@ function knoppenbalk(zoek) {
 const winkelsHtml = (v) => (v.winkels || []).map((w) => `<span class="winkel">${esc(w.locatie)}${w.prijs
   ? ` <span class="winkelprijs">${geld(w.prijs)}</span>` : ''}</span>`).join('');
 
+// Op de eigen pagina van een voorwerp zijn het lijstjes in plaats van etiketten: je leest ze
+// daar één voor één ("waar kan ik dit halen?") in plaats van dat je ze in een lijst afscant.
+// De prijs staat achter de winkel waar hij geldt — de koopjeshoek vraagt iets anders dan de
+// gewone winkel.
+const winkellijst = (v) => `<ul class="plaatsen">${(v.winkels || []).map((w) => `<li>${esc(w.locatie)}
+    <span class="plaatsprijs">${geld(w.prijs || v.prijs)}</span></li>`).join('')}</ul>`;
+
 // Waar het in de wereld ligt. Een balletje zie je liggen, een verborgen voorwerp moet je zoeken
 // en de rest krijg je van iemand — dat verschil is voor een speler het halve verhaal, dus staat
 // het erbij in plaats van dat alles op één hoop gaat.
 const PLEKSOORT = { verborgen: 'verborgen', gekregen: 'van iemand' };
-const plekkenHtml = (plekken) => plekken.map((p) => `<span class="plek">
-    ${p.aantal > 1 ? `<span class="plekaantal">${p.aantal}×</span> ` : ''}${esc(p.locatie)}
-    ${PLEKSOORT[p.soort] ? `<span class="pleksoort">${PLEKSOORT[p.soort]}</span>` : ''}
-  </span>`).join('');
+const plekkenlijst = (plekken) => `<ul class="plaatsen">${plekken.map((p) => `<li>${esc(p.locatie)}
+    ${p.aantal > 1 ? `<span class="plaatsaantal">${p.aantal}×</span>` : ''}
+    ${PLEKSOORT[p.soort] ? `<span class="pleksoort">${PLEKSOORT[p.soort]}</span>` : ''}</li>`).join('')}</ul>`;
 
 // De aanval die een TM leert, linkt door naar de aanvalspagina; daar staat wie hem nog meer kan.
+// Bij een TM of HM is de aanval het hele verhaal; kracht en uitleg staan op de aanvalspagina,
+// één klik verderop. Twee keer hetzelfde vertellen maakt geen van beide duidelijker.
 const leertHtml = (v) => (v.leert ? `<p class="voorwerpleert">Leert <strong>${v.aanval
   ? `<a href="aanvallen.html?a=${encodeURIComponent(v.aanval)}">${esc(v.leert)}</a>`
-  : esc(v.leert)}</strong>${v.kracht ? ` · kracht ${v.kracht}` : ''}</p>` : '');
+  : esc(v.leert)}</strong></p>` : '');
 
 // In de lijst is de hele kaart een link naar zijn eigen pagina. Daar staat hetzelfde, maar dan
 // als bestemming: een aanval of een Pokémon kan ernaartoe wijzen.
@@ -131,20 +139,21 @@ function detailHtml(v) {
     </div>
     <div class="dexdetail">
       <section class="blok blok--breed">
-        ${v.beschrijving ? `<p class="aanvaltekst">${esc(v.beschrijving)}</p>` : ''}
-        ${leertHtml(v)}
+        ${v.leert
+          ? leertHtml(v)
+          : (v.beschrijving ? `<p class="aanvaltekst">${esc(v.beschrijving)}</p>` : '')}
       </section>
       ${winkels ? `<section class="blok blok--breed">
-        <h2>Te koop in</h2>
-        <p class="winkels">${winkels}</p>
+        <h2>Te koop</h2>
+        ${winkellijst(v)}
       </section>` : ''}
       ${teVinden.length ? `<section class="blok blok--breed">
-        <h2>Te vinden in</h2>
-        <p class="plekken">${plekkenHtml(teVinden)}</p>
+        <h2>Te vinden</h2>
+        ${plekkenlijst(teVinden)}
       </section>` : ''}
       ${teKrijgen.length ? `<section class="blok blok--breed">
-        <h2>Krijg je in</h2>
-        <p class="plekken">${plekkenHtml(teKrijgen)}</p>
+        <h2>Te krijgen</h2>
+        ${plekkenlijst(teKrijgen)}
       </section>` : ''}
       ${!winkels && !teVinden.length && !teKrijgen.length ? `<section class="blok blok--breed">
         <p class="uitleg">Dit voorwerp is niet te koop en ligt nergens in de wereld — het hoort

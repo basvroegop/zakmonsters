@@ -43,6 +43,7 @@ try { if (localStorage.getItem('thema') === 'donker') document.documentElement.d
 <script type="module">
 import { esc, markdown, laadSite } from './assets/content.js';
 import { kopbalk, merknaam } from './assets/kop.js';
+import { bronnenVan, spriteHtml, kleinSprite, typenHtml, nummer, dexRegelHtml, laadDex } from './assets/dex.js';
 
 kopbalk();
 
@@ -60,38 +61,10 @@ const SPRITEKEUZE = 'dexsprite';
 let spriteBron = (() => { try { return localStorage.getItem(SPRITEKEUZE); } catch { return null; } })();
 
 const naamVan = (s) => (seAan && s.naamSe ? s.naamSe : s.naam);
-const nummer = (n) => String(n).padStart(3, '0');
 
-// ---- Sprites ----
-// De spelsprites zitten in één atlas per repo (content/sprites/<repo>.png): alle beestjes
-// naast elkaar, 16 per rij. cms/pokedex.js zet per soort het vaknummer in de dexdata; hier
-// schuiven we de atlas met background-position naar het juiste vak. Eén plaatje voor de hele
-// dex, dus na het eerste sprite kost er geen enkele nog verkeer.
-//
-// Gen 2 tekende elk beestje drie keer (Kristal, Goud, Zilver). Op de detailpagina staat er één
-// groot rechtsboven, met knoppen om van versie te wisselen. Zonder atlas blijft `dex.sprites`
-// leeg en is de dex weer tekst.
-const bronnen = () => dex.sprites || [];
-
-function spriteHtml(soort, bron, schaal, klasse = '') {
-  const vak = (soort.vakken || {})[bron.sleutel];
-  if (vak === undefined) return '';
-  const zijde = bron.grootte * schaal;
-  const x = (vak % bron.kolommen) * zijde;
-  const y = Math.floor(vak / bron.kolommen) * zijde;
-  return `<span class="sprite${klasse ? ` ${klasse}` : ''}" aria-hidden="true" style="
-      width:${zijde}px;height:${zijde}px;
-      background-image:url('content/sprites/${esc(bron.bestand)}');
-      background-position:-${x}px -${y}px;background-size:${bron.kolommen * zijde}px auto;"></span>`;
-}
-
-// Het kleine sprite naast een naam (in de lijst en in de evolutielijn): de eerste versie, want
-// dat is het spel van deze dex zelf. De keuze rechtsboven verandert daar niets aan — anders
-// zouden 251 lijstregels van uitvoering wisselen omdat je één sprite wilde vergelijken.
-function kleinSprite(soort) {
-  const bron = bronnen()[0];
-  return bron ? spriteHtml(soort, bron, 1, 'sprite--klein') : '';
-}
+// De sprites, de typetags en de regels van de lijst deelt deze pagina met de aanvallenpagina;
+// ze staan in assets/dex.js. Hier alleen nog wat deze pagina er zelf omheen doet.
+const bronnen = () => bronnenVan(dex);
 
 // De versie die rechtsboven staat, of de eerste als er nog niets gekozen is.
 function gekozenBron() {
@@ -120,26 +93,10 @@ function lijstHtml(zoek) {
     || s.naam.toLowerCase().includes(term)
     || String(s.nr) === term.replace(/^0+/, ''));
   if (!treffers.length) return '<p class="leeg">Geen Pokémon gevonden.</p>';
-  return `<div class="dexlijst">${treffers.map((s) => `
-      <a class="dexknop" href="pokedex.html?nr=${s.nr}${seAan ? '&se=1' : ''}">
-        ${kleinSprite(s)}
-        <span class="dexregel">
-          <span class="dexnr">${nummer(s.nr)}</span>
-          <span class="dexnaam">${esc(naamVan(s))}</span>
-          <span class="dextypen">${typenHtml(s)}</span>
-        </span>
-      </a>`).join('')}</div>`;
-}
-
-// De typetags. De naam komt uit de vertaling (IJS, VUUR), de kleur uit het type-id van het spel
-// zelf — zo blijft een herziene term gewoon de juiste kleur houden. Een onbekend type valt terug
-// op de grijze standaardtag.
-function typenHtml(soort) {
-  return (soort.typen || []).map((t) => {
-    const naam = typeof t === 'string' ? t : t.naam;
-    const sleutel = typeof t === 'string' ? '' : t.soort;
-    return `<span class="type${sleutel ? ` type--${esc(sleutel)}` : ''}">${esc(String(naam).toLowerCase())}</span>`;
-  }).join('');
+  return `<div class="dexlijst">${treffers.map((s) => dexRegelHtml(dex, s, {
+    naam: naamVan(s),
+    href: `pokedex.html?nr=${s.nr}${seAan ? '&se=1' : ''}`,
+  })).join('')}</div>`;
 }
 
 // De namen van de basiswaarden komen mee uit de vertaling zelf (AANVAL, AFWEER, …), zodat de
@@ -191,7 +148,7 @@ function evolutieHtml(soort) {
 
   const kaart = ({ soort: m, hoe }) => {
     const huidig = m.nr === soort.nr;
-    const inhoud = `${kleinSprite(m)}<span class="evotekst">
+    const inhoud = `${kleinSprite(dex, m)}<span class="evotekst">
         <span class="evonaam">${esc(naamVan(m))}</span>
         ${hoe ? `<span class="evohoe">${esc(hoe)}</span>` : ''}
       </span>`;
@@ -226,7 +183,7 @@ function detailHtml(s) {
   const plaat = (() => {
     const bron = gekozenBron();
     if (!bron) return '';
-    const beeld = spriteHtml(s, bron, 3, 'sprite--groot');
+    const beeld = spriteHtml(dex, s, bron, 3, 'sprite--groot');
     if (!beeld) return '';
     const knoppen = bronnen().length > 1
       ? `<div class="wissel wissel--klein" role="tablist" aria-label="Spelversie">
@@ -260,6 +217,20 @@ function detailHtml(s) {
   // hebt openstaan — zo lees je in één regel hoe hij in het andere spel heet.
   const anderenaam = s.naamSe && s.naamSe !== s.naam ? (seAan ? s.naam : s.naamSe) : '';
 
+  // Wat deze soort met een TM, een HM of van een leraar kan leren. De aanval linkt naar zijn
+  // eigen pagina, de TM naar het voorwerp — daar staat wat hij kost en waar hij ligt.
+  const tmhm = (s.tmhm || []).length
+    ? `<table class="aanvallen"><thead><tr><th>Bron</th><th>Aanval</th><th>Kracht</th></tr></thead><tbody>
+        ${s.tmhm.map((t) => `<tr>
+          <td>${t.voorwerp
+            ? `<a href="voorwerpen.html?v=${encodeURIComponent(t.voorwerp)}">${esc(t.bron)}</a>`
+            : esc(t.bron)}</td>
+          <td><a href="aanvallen.html?a=${encodeURIComponent(t.aanval)}">${esc(t.naam)}</a></td>
+          <td class="kracht">${t.kracht || '—'}</td>
+        </tr>`).join('')}
+      </tbody></table>`
+    : '<p class="uitleg">Leert niets met een TM of HM.</p>';
+
   const aanvallen = (s.aanvallen || []).length
     ? `<table class="aanvallen"><thead><tr><th>Level</th><th>Aanval</th><th>Kracht</th></tr></thead><tbody>
         ${s.aanvallen.map((a) => `<tr>
@@ -288,6 +259,7 @@ function detailHtml(s) {
       <section class="blok"><h2>Basiswaarden</h2><div class="stats">${stats}</div></section>
       <section class="blok blok--evolutie"><h2>Evolutie</h2>${evoluties}</section>
       <section class="blok blok--breed"><h2>Aanvallen per level</h2>${aanvallen}</section>
+      <section class="blok blok--breed"><h2>Met TM, HM of leraar</h2>${tmhm}</section>
     </div>`;
 }
 
@@ -339,10 +311,7 @@ function teken() {
   $('voet').innerHTML = markdown(site.footer || '');
 
   try {
-    const index = await (await fetch('content/pokedex/index.json', { cache: 'no-cache' })).json();
-    const eerste = (index.dexen || [])[0];
-    if (!eerste) throw new Error('geen dex');
-    dex = await (await fetch(`content/pokedex/${eerste.project}.json`, { cache: 'no-cache' })).json();
+    dex = await laadDex();
   } catch (err) {
     console.error(err);
     $('pagina').innerHTML = `${TERUG}<div class="fout-blok"><h1>Pokédex nog niet beschikbaar</h1>

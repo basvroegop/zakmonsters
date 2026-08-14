@@ -595,16 +595,13 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
    voorwerp — vandaar dat hij in het etiket zelf staat. */
 .winkelprijs { font-weight: 700; font-variant-numeric: tabular-nums; }
 
-/* Vindplaatsen in de wereld, tegenover de winkels: neutrale etiketten, met erbij of je het moet
-   zoeken of van iemand krijgt. */
-.plekken { margin: 0; display: flex; flex-wrap: wrap; gap: .35rem; }
-.plek {
-  display: inline-flex; align-items: baseline; gap: .3rem;
-  font-size: .75rem; padding: .15rem .5rem; border-radius: 999px;
-  background: var(--veld); border: 1px solid var(--vlak-rand);
-}
-.plekaantal { font-weight: 700; font-variant-numeric: tabular-nums; }
-.pleksoort { color: var(--tekst-zacht); font-size: .7rem; }
+/* Op de eigen pagina van een voorwerp staan winkels en vindplaatsen als lijstjes: daar lees je
+   ze regel voor regel, in plaats van dat je ze in een overzicht afscant. */
+.plaatsen { margin: 0; padding-left: 1.15rem; display: grid; gap: .2rem; }
+.plaatsen li { padding-left: .15rem; }
+.plaatsprijs { font-weight: 700; font-variant-numeric: tabular-nums; }
+.plaatsaantal { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--tekst-zacht); }
+.pleksoort { color: var(--tekst-zacht); font-size: .82rem; }
 
 /* ---- Aanvallen ----
    De lijst leent de vorm van de dexlijst; op de detailpagina staat wie hem leert. Dat zijn er
@@ -631,13 +628,6 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 }
 .tmknop:hover { color: var(--tekst); background: color-mix(in srgb, var(--accent) 40%, transparent); }
 
-.monsterlijst { display: flex; flex-wrap: wrap; gap: .35rem; }
-.monster {
-  display: inline-flex; align-items: baseline; gap: .4rem; text-decoration: none;
-  font-size: .82rem; color: var(--tekst); padding: .2rem .55rem; border-radius: 999px;
-  background: var(--veld); border: 1px solid var(--vlak-rand);
-}
-.monster:hover { color: var(--tekst); border-color: var(--accent); }
-.monsterlevel { color: var(--tekst-zacht); font-size: .74rem; font-variant-numeric: tabular-nums; }
-/* Een blok zonder inhoud hoeft niet even groot te zijn als een blok met zestig namen. */
-.blok--leeg { align-self: start; }
+/* Het level (of "start") staat naast het nummer in de dexregel: op een aanvalspagina wil je
+   weten wanneer een soort hem leert. */
+.dexbij { color: var(--tekst-zacht); }

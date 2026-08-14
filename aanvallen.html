@@ -43,6 +43,7 @@ try { if (localStorage.getItem('thema') === 'donker') document.documentElement.d
 <script type="module">
 import { esc, markdown, laadSite } from './assets/content.js';
 import { kopbalk, merknaam } from './assets/kop.js';
+import { dexRegelHtml, laadDex } from './assets/dex.js';
 
 kopbalk();
 
@@ -50,7 +51,10 @@ const $ = (id) => document.getElementById(id);
 const zoekparam = () => new URLSearchParams(location.search);
 
 // Eén bestand met alle aanvallen; zoeken en de detailpagina komen daarna uit de pagina zelf.
+// De dexgegevens komen erbij voor de soorten die een aanval leren: die staan hier in dezelfde
+// vorm als op de Pokédex — met sprite, nummer en typen — zodat het één lijst blijft.
 let lijst = null;
+let dex = null;
 
 const typeHtml = (a) => (a.type
   ? `<span class="type type--${esc(a.type.soort)}">${esc(a.type.naam.toLowerCase())}</span>` : '');
@@ -76,15 +80,18 @@ function lijstHtml(zoek) {
       </a>`).join('')}</div>`;
 }
 
-// Een rijtje Pokémon dat naar de dex linkt. Zo kun je van een aanval doorklikken naar het
-// beestje dat hem leert, en daar weer terug naar zijn andere aanvallen.
+// De soorten die een aanval leren, in dezelfde vorm als op de Pokédex zelf. Ontbreekt die
+// gegevens (nog niet gebouwd), dan blijft het bij een naam met een link — beter dan niets.
 function monsterlijst(wie, metLevel) {
   if (!wie || !wie.length) return '';
-  return `<div class="monsterlijst">${wie.map((m) => `
-      <a class="monster" href="pokedex.html?nr=${m.nr}">
-        <span class="monsternaam">${esc(m.naam)}</span>
-        ${metLevel && m.level ? `<span class="monsterlevel">${m.level === 1 ? 'start' : `lv. ${m.level}`}</span>` : ''}
-      </a>`).join('')}</div>`;
+  return `<div class="dexlijst">${wie.map((m) => {
+    const soort = dex && dex.soorten.find((s) => s.nr === m.nr);
+    if (!soort) return `<a class="dexknop" href="pokedex.html?nr=${m.nr}"><span class="dexregel">
+        <span class="dexnaam">${esc(m.naam)}</span></span></a>`;
+    return dexRegelHtml(dex, soort, {
+      bij: metLevel && m.level ? (m.level === 1 ? 'start' : `lv. ${m.level}`) : '',
+    });
+  }).join('')}</div>`;
 }
 
 function detailHtml(a) {
@@ -113,14 +120,14 @@ function detailHtml(a) {
         <div class="aanvalcijfers">${cijfers}</div>
       </section>
 
-      <section class="blok${(a.leren || []).length ? '' : ' blok--leeg'}">
+      <section class="blok blok--breed">
         <h2>Leert het zelf</h2>
         ${(a.leren || []).length
           ? monsterlijst(a.leren, true)
           : '<p class="uitleg">Geen enkele soort leert deze aanval door te levelen.</p>'}
       </section>
 
-      <section class="blok${(a.viaTmhm || []).length ? '' : ' blok--leeg'}">
+      <section class="blok blok--breed">
         <h2>Via ${tmhm ? 'TM of HM' : 'een leraar'}</h2>
         ${(a.viaTmhm || []).length
           ? monsterlijst(a.viaTmhm, false)
@@ -165,6 +172,8 @@ function teken() {
     const eerste = (index.dexen || [])[0];
     if (!eerste) throw new Error('geen aanvallen');
     lijst = await (await fetch(`content/aanvallen/${eerste.project}.json`, { cache: 'no-cache' })).json();
+    // De dex mag ontbreken; dan staan de soorten er zonder sprite.
+    dex = await laadDex().catch(() => null);
   } catch (err) {
     console.error(err);
     $('pagina').innerHTML = `<a class="terug" href="index.html">← Terug naar de projecten</a>
