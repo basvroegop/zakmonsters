@@ -417,10 +417,36 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
   /* Naast elkaar zolang er ruimte is: dan lees je de drie verhalen in één oogopslag. */
   .beschrijvingen { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
 }
+/* Typetags in de kleur van hun type: ijs lichtblauw, vuur rood. De kleur hangt aan het type-id
+   uit het spel (`type--ice`), niet aan de vertaalde naam — die mag herzien worden zonder dat de
+   kleuren verschuiven.
+   Achtergrond, rand en tekst worden uit die ene kleur gemengd, met de tekstkleur van het thema
+   erin. Zo klopt het contrast in het lichte én het donkere thema zonder tweede lijst kleuren. */
 .type {
+  --type: var(--grijs);
   font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; padding: .15rem .45rem;
-  border-radius: 999px; border: 1px solid var(--vlak-rand); color: var(--tekst-zacht);
+  border-radius: 999px; font-weight: 600;
+  background: color-mix(in srgb, var(--type) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--type) 38%, transparent);
+  color: color-mix(in srgb, var(--type) 72%, var(--tekst));
 }
+.type--normal   { --type: #8e97a3; }
+.type--fire     { --type: #e2562a; }
+.type--water    { --type: #3b7ce0; }
+.type--electric { --type: #d9a400; }
+.type--grass    { --type: #45a02c; }
+.type--ice      { --type: #45b6d8; }
+.type--fighting { --type: #c0402a; }
+.type--poison   { --type: #a047ab; }
+.type--ground   { --type: #c08a2e; }
+.type--flying   { --type: #7b8ede; }
+.type--psychic  { --type: #e0507f; }
+.type--bug      { --type: #86a01c; }
+.type--rock     { --type: #a98c46; }
+.type--ghost    { --type: #6f5fb0; }
+.type--dragon   { --type: #5b52d0; }
+.type--dark     { --type: #6b574a; }
+.type--steel    { --type: #74899a; }
 
 .dexkop { margin: 1.5rem 0; }
 .dexkop h1 { margin: .2em 0 .3em; }
@@ -454,15 +480,15 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
    Elk stadium is een kolom: een lijn die splitst (Eevee, Poliwhirl) zet zijn takken onder
    elkaar in dezelfde kolom. Alles staat naast elkaar of (op een smal scherm) alles onder
    elkaar — een reeks die halverwege omklapt leest als twee losse rijtjes. */
-.evolijn { display: flex; align-items: center; flex-wrap: nowrap; gap: .35rem; }
+.evolijn { display: flex; align-items: center; justify-content: center; flex-wrap: nowrap; gap: .35rem; }
 .evostap { display: flex; align-items: center; gap: .35rem; }
 /* Onder een bepaalde breedte past een reeks van drie er niet meer naast elkaar. Dan gaat de
    hele lijn onder elkaar — half omgeklapt leest een evolutiereeks namelijk niet meer. */
 @media (max-width: 720px) {
-  .evolijn { flex-direction: column; align-items: flex-start; gap: .5rem; }
-  /* De pijl gaat mee omlaag en wijst dan naar beneden; zo staan alle vakjes links gelijk. */
-  .evostap { flex-direction: column; align-items: flex-start; gap: .35rem; }
-  .evopijl { transform: rotate(90deg); margin-left: 1.4rem; }
+  .evolijn { flex-direction: column; align-items: center; gap: .5rem; }
+  /* De pijl gaat mee omlaag en wijst dan naar beneden, midden boven zijn eigen vakje. */
+  .evostap { flex-direction: column; align-items: center; gap: .35rem; }
+  .evopijl { transform: rotate(90deg); }
 }
 .evostadium { display: grid; gap: .35rem; flex: none; }
 .evopijl { flex: none; color: var(--tekst-zacht); }

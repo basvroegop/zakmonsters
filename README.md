@@ -301,8 +301,15 @@ De dexdata kent alleen de stap vooruit; de stap terug leidt `pokedex.html` af do
 er naar deze soort evolueert. Een lijn die splitst (Eevee, Poliwhirl) zet zijn takken onder
 elkaar in dezelfde kolom.
 
-De reeks staat óf helemaal naast elkaar óf (op een smal scherm) helemaal onder elkaar. Niet
-halverwege omgeklapt: dan lees je één reeks als twee losse rijtjes.
+De reeks staat gecentreerd, óf helemaal naast elkaar óf (op een smal scherm) helemaal onder
+elkaar. Niet halverwege omgeklapt: dan lees je één reeks als twee losse rijtjes.
+
+### De typetags
+
+Elk type heeft zijn eigen kleur (ijs lichtblauw, vuur rood). Die kleur hangt aan het type-id uit
+het spel — `type--ice`, `type--fire` in `assets/site.css` — en niet aan de vertaalde naam, zodat
+een herziene term (IJS, VORST) gewoon dezelfde kleur houdt. De naam op de tag komt wél uit de
+vertaling. Een type zonder eigen kleur valt terug op grijs.
 
 ### De beschrijvingen
 

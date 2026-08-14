@@ -124,9 +124,20 @@ function lijstHtml(zoek) {
         <span class="dexregel">
           <span class="dexnr">${nummer(s.nr)}</span>
           <span class="dexnaam">${esc(naamVan(s))}</span>
-          <span class="dextypen">${s.typen.map((t) => `<span class="type">${esc(t.toLowerCase())}</span>`).join('')}</span>
+          <span class="dextypen">${typenHtml(s)}</span>
         </span>
       </a>`).join('')}</div>`;
+}
+
+// De typetags. De naam komt uit de vertaling (IJS, VUUR), de kleur uit het type-id van het spel
+// zelf — zo blijft een herziene term gewoon de juiste kleur houden. Een onbekend type valt terug
+// op de grijze standaardtag.
+function typenHtml(soort) {
+  return (soort.typen || []).map((t) => {
+    const naam = typeof t === 'string' ? t : t.naam;
+    const sleutel = typeof t === 'string' ? '' : t.soort;
+    return `<span class="type${sleutel ? ` type--${esc(sleutel)}` : ''}">${esc(String(naam).toLowerCase())}</span>`;
+  }).join('');
 }
 
 // De namen van de basiswaarden komen mee uit de vertaling zelf (AANVAL, AFWEER, …), zodat de
@@ -263,7 +274,7 @@ function detailHtml(s) {
         <span class="dexnr dexnr--groot">${nummer(s.nr)}</span>
         <h1>${esc(naamVan(s))}${anderenaam ? ` <span class="naam-anders">(${esc(anderenaam)})</span>` : ''}</h1>
         ${soortnaam ? `<p class="dexsoort">${esc(soortnaam)}</p>` : ''}
-        <p class="dextypen">${s.typen.map((t) => `<span class="type">${esc(t.toLowerCase())}</span>`).join('')}</p>
+        <p class="dextypen">${typenHtml(s)}</p>
       </div>
       ${plaat}
     </div>
