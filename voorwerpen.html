@@ -56,6 +56,17 @@ let zak = '';   // lege waarde = alle zakken
 // Bedragen zoals het spel ze schrijft: het yen-teken uit de ROM, met puntjes per duizendtal.
 const geld = (n) => `¥${Number(n).toLocaleString('nl-NL')}`;
 
+// De zakken heten in het spel VOORWERPZAK, BEL.ZAK, BALLENZAK en TM-ZAK — afkortingen die in
+// een menu van twaalf tekens moesten passen. Boven een filter op een website is er ruimte voor
+// gewone woorden. Een zak die hier niet staat, houdt gewoon zijn naam uit het spel.
+const ZAKLABELS = {
+  ITEM: 'Algemeen',
+  KEY_ITEM: 'Belangrijk',
+  BALL: 'Ballen',
+  TM_HM: "TM's en HM's",
+};
+const zakLabel = (sleutel) => ZAKLABELS[sleutel] || (dex.zakken || {})[sleutel] || sleutel;
+
 function knoppenbalk(zoek) {
   // De zakken uit het spel zijn meteen het filter: BALLENZAK, TM-ZAK, … Alleen zakken die in
   // deze vertaling ook echt voorwerpen hebben, krijgen een knop.
@@ -67,8 +78,8 @@ function knoppenbalk(zoek) {
       ${aanwezig.length > 1 ? `<div class="wissel wissel--klein" role="tablist" aria-label="Zak">
         <button class="wisselknop${zak ? '' : ' is-actief'}" data-zak="" role="tab"
           aria-selected="${!zak}">Alles</button>
-        ${aanwezig.map(([sleutel, naam]) => `<button class="wisselknop${zak === sleutel ? ' is-actief' : ''}"
-            data-zak="${esc(sleutel)}" role="tab" aria-selected="${zak === sleutel}">${esc(naam)}</button>`).join('')}
+        ${aanwezig.map(([sleutel]) => `<button class="wisselknop${zak === sleutel ? ' is-actief' : ''}"
+            data-zak="${esc(sleutel)}" role="tab" aria-selected="${zak === sleutel}">${esc(zakLabel(sleutel))}</button>`).join('')}
       </div>` : ''}
     </div>`;
 }
@@ -82,9 +93,7 @@ function kaartHtml(v) {
       ${v.leert ? `<p class="voorwerpleert">Leert <strong>${esc(v.leert)}</strong>${v.kracht
         ? ` · kracht ${v.kracht}` : ''}</p>` : ''}
       ${v.beschrijving ? `<p class="voorwerptekst">${esc(v.beschrijving)}</p>` : ''}
-      ${winkels
-        ? `<p class="winkels"><span class="winkelkop">Te koop in</span>${winkels}</p>`
-        : '<p class="winkels winkels--geen">Niet in een winkel te koop.</p>'}
+      ${winkels ? `<p class="winkels"><span class="winkelkop">Te koop in</span>${winkels}</p>` : ''}
     </article>`;
 }
 

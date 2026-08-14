@@ -380,8 +380,12 @@ tekening hoort (ogen, tanden, glans) blijft dus staan.
 
 `voorwerpen.html` toont alle voorwerpen uit dezelfde afgeronde vertaling: wat ze doen, wat ze
 kosten en in welke winkel ze liggen. Eén kaart per voorwerp, met een zoekveld en een filter op
-de zakken uit het spel (VOORWERPZAK, BEL.ZAK, BALLENZAK, TM-ZAK). Ook dit wordt gemaakt door
+de zakken uit het spel: Algemeen, Belangrijk, Ballen en TM's en HM's. Ook dit wordt gemaakt door
 `cms/pokedex.js`, dus de knop **Pokédex verversen** in het CMS bouwt beide.
+
+Die filternamen staan in `voorwerpen.html` zelf. In het spel heten de zakken VOORWERPZAK,
+BEL.ZAK, BALLENZAK en TM-ZAK — afkortingen die in een menu van twaalf tekens moesten passen;
+boven een filter op een website is er ruimte voor gewone woorden.
 
 Waar alles vandaan komt, allemaal uit de vertaalde repo:
 

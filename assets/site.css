@@ -590,4 +590,3 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 /* Een afwijkende prijs (de koopjeshoek, de dakverkoop) hoort bij die ene winkel, niet bij het
    voorwerp — vandaar dat hij in het etiket zelf staat. */
 .winkelprijs { font-weight: 700; font-variant-numeric: tabular-nums; }
-.winkels--geen { font-size: .8rem; color: var(--tekst-zacht); }
