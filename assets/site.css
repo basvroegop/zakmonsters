@@ -513,7 +513,10 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 @media (max-width: 720px) {
   /* Stadia op volle breedte, zodat een vertakking de ruimte krijgt die er is; de vakjes zelf
      staan daarbinnen gecentreerd. */
-  .evolijn { flex-direction: column; align-items: stretch; gap: .5rem; }
+  /* Zonder rij is er ook niets om horizontaal te schuiven; het vangnet mag hier weg. Het moet
+     zelfs weg: `overflow-x: auto` trekt de verticale as mee, en dan komt er in dit hoge,
+     gestapelde vak een schuifbalk langs de rand te staan. */
+  .evolijn { flex-direction: column; align-items: stretch; gap: .5rem; overflow: visible; }
   /* De pijl gaat mee omlaag en wijst dan naar beneden, midden boven zijn eigen vakje. */
   .evostap { flex-direction: column; align-items: stretch; gap: .35rem; }
   .evopijl { transform: rotate(90deg); text-align: center; }
