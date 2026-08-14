@@ -396,9 +396,13 @@ aanval maar een gevechtsanimatie (ANIM_WOBBLE) en valt weg.
 De drie lijsten hangen aan elkaar, zodat je kunt doorklikken in plaats van terugzoeken:
 
 - in de **Pokédex** is elke aanval in de levellijst een link naar die aanval;
-- op een **aanvalspagina** linkt elke Pokémon naar zijn dexpagina, en de TM of HM naar dat
-  voorwerp;
-- op een **voorwerppagina** linkt de aanval van een TM terug naar de aanvalspagina.
+- op een **aanvalspagina** staan de soorten die hem leren in dezelfde vorm als in de Pokédex —
+  met sprite, nummer en typen, en bij een levelaanval het level erbij — en linkt de TM of HM
+  naar dat voorwerp;
+- op een **voorwerppagina** linkt de aanval van een TM terug naar de aanvalspagina. Verder staat
+  daar niets over die aanval: kracht en uitleg horen op de aanvalspagina, één klik verderop;
+- op een **dexpagina** staat naast de levellijst ook wat een soort met een TM, een HM of van een
+  leraar leert, met dezelfde twee verwijzingen.
 
 Daarvoor heeft elk voorwerp nu ook een eigen pagina (`voorwerpen.html?v=TM_THUNDERPUNCH`): een
 verwijzing moet ergens uitkomen.
@@ -426,8 +430,9 @@ Waar alles vandaan komt, allemaal uit de vertaalde repo:
 | Vindplaatsen | de kaartbestanden: `itemball` (een balletje dat je ziet liggen), `hiddenitem` (zoeken) en `verbosegiveitem`/`giveitem` (van iemand krijgen) |
 | TM's en HM's | de aanval staat in de constante zelf (`TM_THUNDERPUNCH`); naam, kracht en uitleg komen uit de aanvalsgegevens |
 
-Op de pagina van een voorwerp staat ook waar het in de wereld ligt, met "te vinden" en "krijg je
-van iemand" apart: dat verschil bepaalt of je moet zoeken of moet praten. De plaatsnaam komt van
+Op de eigen pagina van een voorwerp staan drie lijstjes onder elkaar — **Te koop**, **Te vinden**
+en **Te krijgen** — met bij elke winkel de prijs die daar geldt. Dat verschil tussen vinden en
+krijgen is er niet voor de sier: dat verschil bepaalt of je moet zoeken of moet praten. De plaatsnaam komt van
 het landmark dat die kaart in `data/maps/maps.asm` aanwijst, dus staat er IJSPAD en niet
 IcePathB1F.
 
