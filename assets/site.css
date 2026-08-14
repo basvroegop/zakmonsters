@@ -551,3 +551,43 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .aanvaluitleg { display: block; color: var(--tekst-zacht); font-size: .82rem; line-height: 1.4; }
 .aanvallen td.kracht { width: 4.5rem; text-align: right; font-variant-numeric: tabular-nums; }
 .aanvallen th:last-child { text-align: right; }
+
+/* ---- Voorwerpen ----
+   Eén kaart per voorwerp: wat het is, wat het kost en waar het ligt. Geen detailpagina — een
+   voorwerp heeft precies zoveel te vertellen als hier op de kaart past.
+   Sprites zijn er niet: Gen 2 tekent voorwerpen niet, het spel toont ze als tekstlijst. */
+.voorwerplijst {
+  display: grid; gap: .8rem; padding-bottom: 3rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+}
+.voorwerp {
+  background: var(--vlak); border: 1px solid var(--vlak-rand); border-radius: var(--ronding);
+  padding: 1rem 1.1rem; display: grid; gap: .45rem; align-content: start;
+}
+.voorwerpnaam {
+  display: flex; align-items: baseline; justify-content: space-between; gap: .75rem;
+  font-size: 1.05rem; margin: 0;
+}
+/* De prijs is het tweede wat je zoekt na de naam, dus staat hij op dezelfde regel — rechts,
+   zodat de bedragen onder elkaar staan als je de lijst afgaat. */
+.voorwerpprijs {
+  font-size: .9rem; font-weight: 700; color: var(--tekst-zacht);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.voorwerpleert { margin: 0; font-size: .88rem; color: var(--tekst-zacht); }
+.voorwerpleert strong { color: var(--tekst); }
+.voorwerptekst { margin: 0; color: var(--tekst-zacht); }
+.winkels { margin: .15rem 0 0; display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.winkelkop {
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--tekst-zacht);
+  margin-right: .1rem;
+}
+.winkel {
+  font-size: .75rem; padding: .15rem .5rem; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+/* Een afwijkende prijs (de koopjeshoek, de dakverkoop) hoort bij die ene winkel, niet bij het
+   voorwerp — vandaar dat hij in het etiket zelf staat. */
+.winkelprijs { font-weight: 700; font-variant-numeric: tabular-nums; }
+.winkels--geen { font-size: .8rem; color: var(--tekst-zacht); }

@@ -16,8 +16,9 @@ site/
   content/teasers/               ← de grote plaatjes voor de knoppen
   content/pokedex/               ← de Pokédex-gegevens (gemaakt, niet met de hand bewerken)
   content/sprites/               ← de sprite-atlassen bij die Pokédex (idem)
+  content/voorwerpen/            ← de voorwerpgegevens (idem)
   index.html · project.html      ← de twee pagina's (raamwerk)
-  pokedex.html                   ← de Pokédex
+  pokedex.html · voorwerpen.html ← de Pokédex en de voorwerpen
   assets/                        ← stijl + code; alleen aankomen bij vormgeving
   serve.js                       ← minimale webserver om lokaal te bekijken
   publiceer.sh                   ← zet de site online (GitHub Pages)
@@ -42,12 +43,12 @@ De naam die je hier invult, staat ook links in de kopbalk.
 
 ### De kopbalk
 
-Bovenaan elke pagina staat dezelfde balk: de naam links, twee ingangen rechts (**Projecten**
-naar de homepagina en **Pokédex**) en daarnaast de knop voor het nachtthema. Hij blijft bij het
+Bovenaan elke pagina staat dezelfde balk: de naam links, drie ingangen rechts (**Projecten**
+naar de homepagina, **Pokédex** en **Voorwerpen**) en daarnaast de knop voor het nachtthema. Hij blijft bij het
 scrollen staan — op een dexlijst van 251 Pokémon is de weg terug anders ver naar boven.
 
-De ingang naar de Pokédex verschijnt alleen als er ook echt een dex is; zolang geen enkel
-project is afgerond, wijst het menu dus nergens naartoe waar niets staat.
+De ingangen naar de Pokédex en de Voorwerpen verschijnen alleen als die gegevens er ook echt
+zijn; zolang geen enkel project is afgerond, wijst het menu dus nergens naartoe waar niets staat.
 
 De balk staat als HTML in alle drie de pagina's (`index.html`, `project.html`,
 `pokedex.html`) — drie keer dezelfde tien regels. Dat is expres: zo staat het menu er meteen,
@@ -374,6 +375,35 @@ Staat een repo daar niet bij, dan krijgt hij één sprite: die van zichzelf.
 De witte achtergrond waarmee de sprites in het spel staan, wordt in de kopie voor de site
 doorzichtig gemaakt — maar alleen het wit dat vanaf de rand bereikbaar is. Wit dat bij de
 tekening hoort (ogen, tanden, glans) blijft dus staan.
+
+## De Voorwerpdex
+
+`voorwerpen.html` toont alle voorwerpen uit dezelfde afgeronde vertaling: wat ze doen, wat ze
+kosten en in welke winkel ze liggen. Eén kaart per voorwerp, met een zoekveld en een filter op
+de zakken uit het spel (VOORWERPZAK, BEL.ZAK, BALLENZAK, TM-ZAK). Ook dit wordt gemaakt door
+`cms/pokedex.js`, dus de knop **Pokédex verversen** in het CMS bouwt beide.
+
+Waar alles vandaan komt, allemaal uit de vertaalde repo:
+
+| Op de pagina | Uit |
+| --- | --- |
+| Naam | `data/items/names.asm` |
+| Beschrijving | `data/items/descriptions.asm` |
+| Prijs | `data/items/attributes.asm` (`$9999` is de markering "niet te koop", geen bedrag) |
+| Zak | idem, het `pocket`-veld; de zaknamen komen uit `data/items/pocket_names.asm` |
+| Winkels | `data/items/marts.asm`, plus de koopjeshoek en de dakverkoop uit hun eigen tabellen |
+| TM's en HM's | de aanval staat in de constante zelf (`TM_THUNDERPUNCH`); naam, kracht en uitleg komen uit de aanvalsgegevens |
+
+De winkelnamen komen uit `data/maps/landmarks.asm`: het blokje `MartGoldenrod2F1` wordt
+"GOLDENROD CITY (2F)". Zo heet een plek op de site precies zoals in het spel — en in een
+vertaling die plaatsnamen omzet, dus vanzelf mee. De verdieping blijft staan (een warenhuis
+verkoopt per etage iets anders), het volgnummer erachter niet: dat is de tweede toonbank op
+dezelfde etage. De koopjeshoek en de dakverkoop hebben hun eigen prijs, en die staat bij dat
+ene etiket in plaats van bij het voorwerp.
+
+**Sprites zijn er niet.** Gen 2 tekent voorwerpen niet: het spel toont ze als tekstlijst, en er
+staat dan ook geen `gfx/items/` in de repo. Wat er wél is, is de zak waarin iets thuishoort, en
+die staat als filter boven de lijst.
 
 ## Nog te doen
 

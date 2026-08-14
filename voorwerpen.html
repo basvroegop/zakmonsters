@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voorwerpen — Zakmonsters</title>
+<meta name="description" content="Alle voorwerpen uit onze afgeronde vertalingen: waar ze voor dienen, wat ze kosten en in welke winkel ze liggen.">
+<link rel="icon" type="image/png" href="assets/pokeball.png">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+// Vóór het tekenen, anders ziet wie nacht heeft gekozen eerst een lichte flits.
+try { if (localStorage.getItem('thema') === 'donker') document.documentElement.dataset.thema = 'donker'; } catch (e) {}
+</script>
+</head>
+<body>
+<header class="kopbalk">
+  <div class="omhulsel kopbalk-binnen">
+    <a class="merk" href="index.html">
+      <img src="assets/pokeball.png" alt="" width="26" height="26">
+      <span id="merknaam">Zakmonsters</span>
+    </a>
+    <nav class="menu" aria-label="Hoofdmenu">
+      <a href="index.html">Projecten</a>
+      <a href="pokedex.html" id="menuDex" hidden>Pokédex</a>
+      <a href="voorwerpen.html" id="menuVoorwerpen" aria-current="page">Voorwerpen</a>
+    </nav>
+    <button class="themaknop" id="themaknop" type="button" aria-pressed="false">
+      <svg class="maan" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="zon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-13.5a1 1 0 0 1 1 1V6a1 1 0 1 1-2 0V4.5a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1V21a1 1 0 1 1-2 0v-1.5a1 1 0 0 1 1-1zM3.5 12a1 1 0 0 1 1-1H6a1 1 0 1 1 0 2H4.5a1 1 0 0 1-1-1zm14.5 0a1 1 0 0 1 1-1h1.5a1 1 0 1 1 0 2H19a1 1 0 0 1-1-1zM5.6 5.6a1 1 0 0 1 1.4 0l1.1 1.1a1 1 0 0 1-1.4 1.4L5.6 7a1 1 0 0 1 0-1.4zm10.3 10.3a1 1 0 0 1 1.4 0l1.1 1.1a1 1 0 0 1-1.4 1.4l-1.1-1.1a1 1 0 0 1 0-1.4zm2.5-10.3a1 1 0 0 1 0 1.4L17.3 8.1a1 1 0 1 1-1.4-1.4L17 5.6a1 1 0 0 1 1.4 0zM8.1 15.9a1 1 0 0 1 0 1.4L7 18.4A1 1 0 0 1 5.6 17l1.1-1.1a1 1 0 0 1 1.4 0z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="inhoud">
+  <div id="pagina" class="omhulsel"><p class="laden">Laden…</p></div>
+</main>
+
+<footer class="voet">
+  <div class="omhulsel"><p id="voet"></p></div>
+</footer>
+
+<script type="module">
+import { esc, markdown, laadSite } from './assets/content.js';
+import { kopbalk, merknaam } from './assets/kop.js';
+
+kopbalk();
+
+const $ = (id) => document.getElementById(id);
+const zoekparam = () => new URLSearchParams(location.search);
+
+// Net als de Pokédex is dit één opgehaald bestand; zoeken en filteren gebeurt daarna in de
+// pagina zelf, zonder dat er nog iets over de lijn hoeft.
+let dex = null;
+let zak = '';   // lege waarde = alle zakken
+
+// Bedragen zoals het spel ze schrijft: het yen-teken uit de ROM, met puntjes per duizendtal.
+const geld = (n) => `¥${Number(n).toLocaleString('nl-NL')}`;
+
+function knoppenbalk(zoek) {
+  // De zakken uit het spel zijn meteen het filter: BALLENZAK, TM-ZAK, … Alleen zakken die in
+  // deze vertaling ook echt voorwerpen hebben, krijgen een knop.
+  const aanwezig = Object.entries(dex.zakken || {})
+    .filter(([sleutel]) => dex.voorwerpen.some((v) => v.zak === sleutel));
+  return `<div class="dexbalk">
+      <input id="zoek" type="search" placeholder="Zoek op naam of beschrijving" value="${esc(zoek || '')}"
+             aria-label="Zoek een voorwerp">
+      ${aanwezig.length > 1 ? `<div class="wissel wissel--klein" role="tablist" aria-label="Zak">
+        <button class="wisselknop${zak ? '' : ' is-actief'}" data-zak="" role="tab"
+          aria-selected="${!zak}">Alles</button>
+        ${aanwezig.map(([sleutel, naam]) => `<button class="wisselknop${zak === sleutel ? ' is-actief' : ''}"
+            data-zak="${esc(sleutel)}" role="tab" aria-selected="${zak === sleutel}">${esc(naam)}</button>`).join('')}
+      </div>` : ''}
+    </div>`;
+}
+
+function kaartHtml(v) {
+  const winkels = (v.winkels || []).map((w) => `<span class="winkel">${esc(w.locatie)}${w.prijs
+    ? ` <span class="winkelprijs">${geld(w.prijs)}</span>` : ''}</span>`).join('');
+  return `<article class="voorwerp">
+      <h2 class="voorwerpnaam">${esc(v.naam)}
+        ${v.prijs ? `<span class="voorwerpprijs">${geld(v.prijs)}</span>` : ''}</h2>
+      ${v.leert ? `<p class="voorwerpleert">Leert <strong>${esc(v.leert)}</strong>${v.kracht
+        ? ` · kracht ${v.kracht}` : ''}</p>` : ''}
+      ${v.beschrijving ? `<p class="voorwerptekst">${esc(v.beschrijving)}</p>` : ''}
+      ${winkels
+        ? `<p class="winkels"><span class="winkelkop">Te koop in</span>${winkels}</p>`
+        : '<p class="winkels winkels--geen">Niet in een winkel te koop.</p>'}
+    </article>`;
+}
+
+function lijstHtml(zoek) {
+  const term = String(zoek || '').trim().toLowerCase();
+  const treffers = dex.voorwerpen.filter((v) => (!zak || v.zak === zak) && (!term
+    || v.naam.toLowerCase().includes(term)
+    || String(v.beschrijving || '').toLowerCase().includes(term)
+    || String(v.leert || '').toLowerCase().includes(term)
+    || (v.winkels || []).some((w) => w.locatie.toLowerCase().includes(term))));
+  if (!treffers.length) return '<p class="leeg">Geen voorwerpen gevonden.</p>';
+  return `<div class="voorwerplijst">${treffers.map(kaartHtml).join('')}</div>`;
+}
+
+function teken() {
+  const zoek = zoekparam().get('q') || '';
+  $('pagina').innerHTML = `
+    <h1>Voorwerpen</h1>
+    <p class="uitleg">Alle ${dex.voorwerpen.length} voorwerpen uit onze vertaling van ${esc(dex.spel)},
+      met wat ze doen, wat ze kosten en waar ze liggen.</p>
+    ${knoppenbalk(zoek)}
+    <div id="lijst">${lijstHtml(zoek)}</div>`;
+
+  const veld = $('zoek');
+  if (veld) {
+    veld.oninput = () => { $('lijst').innerHTML = lijstHtml(veld.value); };
+    if (zoek) { veld.focus(); veld.setSelectionRange(zoek.length, zoek.length); }
+  }
+  for (const knop of document.querySelectorAll('[data-zak]')) {
+    knop.onclick = () => {
+      zak = knop.dataset.zak;
+      const term = $('zoek') ? $('zoek').value : '';
+      teken();
+      if (term && $('zoek')) { $('zoek').value = term; $('lijst').innerHTML = lijstHtml(term); }
+    };
+  }
+}
+
+(async () => {
+  const site = await laadSite().catch(() => ({}));
+  merknaam(site.titel);
+  $('voet').innerHTML = markdown(site.footer || '');
+
+  try {
+    const index = await (await fetch('content/voorwerpen/index.json', { cache: 'no-cache' })).json();
+    const eerste = (index.dexen || [])[0];
+    if (!eerste) throw new Error('geen voorwerpen');
+    dex = await (await fetch(`content/voorwerpen/${eerste.project}.json`, { cache: 'no-cache' })).json();
+  } catch (err) {
+    console.error(err);
+    $('pagina').innerHTML = `<a class="terug" href="index.html">← Terug naar de projecten</a>
+      <div class="fout-blok"><h1>Voorwerpen nog niet beschikbaar</h1>
+      <p>Zodra een vertaling is afgerond, verschijnen ze hier.</p></div>`;
+    return;
+  }
+
+  teken();
+})();
+</script>
+</body>
+</html>

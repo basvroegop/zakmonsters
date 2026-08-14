@@ -33,16 +33,21 @@ export function themaknop() {
 }
 
 // ---- Menu ----
-// De Pokédex bestaat alleen zolang er een afgerond project is. De ingang begint daarom
-// verborgen en verschijnt pas als die gegevens er echt zijn; zo wijst het menu nooit naar een
-// lege pagina. Op de dexpagina zelf staat hij al open — daar ben je immers.
-export function dexMenu() {
-  const item = $('menuDex');
+// De Pokédex en de Voorwerpen bestaan alleen zolang er een afgerond project is. Die ingangen
+// beginnen daarom verborgen en verschijnen pas als die gegevens er echt zijn; zo wijst het menu
+// nooit naar een lege pagina. Op de pagina zelf staat de ingang al open — daar ben je immers.
+function ingang(id, bron) {
+  const item = $(id);
   if (!item || !item.hidden) return;
-  fetch('content/pokedex/index.json', { cache: 'no-cache' })
+  fetch(bron, { cache: 'no-cache' })
     .then((r) => (r.ok ? r.json() : null))
     .then((d) => { if (d && (d.dexen || []).length) item.hidden = false; })
-    .catch(() => { /* geen dex, geen ingang */ });
+    .catch(() => { /* niets om naartoe te wijzen */ });
+}
+
+export function dexMenu() {
+  ingang('menuDex', 'content/pokedex/index.json');
+  ingang('menuVoorwerpen', 'content/voorwerpen/index.json');
 }
 
 // De naam in de balk volgt de titel uit site.json, zodat een naamswijziging in het CMS ook
