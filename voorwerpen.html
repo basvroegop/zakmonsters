@@ -22,6 +22,7 @@ try { if (localStorage.getItem('thema') === 'donker') document.documentElement.d
     <nav class="menu" aria-label="Hoofdmenu">
       <a href="index.html">Projecten</a>
       <a href="pokedex.html" id="menuDex" hidden>Pokédex</a>
+      <a href="aanvallen.html" id="menuAanvallen" hidden>Aanvallen</a>
       <a href="voorwerpen.html" id="menuVoorwerpen" aria-current="page">Voorwerpen</a>
     </nav>
     <button class="themaknop" id="themaknop" type="button" aria-pressed="false">
@@ -84,17 +85,50 @@ function knoppenbalk(zoek) {
     </div>`;
 }
 
+const winkelsHtml = (v) => (v.winkels || []).map((w) => `<span class="winkel">${esc(w.locatie)}${w.prijs
+  ? ` <span class="winkelprijs">${geld(w.prijs)}</span>` : ''}</span>`).join('');
+
+// De aanval die een TM leert, linkt door naar de aanvalspagina; daar staat wie hem nog meer kan.
+const leertHtml = (v) => (v.leert ? `<p class="voorwerpleert">Leert <strong>${v.aanval
+  ? `<a href="aanvallen.html?a=${encodeURIComponent(v.aanval)}">${esc(v.leert)}</a>`
+  : esc(v.leert)}</strong>${v.kracht ? ` · kracht ${v.kracht}` : ''}</p>` : '');
+
+// In de lijst is de hele kaart een link naar zijn eigen pagina. Daar staat hetzelfde, maar dan
+// als bestemming: een aanval of een Pokémon kan ernaartoe wijzen.
 function kaartHtml(v) {
-  const winkels = (v.winkels || []).map((w) => `<span class="winkel">${esc(w.locatie)}${w.prijs
-    ? ` <span class="winkelprijs">${geld(w.prijs)}</span>` : ''}</span>`).join('');
-  return `<article class="voorwerp">
-      <h2 class="voorwerpnaam">${esc(v.naam)}
-        ${v.prijs ? `<span class="voorwerpprijs">${geld(v.prijs)}</span>` : ''}</h2>
-      ${v.leert ? `<p class="voorwerpleert">Leert <strong>${esc(v.leert)}</strong>${v.kracht
-        ? ` · kracht ${v.kracht}` : ''}</p>` : ''}
-      ${v.beschrijving ? `<p class="voorwerptekst">${esc(v.beschrijving)}</p>` : ''}
-      ${winkels ? `<p class="winkels"><span class="winkelkop">Te koop in</span>${winkels}</p>` : ''}
-    </article>`;
+  const winkels = winkelsHtml(v);
+  return `<a class="voorwerp" href="voorwerpen.html?v=${encodeURIComponent(v.const)}">
+      <span class="voorwerpnaam">${esc(v.naam)}
+        ${v.prijs ? `<span class="voorwerpprijs">${geld(v.prijs)}</span>` : ''}</span>
+      ${v.leert ? `<span class="voorwerpleert">Leert <strong>${esc(v.leert)}</strong>${v.kracht
+        ? ` · kracht ${v.kracht}` : ''}</span>` : ''}
+      ${v.beschrijving ? `<span class="voorwerptekst">${esc(v.beschrijving)}</span>` : ''}
+      ${winkels ? `<span class="winkels"><span class="winkelkop">Te koop in</span>${winkels}</span>` : ''}
+    </a>`;
+}
+
+function detailHtml(v) {
+  const winkels = winkelsHtml(v);
+  return `<a class="terug" href="voorwerpen.html">← Alle voorwerpen</a>
+    <div class="dexkop">
+      <h1>${esc(v.naam)}</h1>
+      <p class="dextypen">
+        ${v.zak ? `<span class="type">${esc(zakLabel(v.zak))}</span>` : ''}
+        ${v.prijs ? `<span class="voorwerpprijs">${geld(v.prijs)}</span>` : ''}
+      </p>
+    </div>
+    <div class="dexdetail">
+      <section class="blok blok--breed">
+        ${v.beschrijving ? `<p class="aanvaltekst">${esc(v.beschrijving)}</p>` : ''}
+        ${leertHtml(v)}
+      </section>
+      <section class="blok blok--breed">
+        <h2>Te koop in</h2>
+        ${winkels
+          ? `<p class="winkels">${winkels}</p>`
+          : '<p class="uitleg">Dit voorwerp ligt in geen enkele winkel.</p>'}
+      </section>
+    </div>`;
 }
 
 function lijstHtml(zoek) {
@@ -109,11 +143,19 @@ function lijstHtml(zoek) {
 }
 
 function teken() {
+  const gevraagd = zoekparam().get('v');
+  if (gevraagd) {
+    const voorwerp = dex.voorwerpen.find((v) => v.const === gevraagd);
+    $('pagina').innerHTML = voorwerp ? detailHtml(voorwerp)
+      : `<a class="terug" href="voorwerpen.html">← Alle voorwerpen</a>
+         <div class="fout-blok"><h1>Niet gevonden</h1><p>Dit voorwerp staat niet in de lijst.</p></div>`;
+    document.title = voorwerp ? `${voorwerp.naam} — Voorwerpen` : 'Voorwerpen';
+    return;
+  }
+
   const zoek = zoekparam().get('q') || '';
   $('pagina').innerHTML = `
     <h1>Voorwerpen</h1>
-    <p class="uitleg">Alle ${dex.voorwerpen.length} voorwerpen uit onze vertaling van ${esc(dex.spel)},
-      met wat ze doen, wat ze kosten en waar ze liggen.</p>
     ${knoppenbalk(zoek)}
     <div id="lijst">${lijstHtml(zoek)}</div>`;
 

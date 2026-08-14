@@ -22,6 +22,7 @@ try { if (localStorage.getItem('thema') === 'donker') document.documentElement.d
     <nav class="menu" aria-label="Hoofdmenu">
       <a href="index.html">Projecten</a>
       <a href="pokedex.html" id="menuDex" aria-current="page">Pokédex</a>
+      <a href="aanvallen.html" id="menuAanvallen" hidden>Aanvallen</a>
       <a href="voorwerpen.html" id="menuVoorwerpen" hidden>Voorwerpen</a>
     </nav>
     <button class="themaknop" id="themaknop" type="button" aria-pressed="false">
@@ -263,7 +264,9 @@ function detailHtml(s) {
     ? `<table class="aanvallen"><thead><tr><th>Level</th><th>Aanval</th><th>Kracht</th></tr></thead><tbody>
         ${s.aanvallen.map((a) => `<tr>
           <td>${a.level === 1 ? '—' : a.level}</td>
-          <td>${esc(a.naam)}${a.uitleg ? `<span class="aanvaluitleg">${esc(a.uitleg)}</span>` : ''}</td>
+          <td>${a.aanval
+            ? `<a href="aanvallen.html?a=${encodeURIComponent(a.aanval)}">${esc(a.naam)}</a>`
+            : esc(a.naam)}${a.uitleg ? `<span class="aanvaluitleg">${esc(a.uitleg)}</span>` : ''}</td>
           <td class="kracht">${a.kracht || '—'}</td>
         </tr>`).join('')}
       </tbody></table>`
@@ -301,7 +304,6 @@ function teken() {
     // Geen "terug naar de site" boven de lijst: dat is precies wat de kopbalk doet.
     $('pagina').innerHTML = `
       <h1>Pokédex</h1>
-      <p class="uitleg">De ${dex.soorten.length} Pokémon uit onze vertaling van ${esc(dex.spel)}.</p>
       ${knoppenbalk(zoek)}
       <div id="lijst">${lijstHtml(zoek)}</div>`;
     const veld = $('zoek');

@@ -560,13 +560,17 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
   display: grid; gap: .8rem; padding-bottom: 3rem;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
 }
+/* De kaart is zelf de link naar de eigen pagina van het voorwerp; daar wijzen de aanvallen en
+   de TM's naartoe. */
 .voorwerp {
   background: var(--vlak); border: 1px solid var(--vlak-rand); border-radius: var(--ronding);
   padding: 1rem 1.1rem; display: grid; gap: .45rem; align-content: start;
+  text-decoration: none; color: var(--tekst); transition: border-color .15s ease;
 }
+.voorwerp:hover { border-color: var(--accent); color: var(--tekst); }
 .voorwerpnaam {
   display: flex; align-items: baseline; justify-content: space-between; gap: .75rem;
-  font-size: 1.05rem; margin: 0;
+  font-size: 1.05rem; margin: 0; font-weight: 700;
 }
 /* De prijs is het tweede wat je zoekt na de naam, dus staat hij op dezelfde regel — rechts,
    zodat de bedragen onder elkaar staan als je de lijst afgaat. */
@@ -590,3 +594,39 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 /* Een afwijkende prijs (de koopjeshoek, de dakverkoop) hoort bij die ene winkel, niet bij het
    voorwerp — vandaar dat hij in het etiket zelf staat. */
 .winkelprijs { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---- Aanvallen ----
+   De lijst leent de vorm van de dexlijst; op de detailpagina staat wie hem leert. Dat zijn er
+   soms zestig, dus geen tabel maar etiketten die je met één blik afscant. */
+.aanvalkracht {
+  font-size: .78rem; font-variant-numeric: tabular-nums; color: var(--tekst-zacht);
+  min-width: 2ch; text-align: right;
+}
+.aanvaltekst { margin: 0 0 .75rem; }
+.aanvalcijfers { display: flex; flex-wrap: wrap; gap: 1.75rem; }
+.aanvalcijfer { display: flex; flex-direction: column; }
+.aanvalcijferlabel {
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--tekst-zacht);
+}
+.aanvalcijferwaarde { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* De TM of HM waarin een aanval zit, naast het type in de kop. */
+.tmhm { display: inline-flex; gap: .35rem; margin-left: .35rem; }
+.tmknop {
+  font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-decoration: none;
+  padding: .15rem .5rem; border-radius: 999px; color: var(--tekst);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.tmknop:hover { color: var(--tekst); background: color-mix(in srgb, var(--accent) 40%, transparent); }
+
+.monsterlijst { display: flex; flex-wrap: wrap; gap: .35rem; }
+.monster {
+  display: inline-flex; align-items: baseline; gap: .4rem; text-decoration: none;
+  font-size: .82rem; color: var(--tekst); padding: .2rem .55rem; border-radius: 999px;
+  background: var(--veld); border: 1px solid var(--vlak-rand);
+}
+.monster:hover { color: var(--tekst); border-color: var(--accent); }
+.monsterlevel { color: var(--tekst-zacht); font-size: .74rem; font-variant-numeric: tabular-nums; }
+/* Een blok zonder inhoud hoeft niet even groot te zijn als een blok met zestig namen. */
+.blok--leeg { align-self: start; }

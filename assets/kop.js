@@ -47,6 +47,7 @@ function ingang(id, bron) {
 
 export function dexMenu() {
   ingang('menuDex', 'content/pokedex/index.json');
+  ingang('menuAanvallen', 'content/aanvallen/index.json');
   ingang('menuVoorwerpen', 'content/voorwerpen/index.json');
 }
 

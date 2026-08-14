@@ -17,8 +17,9 @@ site/
   content/pokedex/               ← de Pokédex-gegevens (gemaakt, niet met de hand bewerken)
   content/sprites/               ← de sprite-atlassen bij die Pokédex (idem)
   content/voorwerpen/            ← de voorwerpgegevens (idem)
+  content/aanvallen/             ← de aanvalsgegevens (idem)
   index.html · project.html      ← de twee pagina's (raamwerk)
-  pokedex.html · voorwerpen.html ← de Pokédex en de voorwerpen
+  pokedex.html · aanvallen.html · voorwerpen.html   ← de drie naslagpagina's
   assets/                        ← stijl + code; alleen aankomen bij vormgeving
   serve.js                       ← minimale webserver om lokaal te bekijken
   publiceer.sh                   ← zet de site online (GitHub Pages)
@@ -43,12 +44,14 @@ De naam die je hier invult, staat ook links in de kopbalk.
 
 ### De kopbalk
 
-Bovenaan elke pagina staat dezelfde balk: de naam links, drie ingangen rechts (**Projecten**
-naar de homepagina, **Pokédex** en **Voorwerpen**) en daarnaast de knop voor het nachtthema. Hij blijft bij het
+Bovenaan elke pagina staat dezelfde balk: de naam links, vier ingangen rechts (**Projecten**
+naar de homepagina, **Pokédex**, **Aanvallen** en **Voorwerpen**) en daarnaast de knop voor het
+nachtthema. Hij blijft bij het
 scrollen staan — op een dexlijst van 251 Pokémon is de weg terug anders ver naar boven.
 
-De ingangen naar de Pokédex en de Voorwerpen verschijnen alleen als die gegevens er ook echt
-zijn; zolang geen enkel project is afgerond, wijst het menu dus nergens naartoe waar niets staat.
+De ingangen naar de Pokédex, de Aanvallen en de Voorwerpen verschijnen alleen als die gegevens
+er ook echt zijn; zolang geen enkel project is afgerond, wijst het menu dus nergens naartoe waar
+niets staat.
 
 De balk staat als HTML in alle drie de pagina's (`index.html`, `project.html`,
 `pokedex.html`) — drie keer dezelfde tien regels. Dat is expres: zo staat het menu er meteen,
@@ -375,6 +378,30 @@ Staat een repo daar niet bij, dan krijgt hij één sprite: die van zichzelf.
 De witte achtergrond waarmee de sprites in het spel staan, wordt in de kopie voor de site
 doorzichtig gemaakt — maar alleen het wit dat vanaf de rand bereikbaar is. Wit dat bij de
 tekening hoort (ogen, tanden, glans) blijft dus staan.
+
+## De Aanvallen
+
+`aanvallen.html` toont alle aanvallen uit dezelfde vertaling, met per aanval een eigen pagina:
+kracht, precisie, PP, de beschrijving uit het spel, wie hem leert door te levelen, wie hem kan
+leren met een TM of HM, en om welke TM het dan gaat.
+
+De cijfers komen uit `data/moves/moves.asm`, de tekst uit `data/moves/descriptions.asm` en de
+naam uit `data/moves/names.asm`. Wie een aanval leert staat níét bij de aanval maar bij elke
+Pokémon (de levellijst en de `tmhm`-regel in `base_stats`); de generator draait dat om, zodat je
+het per aanval kunt opzoeken. Wat in de constantenlijst geen regel in `moves.asm` heeft, is geen
+aanval maar een gevechtsanimatie (ANIM_WOBBLE) en valt weg.
+
+### Alles wijst naar elkaar
+
+De drie lijsten hangen aan elkaar, zodat je kunt doorklikken in plaats van terugzoeken:
+
+- in de **Pokédex** is elke aanval in de levellijst een link naar die aanval;
+- op een **aanvalspagina** linkt elke Pokémon naar zijn dexpagina, en de TM of HM naar dat
+  voorwerp;
+- op een **voorwerppagina** linkt de aanval van een TM terug naar de aanvalspagina.
+
+Daarvoor heeft elk voorwerp nu ook een eigen pagina (`voorwerpen.html?v=TM_THUNDERPUNCH`): een
+verwijzing moet ergens uitkomen.
 
 ## De Voorwerpdex
 

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aanvallen — Zakmonsters</title>
+<meta name="description" content="Alle aanvallen uit onze afgeronde vertalingen: kracht, precisie, wie ze leert en met welke TM of HM.">
+<link rel="icon" type="image/png" href="assets/pokeball.png">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+// Vóór het tekenen, anders ziet wie nacht heeft gekozen eerst een lichte flits.
+try { if (localStorage.getItem('thema') === 'donker') document.documentElement.dataset.thema = 'donker'; } catch (e) {}
+</script>
+</head>
+<body>
+<header class="kopbalk">
+  <div class="omhulsel kopbalk-binnen">
+    <a class="merk" href="index.html">
+      <img src="assets/pokeball.png" alt="" width="26" height="26">
+      <span id="merknaam">Zakmonsters</span>
+    </a>
+    <nav class="menu" aria-label="Hoofdmenu">
+      <a href="index.html">Projecten</a>
+      <a href="pokedex.html" id="menuDex" hidden>Pokédex</a>
+      <a href="aanvallen.html" id="menuAanvallen" aria-current="page">Aanvallen</a>
+      <a href="voorwerpen.html" id="menuVoorwerpen" hidden>Voorwerpen</a>
+    </nav>
+    <button class="themaknop" id="themaknop" type="button" aria-pressed="false">
+      <svg class="maan" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="zon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-13.5a1 1 0 0 1 1 1V6a1 1 0 1 1-2 0V4.5a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1V21a1 1 0 1 1-2 0v-1.5a1 1 0 0 1 1-1zM3.5 12a1 1 0 0 1 1-1H6a1 1 0 1 1 0 2H4.5a1 1 0 0 1-1-1zm14.5 0a1 1 0 0 1 1-1h1.5a1 1 0 1 1 0 2H19a1 1 0 0 1-1-1zM5.6 5.6a1 1 0 0 1 1.4 0l1.1 1.1a1 1 0 0 1-1.4 1.4L5.6 7a1 1 0 0 1 0-1.4zm10.3 10.3a1 1 0 0 1 1.4 0l1.1 1.1a1 1 0 0 1-1.4 1.4l-1.1-1.1a1 1 0 0 1 0-1.4zm2.5-10.3a1 1 0 0 1 0 1.4L17.3 8.1a1 1 0 1 1-1.4-1.4L17 5.6a1 1 0 0 1 1.4 0zM8.1 15.9a1 1 0 0 1 0 1.4L7 18.4A1 1 0 0 1 5.6 17l1.1-1.1a1 1 0 0 1 1.4 0z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="inhoud">
+  <div id="pagina" class="omhulsel"><p class="laden">Laden…</p></div>
+</main>
+
+<footer class="voet">
+  <div class="omhulsel"><p id="voet"></p></div>
+</footer>
+
+<script type="module">
+import { esc, markdown, laadSite } from './assets/content.js';
+import { kopbalk, merknaam } from './assets/kop.js';
+
+kopbalk();
+
+const $ = (id) => document.getElementById(id);
+const zoekparam = () => new URLSearchParams(location.search);
+
+// Eén bestand met alle aanvallen; zoeken en de detailpagina komen daarna uit de pagina zelf.
+let lijst = null;
+
+const typeHtml = (a) => (a.type
+  ? `<span class="type type--${esc(a.type.soort)}">${esc(a.type.naam.toLowerCase())}</span>` : '');
+// Een aanval zonder kracht doet geen schade (statusaanval); een streepje zegt dat duidelijker
+// dan een 0.
+const kracht = (a) => (a.kracht ? String(a.kracht) : '—');
+
+function lijstHtml(zoek) {
+  const term = String(zoek || '').trim().toLowerCase();
+  const treffers = lijst.aanvallen.filter((a) => !term
+    || a.naam.toLowerCase().includes(term)
+    || String(a.beschrijving || '').toLowerCase().includes(term)
+    || (a.type && a.type.naam.toLowerCase().includes(term))
+    || (a.tmhm || []).some((t) => t.naam.toLowerCase().includes(term)));
+  if (!treffers.length) return '<p class="leeg">Geen aanvallen gevonden.</p>';
+  return `<div class="dexlijst">${treffers.map((a) => `
+      <a class="dexknop" href="aanvallen.html?a=${encodeURIComponent(a.const)}">
+        <span class="dexregel">
+          <span class="dexnaam">${esc(a.naam)}</span>
+          <span class="dextypen">${typeHtml(a)}
+            <span class="aanvalkracht">${kracht(a)}</span></span>
+        </span>
+      </a>`).join('')}</div>`;
+}
+
+// Een rijtje Pokémon dat naar de dex linkt. Zo kun je van een aanval doorklikken naar het
+// beestje dat hem leert, en daar weer terug naar zijn andere aanvallen.
+function monsterlijst(wie, metLevel) {
+  if (!wie || !wie.length) return '';
+  return `<div class="monsterlijst">${wie.map((m) => `
+      <a class="monster" href="pokedex.html?nr=${m.nr}">
+        <span class="monsternaam">${esc(m.naam)}</span>
+        ${metLevel && m.level ? `<span class="monsterlevel">${m.level === 1 ? 'start' : `lv. ${m.level}`}</span>` : ''}
+      </a>`).join('')}</div>`;
+}
+
+function detailHtml(a) {
+  const cijfers = [
+    ['Kracht', kracht(a)],
+    ['Precisie', a.precisie ? `${a.precisie}%` : '—'],
+    ['PP', a.pp || '—'],
+  ].map(([label, waarde]) => `<div class="aanvalcijfer">
+      <span class="aanvalcijferlabel">${label}</span><span class="aanvalcijferwaarde">${esc(String(waarde))}</span>
+    </div>`).join('');
+
+  // De TM of HM waar deze aanval in zit, linkt door naar het voorwerp — daar staat wat hij kost
+  // en waar hij te koop is.
+  const tmhm = (a.tmhm || []).map((t) => `<a class="tmknop"
+      href="voorwerpen.html?v=${encodeURIComponent(t.const)}">${esc(t.naam)}</a>`).join('');
+
+  return `<a class="terug" href="aanvallen.html">← Alle aanvallen</a>
+    <div class="dexkop">
+      <h1>${esc(a.naam)}</h1>
+      <p class="dextypen">${typeHtml(a)}${tmhm ? `<span class="tmhm">${tmhm}</span>` : ''}</p>
+    </div>
+
+    <div class="dexdetail">
+      <section class="blok blok--breed">
+        ${a.beschrijving ? `<p class="aanvaltekst">${esc(a.beschrijving)}</p>` : ''}
+        <div class="aanvalcijfers">${cijfers}</div>
+      </section>
+
+      <section class="blok${(a.leren || []).length ? '' : ' blok--leeg'}">
+        <h2>Leert het zelf</h2>
+        ${(a.leren || []).length
+          ? monsterlijst(a.leren, true)
+          : '<p class="uitleg">Geen enkele soort leert deze aanval door te levelen.</p>'}
+      </section>
+
+      <section class="blok${(a.viaTmhm || []).length ? '' : ' blok--leeg'}">
+        <h2>Via ${tmhm ? 'TM of HM' : 'een leraar'}</h2>
+        ${(a.viaTmhm || []).length
+          ? monsterlijst(a.viaTmhm, false)
+          : '<p class="uitleg">Niet aan te leren met een TM of HM.</p>'}
+      </section>
+    </div>`;
+}
+
+function teken() {
+  const gevraagd = zoekparam().get('a');
+  if (gevraagd) {
+    const aanval = lijst.aanvallen.find((a) => a.const === gevraagd);
+    $('pagina').innerHTML = aanval ? detailHtml(aanval)
+      : `<a class="terug" href="aanvallen.html">← Alle aanvallen</a>
+         <div class="fout-blok"><h1>Niet gevonden</h1><p>Deze aanval staat niet in de lijst.</p></div>`;
+    document.title = aanval ? `${aanval.naam} — Aanvallen` : 'Aanvallen';
+    return;
+  }
+
+  const zoek = zoekparam().get('q') || '';
+  $('pagina').innerHTML = `
+    <h1>Aanvallen</h1>
+    <div class="dexbalk">
+      <input id="zoek" type="search" placeholder="Zoek op naam, type of beschrijving" value="${esc(zoek)}"
+             aria-label="Zoek een aanval">
+    </div>
+    <div id="lijst">${lijstHtml(zoek)}</div>`;
+  const veld = $('zoek');
+  if (veld) {
+    veld.oninput = () => { $('lijst').innerHTML = lijstHtml(veld.value); };
+    if (zoek) { veld.focus(); veld.setSelectionRange(zoek.length, zoek.length); }
+  }
+}
+
+(async () => {
+  const site = await laadSite().catch(() => ({}));
+  merknaam(site.titel);
+  $('voet').innerHTML = markdown(site.footer || '');
+
+  try {
+    const index = await (await fetch('content/aanvallen/index.json', { cache: 'no-cache' })).json();
+    const eerste = (index.dexen || [])[0];
+    if (!eerste) throw new Error('geen aanvallen');
+    lijst = await (await fetch(`content/aanvallen/${eerste.project}.json`, { cache: 'no-cache' })).json();
+  } catch (err) {
+    console.error(err);
+    $('pagina').innerHTML = `<a class="terug" href="index.html">← Terug naar de projecten</a>
+      <div class="fout-blok"><h1>Aanvallen nog niet beschikbaar</h1>
+      <p>Zodra een vertaling is afgerond, verschijnen ze hier.</p></div>`;
+    return;
+  }
+
+  teken();
+})();
+</script>
+</body>
+</html>
