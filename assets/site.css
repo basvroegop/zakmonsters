@@ -466,7 +466,7 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .dexmeta { color: var(--tekst-zacht); font-size: .85rem; margin-bottom: .5rem !important; }
 
 .dexdetail {
-  display: grid; gap: 1rem; padding-bottom: 3rem; align-items: start;
+  display: grid; gap: 1rem; padding-bottom: 3rem; align-items: stretch;
   grid-template-columns: minmax(0, 1fr);
 }
 /* Op een breed scherm staan de basiswaarden en de evolutielijn naast elkaar, maar níét in twee
@@ -482,6 +482,14 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .statrij { display: grid; grid-template-columns: 7.5rem 2.25rem minmax(0, 1fr); align-items: center; gap: .5rem; font-size: .9rem; }
 .statwaarde { text-align: right; font-variant-numeric: tabular-nums; color: var(--tekst); }
 .statrij .balk { height: 7px; }
+
+/* Het evolutieblok is even hoog als de basiswaarden ernaast (de rij rekt beide tot dezelfde
+   hoogte). De lijn zwemt daar niet bovenin: hij pakt de overgebleven ruimte en gaat er midden
+   in staan, zodat de twee blokken als één rij lezen in plaats van als een hoog en een laag vak. */
+.blok--evolutie { display: flex; flex-direction: column; }
+.blok--evolutie .evolijn,
+.blok--evolutie .uitleg { flex: 1 1 auto; }
+.blok--evolutie .uitleg { display: flex; align-items: center; margin: 0; }
 
 /* De hele evolutielijn, van basisvorm tot eindvorm, met de soort waar je naar kijkt gemarkeerd.
    Elk stadium is een kolom: een lijn die splitst (Eevee, Poliwhirl) zet zijn takken onder

@@ -309,6 +309,9 @@ een drietrapsreeks is breder dan een halve pagina, dus de basiswaarden krijgen e
 smallere kolom (hun balken hebben die ruimte niet nodig) en de lijn de rest. Daaronder gaat
 alles onder elkaar.
 
+Beide blokken zijn even hoog, en de lijn staat midden in de ruimte die overblijft — anders
+hangt hij bovenin een half leeg vak naast een volle lijst.
+
 ### De typetags
 
 Elk type heeft zijn eigen kleur (ijs lichtblauw, vuur rood). Die kleur hangt aan het type-id uit
