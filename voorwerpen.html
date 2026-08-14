@@ -53,6 +53,14 @@ const zoekparam = () => new URLSearchParams(location.search);
 // pagina zelf, zonder dat er nog iets over de lijn hoeft.
 let dex = null;
 let zak = '';   // lege waarde = alle zakken
+// De Speciale Editie vertaalt ook de plaatsnamen (GOLDENROD CITY wordt GULDEN ROEDESTAD). Op de
+// pagina van een voorwerp wissel je daartussen; de keuze blijft staan als je doorklikt.
+const SEKEUZE = 'voorwerpenSe';
+let seAan = (() => { try { return localStorage.getItem(SEKEUZE) === '1'; } catch { return false; } })();
+
+// Wat er van dit voorwerp getoond wordt: de gewone uitvoering, of die van de editie waar hij
+// eigen namen heeft.
+const uitvoering = (v) => (seAan && v.se ? { ...v, ...v.se } : v);
 
 // Bedragen zoals het spel ze schrijft: het yen-teken uit de ROM, met puntjes per duizendtal.
 const geld = (n) => `¥${Number(n).toLocaleString('nl-NL')}`;
@@ -112,30 +120,39 @@ const leertHtml = (v) => (v.leert ? `<p class="voorwerpleert">Leert <strong>${v.
 
 // In de lijst is de hele kaart een link naar zijn eigen pagina. Daar staat hetzelfde, maar dan
 // als bestemming: een aanval of een Pokémon kan ernaartoe wijzen.
+// In het overzicht alleen wat een voorwerp ís; de prijs en de plaatsen staan op zijn eigen
+// pagina. Zo blijft de lijst een lijst die je afscant in plaats van een muur.
 function kaartHtml(v) {
-  const winkels = winkelsHtml(v);
   return `<a class="voorwerp" href="voorwerpen.html?v=${encodeURIComponent(v.const)}">
-      <span class="voorwerpnaam">${esc(v.naam)}
-        ${v.prijs ? `<span class="voorwerpprijs">${geld(v.prijs)}</span>` : ''}</span>
-      ${v.leert ? `<span class="voorwerpleert">Leert <strong>${esc(v.leert)}</strong>${v.kracht
-        ? ` · kracht ${v.kracht}` : ''}</span>` : ''}
+      <span class="voorwerpnaam">${esc(v.naam)}</span>
+      ${v.leert ? `<span class="voorwerpleert">Leert <strong>${esc(v.leert)}</strong></span>` : ''}
       ${v.beschrijving ? `<span class="voorwerptekst">${esc(v.beschrijving)}</span>` : ''}
-      ${winkels ? `<span class="winkels"><span class="winkelkop">Te koop in</span>${winkels}</span>` : ''}
     </a>`;
 }
 
-function detailHtml(v) {
+function detailHtml(voorwerp) {
+  const v = uitvoering(voorwerp);
   const winkels = winkelsHtml(v);
   const plekken = v.vindplaatsen || [];
   const teVinden = plekken.filter((p) => p.soort !== 'gekregen');
   const teKrijgen = plekken.filter((p) => p.soort === 'gekregen');
+  // Alleen een knopje als deze editie voor dít voorwerp ook echt iets anders schrijft.
+  const wissel = dex.seNamen && voorwerp.se ? `<div class="wissel wissel--klein" role="tablist"
+      aria-label="Uitvoering">
+      <button class="wisselknop${seAan ? '' : ' is-actief'}" data-se="0" role="tab"
+        aria-selected="${!seAan}">${esc(dex.spel)}</button>
+      <button class="wisselknop${seAan ? ' is-actief' : ''}" data-se="1" role="tab"
+        aria-selected="${seAan}">Speciale Editie</button>
+    </div>` : '';
+
   return `<a class="terug" href="voorwerpen.html">← Alle voorwerpen</a>
     <div class="dexkop">
-      <h1>${esc(v.naam)}</h1>
+      <h1>${esc(seAan && voorwerp.naamSe ? voorwerp.naamSe : voorwerp.naam)}</h1>
       <p class="dextypen">
         ${v.zak ? `<span class="type">${esc(zakLabel(v.zak))}</span>` : ''}
         ${v.prijs ? `<span class="voorwerpprijs">${geld(v.prijs)}</span>` : ''}
       </p>
+      ${wissel}
     </div>
     <div class="dexdetail">
       <section class="blok blok--breed">
@@ -173,6 +190,18 @@ function lijstHtml(zoek) {
   return `<div class="voorwerplijst">${treffers.map(kaartHtml).join('')}</div>`;
 }
 
+// Wisselen tussen de gewone uitvoering en de Speciale Editie. Staat op beide weergaven, dus
+// apart van de rest van de knoppen.
+function knoppenAan() {
+  for (const knop of document.querySelectorAll('[data-se]')) {
+    knop.onclick = () => {
+      seAan = knop.dataset.se === '1';
+      try { localStorage.setItem(SEKEUZE, seAan ? '1' : '0'); } catch { /* privémodus */ }
+      teken();
+    };
+  }
+}
+
 function teken() {
   const gevraagd = zoekparam().get('v');
   if (gevraagd) {
@@ -181,6 +210,9 @@ function teken() {
       : `<a class="terug" href="voorwerpen.html">← Alle voorwerpen</a>
          <div class="fout-blok"><h1>Niet gevonden</h1><p>Dit voorwerp staat niet in de lijst.</p></div>`;
     document.title = voorwerp ? `${voorwerp.naam} — Voorwerpen` : 'Voorwerpen';
+    // Ook op deze pagina staat een knopje voor de editie; de rest van de knoppen hoort bij de
+    // lijst en komt hieronder.
+    knoppenAan();
     return;
   }
 
@@ -195,6 +227,7 @@ function teken() {
     veld.oninput = () => { $('lijst').innerHTML = lijstHtml(veld.value); };
     if (zoek) { veld.focus(); veld.setSelectionRange(zoek.length, zoek.length); }
   }
+  knoppenAan();
   for (const knop of document.querySelectorAll('[data-zak]')) {
     knop.onclick = () => {
       zak = knop.dataset.zak;

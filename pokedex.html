@@ -217,19 +217,23 @@ function detailHtml(s) {
   // hebt openstaan — zo lees je in één regel hoe hij in het andere spel heet.
   const anderenaam = s.naamSe && s.naamSe !== s.naam ? (seAan ? s.naam : s.naamSe) : '';
 
-  // Wat deze soort met een TM, een HM of van een leraar kan leren. De aanval linkt naar zijn
-  // eigen pagina, de TM naar het voorwerp — daar staat wat hij kost en waar hij ligt.
-  const tmhm = (s.tmhm || []).length
-    ? `<table class="aanvallen"><thead><tr><th>Bron</th><th>Aanval</th><th>Kracht</th></tr></thead><tbody>
-        ${s.tmhm.map((t) => `<tr>
+  // Wat deze soort met een TM of HM leert, en wat een leraar hem kan bijbrengen. Dat zijn twee
+  // verschillende dingen — voor een TM loop je naar een winkel, voor een leraar naar één persoon
+  // — dus staan ze in een eigen blok. De aanval linkt naar zijn eigen pagina, de TM naar het
+  // voorwerp; de beschrijving staat erbij, net als in de levellijst.
+  const aanvalstabel = (rijen, bronkop) => `<table class="aanvallen">
+      <thead><tr><th>${bronkop}</th><th>Aanval</th><th>Kracht</th></tr></thead><tbody>
+        ${rijen.map((t) => `<tr>
           <td>${t.voorwerp
             ? `<a href="voorwerpen.html?v=${encodeURIComponent(t.voorwerp)}">${esc(t.bron)}</a>`
             : esc(t.bron)}</td>
-          <td><a href="aanvallen.html?a=${encodeURIComponent(t.aanval)}">${esc(t.naam)}</a></td>
+          <td><a href="aanvallen.html?a=${encodeURIComponent(t.aanval)}">${esc(t.naam)}</a>${t.uitleg
+            ? `<span class="aanvaluitleg">${esc(t.uitleg)}</span>` : ''}</td>
           <td class="kracht">${t.kracht || '—'}</td>
         </tr>`).join('')}
-      </tbody></table>`
-    : '<p class="uitleg">Leert niets met een TM of HM.</p>';
+      </tbody></table>`;
+  const viaTm = (s.tmhm || []).filter((t) => t.bron !== 'leraar');
+  const viaLeraar = (s.tmhm || []).filter((t) => t.bron === 'leraar');
 
   const aanvallen = (s.aanvallen || []).length
     ? `<table class="aanvallen"><thead><tr><th>Level</th><th>Aanval</th><th>Kracht</th></tr></thead><tbody>
@@ -259,7 +263,11 @@ function detailHtml(s) {
       <section class="blok"><h2>Basiswaarden</h2><div class="stats">${stats}</div></section>
       <section class="blok blok--evolutie"><h2>Evolutie</h2>${evoluties}</section>
       <section class="blok blok--breed"><h2>Aanvallen per level</h2>${aanvallen}</section>
-      <section class="blok blok--breed"><h2>Met TM, HM of leraar</h2>${tmhm}</section>
+      <section class="blok blok--breed"><h2>Met TM of HM</h2>${viaTm.length
+        ? aanvalstabel(viaTm, 'TM of HM')
+        : '<p class="uitleg">Leert niets met een TM of HM.</p>'}</section>
+      ${viaLeraar.length ? `<section class="blok blok--breed"><h2>Van een leraar</h2>
+        ${aanvalstabel(viaLeraar, 'Leraar')}</section>` : ''}
     </div>`;
 }
 
