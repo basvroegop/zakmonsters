@@ -505,16 +505,23 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
   justify-content: safe center;
 }
 .evostap { display: flex; align-items: center; gap: .35rem; }
+.evostadium { display: grid; gap: .35rem; flex: none; }
+.evopijl { flex: none; color: var(--tekst-zacht); }
+
 /* Onder een bepaalde breedte past een reeks van drie er niet meer naast elkaar. Dan gaat de
    hele lijn onder elkaar — half omgeklapt leest een evolutiereeks namelijk niet meer. */
 @media (max-width: 720px) {
-  .evolijn { flex-direction: column; align-items: center; gap: .5rem; }
+  /* Stadia op volle breedte, zodat een vertakking de ruimte krijgt die er is; de vakjes zelf
+     staan daarbinnen gecentreerd. */
+  .evolijn { flex-direction: column; align-items: stretch; gap: .5rem; }
   /* De pijl gaat mee omlaag en wijst dan naar beneden, midden boven zijn eigen vakje. */
-  .evostap { flex-direction: column; align-items: center; gap: .35rem; }
-  .evopijl { transform: rotate(90deg); }
+  .evostap { flex-direction: column; align-items: stretch; gap: .35rem; }
+  .evopijl { transform: rotate(90deg); text-align: center; }
+  /* Een vertakking (Gloom wordt Vleugelplant óf Bloemplant) hoort ook hier naast elkaar te
+     staan: onder elkaar in dezelfde kolom leest het als één doorlopende reeks in plaats van
+     als een keuze. Past dat niet op de breedte, dan vallen ze alsnog onder elkaar. */
+  .evostadium { display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem .5rem; }
 }
-.evostadium { display: grid; gap: .35rem; flex: none; }
-.evopijl { flex: none; color: var(--tekst-zacht); }
 .evomon {
   display: flex; align-items: center; gap: .55rem; flex: none;
   text-decoration: none; color: var(--tekst);

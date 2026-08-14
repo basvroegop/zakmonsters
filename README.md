@@ -312,6 +312,11 @@ alles onder elkaar.
 Beide blokken zijn even hoog, en de lijn staat midden in de ruimte die overblijft — anders
 hangt hij bovenin een half leeg vak naast een volle lijst.
 
+Splitst een lijn (Gloom wordt Vleugelplant óf Bloemplant), dan staan die takken naast elkaar,
+ook op een telefoon zolang de breedte het toelaat. Onder elkaar in dezelfde kolom leest zo'n
+vertakking namelijk als één doorlopende reeks in plaats van als een keuze. Past het niet, dan
+vallen ze alsnog onder elkaar.
+
 ### De typetags
 
 Elk type heeft zijn eigen kleur (ijs lichtblauw, vuur rood). Die kleur hangt aan het type-id uit
