@@ -17,3 +17,17 @@ Daarnaast is dit toegevoegd:
 
 - **Gelokaliseerde locatienamen, npc-namen en meer.** Er is gezocht naar logisch klinkende Nederlandse varianten van veel locaties. Ecruteak City is bijvoorbeeld Teakstad, Professor Oak is omgedoopt tot Professor Eik. Daarnaast hebben alle 251 Pokémon een Nederlandse naam gekregen.
 - **Running shoes, stat split, etc.** Dit aanvullen!
+
+## Zo installeer je de vertaling
+
+1. Download de meest recente versie met de link op deze pagina.
+2. Gebruik een tool zoals [Rom Patcher JS](https://www.marcrobledo.com/RomPatcher.js/) om de patch toe te passen op jouw zelf verworven ROM van de game.
+3. Laad de ROM met je favoriete emulator.
+
+## Met dank aan
+
+Pokémon Kristal is door de volgende vrijwilligers vertaald.
+
+- **Hoofd ontwikkeling:** William Fowler
+- **Hoofd vertaling:** Bastiaan Vroegop
+- **Vertalers:** Eline Muijres, Randolf Bouwsma, Calvin Foe
