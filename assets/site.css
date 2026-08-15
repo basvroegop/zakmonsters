@@ -158,7 +158,7 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .projecten h2 { margin: 2.75rem 0 1.25rem; }
 .projecten h2:first-child { margin-top: 0; }
 .kaarten {
-  display: grid; gap: 1.25rem;
+  display: grid; gap: 1.25rem; align-items: start;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 }
 .kaart {
@@ -169,24 +169,27 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 }
 .kaart:hover { transform: translateY(-3px); border-color: var(--accent); color: inherit; }
 
-/* De plaat ís de kaart: 4:3, en de titel van het spel staat er zelf al op. Alleen de badge komt
-   er nog overheen. Zonder plaat blijft de projectkleur over mét de naam erin, zodat een nieuw
-   project geen leeg vlak is. */
-.kaart-plaat {
-  display: flex; align-items: center; justify-content: center; position: relative;
-  aspect-ratio: 4 / 3; background-size: cover; background-position: center;
-  background-color: var(--kaartkleur, #3b4a63);
-}
+/* De plaat ís de kaart, en de plaat bepaalt de vorm: hij staat als afbeelding in de kaart, dus
+   het vlak wordt precies zo hoog als die plaat. Niets bijgesneden, geen gekleurde randen — en
+   omdat de platen in allerlei verhoudingen binnenkomen (een Game Boy-titelscherm is bijna
+   vierkant, een schermafdruk breed) krijgt elke kaart gewoon de zijne.
+   Zonder plaat blijft de projectkleur over mét de naam erin, in 4:3, zodat een nieuw project
+   geen leeg vlak is. */
+.kaart-plaat { display: block; position: relative; background: var(--kaartkleur, #3b4a63); }
+.plaat { display: block; width: 100%; height: auto; }
 .kaart--zonderplaat .kaart-plaat {
+  aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center;
   background-image: linear-gradient(135deg, color-mix(in srgb, var(--kaartkleur) 85%, #000) 0%, color-mix(in srgb, var(--kaartkleur) 45%, #000) 100%);
 }
 .kaart-naam { font-size: 1.35rem; font-weight: 700; text-align: center; padding: 0 1rem; }
 
 /* De tweede plaat van een project dat eigenlijk twee spellen is (Rood/Blauw, Goud/Zilver):
    hij ligt over de eerste heen en wordt zichtbaar bij muis-erover of toetsenbordfocus.
-   Focus telt mee omdat de kaart een link is — anders zou de wissel alleen met een muis bestaan. */
+   Focus telt mee omdat de kaart een link is — anders zou de wissel alleen met een muis bestaan.
+   `contain` voor het geval de twee platen niet precies dezelfde verhouding hebben: dan valt er
+   liever een randje open dan dat er iets afgesneden wordt. */
 .plaat-twee {
-  position: absolute; inset: 0; background-size: cover; background-position: center;
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
   opacity: 0; transition: opacity .25s ease;
 }
 .kaart:hover .plaat-twee,
@@ -280,16 +283,15 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .meedoen-tekst { color: var(--tekst-zacht); max-width: 62ch; }
 
 /* ---- Projectpagina ---- */
-/* De bronplaat is 4:3 (voor de kaarten); hier snijden we hem tot 16:9 zodat hij bovenaan de
-   pagina niet het halve scherm inneemt. object-fit-gedrag komt van background-size: cover. */
+/* Bovenaan de projectpagina dezelfde plaat, ook op zijn eigen verhouding. Zonder plaat blijft
+   een 4:3-vlak in de projectkleur over. */
 .projectheld {
-  margin: 1rem 0 2rem; border-radius: var(--ronding); overflow: hidden;
-  aspect-ratio: 16 / 9; max-height: 420px; position: relative;
+  margin: 1rem 0 2rem; border-radius: var(--ronding); overflow: hidden; position: relative;
   display: flex; align-items: center; justify-content: center;
-  background-size: cover; background-position: center;
-  background-color: var(--kaartkleur, #3b4a63); border: 1px solid var(--vlak-rand);
+  background: var(--kaartkleur, #3b4a63); border: 1px solid var(--vlak-rand);
 }
 .projectheld--zonderplaat {
+  aspect-ratio: 4 / 3; max-height: 460px;
   background-image: linear-gradient(135deg, color-mix(in srgb, var(--kaartkleur) 85%, #000) 0%, color-mix(in srgb, var(--kaartkleur) 40%, #000) 100%);
 }
 .projectheld-naam { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; }

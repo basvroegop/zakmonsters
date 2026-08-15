@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<base href="/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maxdrankje — Voorwerpen</title>
+<meta name="description" content="Alle voorwerpen uit onze afgeronde vertalingen: waar ze voor dienen, wat ze kosten en in welke winkel ze liggen.">
+<link rel="icon" type="image/png" href="assets/pokeball.png">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+// Vóór het tekenen, anders ziet wie nacht heeft gekozen eerst een lichte flits.
+try { if (localStorage.getItem('thema') === 'donker') document.documentElement.dataset.thema = 'donker'; } catch (e) {}
+</script>
+<script>window.__mooieUrls = true;</script>
+<script>window.__entiteit = "maxdrankje";</script>
+</head>
+<body>
+<header class="kopbalk">
+  <div class="omhulsel kopbalk-binnen">
+    <a class="merk" href="index.html">
+      <img src="assets/pokeball.png" alt="" width="26" height="26">
+      <span id="merknaam">Zakmonsters</span>
+    </a>
+    <nav class="menu" aria-label="Hoofdmenu">
+      <a href="index.html">Projecten</a>
+      <a href="pokedex.html" id="menuDex" hidden>Pokédex</a>
+      <a href="aanvallen.html" id="menuAanvallen" hidden>Aanvallen</a>
+      <a href="voorwerpen.html" id="menuVoorwerpen" aria-current="page">Voorwerpen</a>
+    </nav>
+    <button class="themaknop" id="themaknop" type="button" aria-pressed="false">
+      <svg class="maan" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="zon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-13.5a1 1 0 0 1 1 1V6a1 1 0 1 1-2 0V4.5a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1V21a1 1 0 1 1-2 0v-1.5a1 1 0 0 1 1-1zM3.5 12a1 1 0 0 1 1-1H6a1 1 0 1 1 0 2H4.5a1 1 0 0 1-1-1zm14.5 0a1 1 0 0 1 1-1h1.5a1 1 0 1 1 0 2H19a1 1 0 0 1-1-1zM5.6 5.6a1 1 0 0 1 1.4 0l1.1 1.1a1 1 0 0 1-1.4 1.4L5.6 7a1 1 0 0 1 0-1.4zm10.3 10.3a1 1 0 0 1 1.4 0l1.1 1.1a1 1 0 0 1-1.4 1.4l-1.1-1.1a1 1 0 0 1 0-1.4zm2.5-10.3a1 1 0 0 1 0 1.4L17.3 8.1a1 1 0 1 1-1.4-1.4L17 5.6a1 1 0 0 1 1.4 0zM8.1 15.9a1 1 0 0 1 0 1.4L7 18.4A1 1 0 0 1 5.6 17l1.1-1.1a1 1 0 0 1 1.4 0z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="inhoud">
+  <div id="pagina" class="omhulsel"><p class="laden">Laden…</p></div>
+</main>
+
+<footer class="voet">
+  <div class="omhulsel"><p id="voet"></p></div>
+</footer>
+
+<script type="module" src="assets/pagina-voorwerpen.js"></script>
+</body>
+</html>

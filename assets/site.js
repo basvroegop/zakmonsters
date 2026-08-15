@@ -74,13 +74,18 @@ export function voortgangHtml(project, voortgang) {
   return rijen ? `<div class="voortgang">${rijen}</div>` : '';
 }
 
-// Teaserplaat als achtergrond; ontbreekt hij, dan blijft de kleur uit het projectbestand over.
-// Zo ziet een pas toegevoegd project er meteen af, ook voordat je een plaatje hebt gemaakt.
-function teaserStijl(project) {
-  const kleur = /^#[0-9a-f]{3,8}$/i.test(String(project.kleur || '')) ? project.kleur : '#3b4a63';
+// De kleur van een project; die vult het vlak zolang er geen plaat is.
+const kleurVan = (project) =>
+  (/^#[0-9a-f]{3,8}$/i.test(String(project.kleur || '')) ? project.kleur : '#3b4a63');
+
+// De plaat staat als afbeelding in de kaart, niet als achtergrond. Zo bepaalt de plaat zélf hoe
+// hoog het vlak wordt: niets wordt bijgesneden en er blijven geen gekleurde randen over. De
+// platen komen in allerlei verhoudingen binnen (een Game Boy-titelscherm is bijna vierkant, een
+// schermafdruk breed) en elke kaart neemt gewoon de zijne over.
+function plaatHtml(project) {
   const url = contentUrl(project.teaser);
-  const plaat = url ? `background-image:url('${esc(url)}');` : '';
-  return `--kaartkleur:${esc(kleur)};${plaat}`;
+  if (!url) return '';
+  return `<img class="plaat" src="${esc(url)}" alt="" loading="lazy">`;
 }
 
 // Een tweede plaat, die bij muis-erover over de eerste heen komt. Bedoeld voor projecten die
@@ -90,11 +95,12 @@ function teaserStijl(project) {
 // Het is een eigen laag in plaats van een omgewisselde achtergrond, want zo staat de tweede
 // plaat al ingeladen vóór de muis er is — anders zie je bij de eerste keer een wit vlak.
 // Zonder tweede plaat komt er niets bij; de kaart blijft dan precies wat hij was.
+export { plaatHtml };
+
 export function tweedePlaatHtml(project) {
   const url = contentUrl(project.teaser2);
   if (!url || !contentUrl(project.teaser)) return '';
-  return `<span class="plaat-twee" aria-hidden="true"
-      style="background-image:url('${esc(url)}');"></span>`;
+  return `<img class="plaat plaat-twee" src="${esc(url)}" alt="" aria-hidden="true" loading="lazy">`;
 }
 
 // De kaart is de plaat: die bevat de titel van het spel al, dus eronder staat geen naam meer.
@@ -115,7 +121,8 @@ export function kaartHtml(project, voortgang) {
       <span class="kaart-balk${afKlasse(project)}" aria-hidden="true"><i style="width:${pct}%"></i></span>`;
   return `<a class="kaart${teaser ? '' : ' kaart--zonderplaat'}" href="project.html?p=${encodeURIComponent(project.id)}"
        aria-label="${esc(omschrijving)}">
-      <span class="kaart-plaat" style="${teaserStijl(project)}">
+      <span class="kaart-plaat" style="--kaartkleur:${esc(kleurVan(project))}">
+        ${plaatHtml(project)}
         ${tweedePlaatHtml(project)}
         ${teaser ? '' : `<span class="kaart-naam">${esc(naam)}</span>`}
         ${statusHtml(project)}

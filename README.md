@@ -198,14 +198,15 @@ Het cijfer ververst maximaal één keer per tien minuten (dat scheelt de editor 
 
 ## Teaserplaten
 
-Zet ze in `content/teasers/` en verwijs ernaar met `teaser: teasers/<bestand>.png`.
-Richtlijn: **4:3**, minstens 1200 × 900 px. De plaat is de knop: er staat geen naam of
-samenvatting meer onder, alleen de statusbadge linksonder. Zet de titel van het spel dus op de
-plaat zelf, en houd de linkeronderhoek vrij.
+Zet ze in `content/teasers/` en verwijs ernaar met `teaser: teasers/<bestand>.png`. Richtlijn:
+minstens 1200 px breed. De plaat is de knop: er staat geen naam of samenvatting meer onder,
+alleen de statusbadge linksonder. Zet de titel van het spel dus op de plaat zelf, en houd de
+linkeronderhoek vrij.
 
-Op de projectpagina wordt dezelfde plaat tot **16:9** gecropt (midden vasthoudend), zodat hij
-bovenaan niet het halve scherm inneemt. Wat er aan de boven- en onderkant staat, kan daar dus
-wegvallen.
+**De verhouding kies je zelf.** De kaart neemt de vorm van de plaat over — een bijna vierkant
+Game Boy-titelscherm wordt een bijna vierkante kaart, een brede schermafdruk een brede. Er wordt
+niets bijgesneden en er blijven geen gekleurde randen over. Op de projectpagina staat dezelfde
+plaat, ook op zijn eigen verhouding.
 
 Zolang er geen plaat is, toont de site het gekleurde vlak uit `kleur` mét de projectnaam erin —
 een nieuw project is dus nooit een leeg vlak.
@@ -391,6 +392,28 @@ Pokémon (de levellijst en de `tmhm`-regel in `base_stats`); de generator draait
 het per aanval kunt opzoeken. Wat in de constantenlijst geen regel in `moves.asm` heeft, is geen
 aanval maar een gevechtsanimatie (ANIM_WOBBLE) en valt weg.
 
+### Eigen adressen
+
+Elke Pokémon, aanval en voorwerp heeft een eigen adres:
+
+```
+zakmonsters.nl/dex/pikachu/
+zakmonsters.nl/aanvallen/donderschok/
+zakmonsters.nl/voorwerpen/hyperbal/
+```
+
+Die mappen maakt `site/bouw.js` bij het publiceren: één klein bestand per ding, met een `<base>`
+(het staat twee mappen diep), de juiste titel en welk ding het is. Zodra ze bestaan, linken de
+pagina's ernaartoe in plaats van naar een vraagteken-URL — en omdat elke map echt bestaat, kun
+je zo'n adres delen, herladen en indexeren.
+
+Het adres zelf staat in de gegevens (`pad`), berekend door `cms/pokedex.js`. Daar wordt ook
+opgelost wat er moet gebeuren als twee dingen hetzelfde heten: Nidoran♀ en Nidoran♂ worden
+`nidoran-v` en `nidoran-m`, en een tweede "Zijden Sjaal" krijgt `-2`.
+
+Lokaal en in de voorvertoning van het CMS bestaan die mappen niet — daar staan de bronbestanden.
+De pagina's blijven daar gewoon `?nr=`, `?a=` en `?v=` gebruiken.
+
 ### Alles wijst naar elkaar
 
 De drie lijsten hangen aan elkaar, zodat je kunt doorklikken in plaats van terugzoeken:
@@ -401,8 +424,14 @@ De drie lijsten hangen aan elkaar, zodat je kunt doorklikken in plaats van terug
   naar dat voorwerp;
 - op een **voorwerppagina** linkt de aanval van een TM terug naar de aanvalspagina. Verder staat
   daar niets over die aanval: kracht en uitleg horen op de aanvalspagina, één klik verderop;
-- op een **dexpagina** staat naast de levellijst ook wat een soort met een TM, een HM of van een
-  leraar leert, met dezelfde twee verwijzingen.
+- op een **dexpagina** staat naast de levellijst wat een soort met een TM of HM leert en wat een
+  leraar hem kan bijbrengen — twee aparte blokken, want voor een TM loop je naar een winkel en
+  voor een leraar naar één persoon — met dezelfde twee verwijzingen en de uitleg van de aanval.
+
+**De Speciale Editie geldt voor de hele site.** Klik je vanaf de dexpagina van KNOPSAURUS door
+naar een aanval, dan staan de namen daar ook in die editie. De keuze wordt onthouden
+(`localStorage`, sleutel `editie`) en `?se=1` in een adres wint: zo opent een gedeelde link waar
+hij op wijst, en blijf je daarna in die editie doorklikken.
 
 Daarvoor heeft elk voorwerp nu ook een eigen pagina (`voorwerpen.html?v=TM_THUNDERPUNCH`): een
 verwijzing moet ergens uitkomen.

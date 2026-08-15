@@ -30,6 +30,46 @@ async function modules() {
   };
 }
 
+// ---- Eigen adressen ----
+// Elke Pokémon, aanval en voorwerp krijgt een eigen map met een eigen index.html:
+//   /dex/knopsaurus/  /aanvallen/tackle/  /voorwerpen/hyperbal/
+// Zo'n pagina is dezelfde pagina als altijd, met drie dingen erin gezet: een <base> (hij staat
+// twee mappen diep, de rest van de site niet), de titel van waar hij over gaat, en welke soort
+// hij moet openen. De pagina's zelf schakelen daarop over: zodra `mooieUrls` aanstaat, linken ze
+// naar deze adressen in plaats van naar een vraagteken-URL.
+//
+// Deze mappen bestaan alléén in de gepubliceerde kopie. Lokaal en in de voorvertoning van het
+// CMS staan de bronbestanden, en daar blijven de vraagteken-URL's werken.
+function schrijfAdressen(doelmap, paginaBestand, entiteiten, titelStaart) {
+  const bron = fs.readFileSync(path.join(DOEL, paginaBestand), 'utf8');
+  let aantal = 0;
+  for (const { slug, titel } of entiteiten) {
+    if (!slug) continue;
+    const html = bron
+      .replace('<head>', `<head>\n<base href="/">`)
+      .replace(/<title>[^<]*<\/title>/, `<title>${titel} — ${titelStaart}</title>`)
+      .replace('</head>', `<script>window.__entiteit = ${JSON.stringify(slug)};</script>\n</head>`);
+    const map = path.join(DOEL, doelmap, slug);
+    fs.mkdirSync(map, { recursive: true });
+    fs.writeFileSync(path.join(map, 'index.html'), html);
+    aantal += 1;
+  }
+  return aantal;
+}
+
+// De inhoud van een lijst, als die er is. Zonder afgerond project bestaat er geen dex, en dan
+// hoeven er ook geen adressen te zijn.
+function lijstVan(map) {
+  try {
+    const index = JSON.parse(fs.readFileSync(path.join(CONTENT, map, 'index.json'), 'utf8'));
+    const eerste = (index.dexen || [])[0];
+    if (!eerste) return null;
+    return JSON.parse(fs.readFileSync(path.join(CONTENT, map, `${eerste.project}.json`), 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
 // JSON in een <script>-blok mag geen "</script>" bevatten; die zou de browser als het einde van
 // het blok lezen. Elke < wordt daarom een escape — JSON.parse leest hem daarna gewoon terug.
 const veiligJson = (data) => JSON.stringify(data).replace(/</g, '\\u003c');
@@ -83,4 +123,39 @@ function vervang(bestand, merk, inhoud) {
   const aantal = Object.keys(projecten).length;
   console.log(`Ingebakken: ${aantal} project${aantal === 1 ? '' : 'en'}, ` +
     `${Object.keys(edities).length} speciale editie(s), ${groepen.length} groep(en).`);
+
+  // Elke soort, aanval en voorwerp een eigen adres. Eerst de vlag in de pagina's zetten en dan
+  // pas de kopieën maken: de kopie moet die vlag ook hebben, anders linkt hij nog naar de
+  // vraagteken-URL's.
+  const pokedex = lijstVan('pokedex');
+  const aanvallen = lijstVan('aanvallen');
+  const voorwerpen = lijstVan('voorwerpen');
+
+  if (pokedex || aanvallen || voorwerpen) {
+    for (const bestand of ['index.html', 'project.html', 'pokedex.html', 'aanvallen.html', 'voorwerpen.html']) {
+      const pad = path.join(DOEL, bestand);
+      if (!fs.existsSync(pad)) continue;
+      const html = fs.readFileSync(pad, 'utf8');
+      fs.writeFileSync(pad, html.replace('</head>', '<script>window.__mooieUrls = true;</script>\n</head>'));
+    }
+
+    // Het adres van elk ding staat in de gegevens zelf (`pad`); cms/pokedex.js heeft daar al
+    // uitgezocht wat er moet gebeuren als twee dingen hetzelfde heten.
+    const adressen = (lijst, wat) => lijst.map((x) => ({ slug: x.pad, titel: x.naam }))
+      .filter((x) => x.slug || console.warn(`${wat}: "${x.titel}" heeft geen pad; overgeslagen`));
+    const gemaakt = [];
+    if (pokedex) {
+      gemaakt.push(['dex', schrijfAdressen('dex', 'pokedex.html',
+        adressen(pokedex.soorten, 'dex'), 'Pokédex')]);
+    }
+    if (aanvallen) {
+      gemaakt.push(['aanvallen', schrijfAdressen('aanvallen', 'aanvallen.html',
+        adressen(aanvallen.aanvallen, 'aanvallen'), 'Aanvallen')]);
+    }
+    if (voorwerpen) {
+      gemaakt.push(['voorwerpen', schrijfAdressen('voorwerpen', 'voorwerpen.html',
+        adressen(voorwerpen.voorwerpen, 'voorwerpen'), 'Voorwerpen')]);
+    }
+    console.log('Eigen adressen: ' + gemaakt.map(([wat, n]) => `${n} ${wat}`).join(', ') + '.');
+  }
 })().catch((err) => { console.error(err.message); process.exit(1); });
