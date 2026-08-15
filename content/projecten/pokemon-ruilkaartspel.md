@@ -1,7 +1,7 @@
 ---
 naam: Pokémon Ruilkaartspel
 status: voltooid
-teaser: teasers/tcg2.png
+teaser: teasers/ruilkaartspel.png
 kleur: "#3b4a63"
 voortgang: poketcg_v2_nl
 downloads:
