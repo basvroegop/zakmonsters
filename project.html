@@ -43,7 +43,7 @@ try { if (localStorage.getItem('thema') === 'donker') document.documentElement.d
 
 <script type="module">
 import { esc, contentUrl, markdown, laadSite, laadProject, laadEditie, laadVoortgang } from './assets/content.js';
-import { statusHtml, voortgangHtml, downloadsHtml, tweedePlaatHtml, plaatHtml } from './assets/site.js';
+import { statusHtml, voortgangHtml, downloadsHtml, schermafdrukkenHtml, tweedePlaatHtml, plaatHtml } from './assets/site.js';
 import { kopbalk, merknaam } from './assets/kop.js';
 
 kopbalk();
@@ -114,6 +114,7 @@ function wisselHtml(project, editie, actief) {
       ? { ...project, ...Object.fromEntries(Object.entries(editie).filter(([, v]) => v !== '' && v != null)) }
       : project;
     const balk = actief.voortgang ? voortgangHtml(actief, voortgang) : '';
+    const schermen = schermafdrukkenHtml(actief);
 
     // Op een breed scherm staan de plaat en de blokken naast elkaar, met gelijke boven- en
     // onderrand; op een smal scherm vallen ze onder elkaar. De projecttekst loopt daaronder
@@ -126,6 +127,10 @@ function wisselHtml(project, editie, actief) {
           ${balk ? `<section class="blok">
             <h2>Voortgang</h2>
             ${balk}
+          </section>` : ''}
+          ${schermen ? `<section class="blok">
+            <h2>Uit het spel</h2>
+            ${schermen}
           </section>` : ''}
           <section class="blok">
             <h2>Downloads</h2>

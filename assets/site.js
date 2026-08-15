@@ -131,6 +131,26 @@ export function kaartHtml(project, voortgang) {
     </a>`;
 }
 
+// Het raster met schermafdrukken op de projectpagina. Elke afdruk is een link naar zichzelf:
+// in de zijkolom passen er maar kleine plaatjes, en wie wil zien wat er in beeld staat, klikt
+// hem op ware grootte open. Geen lichtbak met eigen sluitknop en toetsafhandeling — de browser
+// kan dit al, en op een telefoon werkt zoomen daar beter dan in een overlay.
+//
+// Zonder afdrukken komt er niets: dan hoort er ook geen leeg kader met een belofte te staan.
+export function schermafdrukkenHtml(project) {
+  const lijst = (Array.isArray(project.schermafdrukken) ? project.schermafdrukken : [])
+    .map((s) => (typeof s === 'string' ? { pad: s } : s))
+    .map((s) => ({ url: contentUrl(s && s.pad), bijschrift: (s && s.bijschrift) || '' }))
+    .filter((s) => s.url);
+  if (!lijst.length) return '';
+  const naam = project.naam || project.id;
+  return `<div class="schermraster">${lijst.map((s, i) => `
+      <a class="schermvak" href="${esc(s.url)}" target="_blank" rel="noopener"
+         aria-label="${esc(s.bijschrift || `Schermafdruk ${i + 1} van ${naam}`)} — open op ware grootte">
+        <img src="${esc(s.url)}" alt="${esc(s.bijschrift)}" loading="lazy">
+      </a>`).join('')}</div>`;
+}
+
 export function downloadsHtml(project) {
   const lijst = Array.isArray(project.downloads) ? project.downloads : [];
   const knoppen = lijst

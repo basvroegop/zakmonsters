@@ -101,6 +101,9 @@ samenvatting: Eén zin die op de knop komt te staan.
 teaser: teasers/goud-zilver.png
 kleur: "#c9a227"
 voortgang: pokegold-nl
+schermafdrukken:
+  - schermafdrukken/goud-zilver-1.png
+  - schermafdrukken/goud-zilver-2.png
 downloads:
   - label: Patches (Goud & Zilver)
     url: https://github.com/wfowler1/pokegold-nl/releases
@@ -121,6 +124,7 @@ Gewone tekst met **nadruk**, [links](https://voorbeeld.nl) en lijstjes.
 | `teaser2` | Tweede plaat; bij muis-erover neemt die de eerste over (zie onder). Leeg = geen wissel |
 | `kleur` | Kleurcode die de teaser vervangt zolang er geen plaat is |
 | `voortgang` | Het project-id uit de vertaaleditor; hiermee vult de balk zich (zie onder) |
+| `schermafdrukken` | Nul of meer paden; ze komen als raster in de zijkolom van de projectpagina, onder de voortgang en boven de downloads. De volgorde hier is de volgorde op de pagina, en elke afdruk linkt naar zichzelf op ware grootte |
 | `downloads` | Nul of meer knoppen met `label`, `url` en optioneel `toelichting` |
 
 Alle velden mogen weg als je ze niet gebruikt; alleen `naam` is echt nodig.

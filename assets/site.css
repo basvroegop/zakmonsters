@@ -338,6 +338,26 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 }
 .projectzij { display: grid; gap: 1rem; position: sticky; top: 1.5rem; }
 @media (max-width: 800px) { .projectzij { position: static; } }
+
+/* Het raster met schermafdrukken, in de zijkolom tussen de voortgang en de downloads. Twee naast
+   elkaar: die kolom is smal, en drie zou van een Game Boy-scherm een postzegel maken.
+   `pixelated` om dezelfde reden als bij de sprites — dit zijn beelden van 160×144, en vloeiend
+   vergroten maakt er een vlek van. Elke afdruk is een link naar zichzelf, dus hij moet er ook
+   uitzien alsof je erop kunt klikken. */
+.schermraster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.schermvak {
+  display: block; border-radius: 8px; overflow: hidden; border: 1px solid var(--vlak-rand);
+  background: var(--rand, var(--vlak-rand)); line-height: 0;
+}
+.schermvak img {
+  width: 100%; height: 100%; aspect-ratio: 10 / 9; object-fit: cover; display: block;
+  image-rendering: pixelated; transition: transform .18s ease;
+}
+.schermvak:hover img, .schermvak:focus-visible img { transform: scale(1.06); }
+@media (prefers-reduced-motion: reduce) { .schermvak img { transition: none; } }
+/* Eén afdruk hoeft niet in een halve kolom te hangen; die krijgt de volle breedte. */
+.schermraster > .schermvak:only-child { grid-column: 1 / -1; }
+.schermraster > .schermvak:only-child img { aspect-ratio: auto; }
 .blok {
   background: var(--vlak); border: 1px solid var(--vlak-rand);
   border-radius: var(--ronding); padding: 1.15rem 1.25rem;
@@ -463,6 +483,13 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
   margin: 0 0 .6rem; font-size: .95rem;
 }
 .dexkop .dextypen { margin-left: 0; }
+/* Lengte en gewicht, zoals de Pokédex in het spel ze naast het beestje zet. Het label blijft
+   klein en zacht, de waarde krijgt het gewicht — je zoekt hier het getal, niet het woord. */
+.dexmaten {
+  display: flex; flex-wrap: wrap; gap: .25rem 1.2rem;
+  margin: .7rem 0 0; color: var(--tekst-zacht); font-size: .9rem;
+}
+.dexmaten b { color: var(--tekst); font-weight: 600; }
 .dexbeschrijving { margin-bottom: 1.5rem; }
 .dexbeschrijving p { margin: 0; }
 .dexmeta { color: var(--tekst-zacht); font-size: .85rem; margin-bottom: .5rem !important; }

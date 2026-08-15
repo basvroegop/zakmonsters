@@ -73,6 +73,17 @@ function lijstHtml(zoek) {
 // dex dezelfde termen gebruikt als het spel in plaats van een eigen lijstje.
 const statNaam = (sleutel) => (dex.statLabels || {})[sleutel] || sleutel;
 
+// Lengte en gewicht staan in de dexdata als meters en kilo's (cms/pokedex.js rekent de bron om;
+// de -nl-repo's tellen zelf al metrisch, het Engelse origineel in voet en pond). Hier alleen nog
+// de schrijfwijze: een komma zoals het hoort in het Nederlands, en geen ",0" achter een rond
+// getal — het spel toont altijd één decimaal, maar op een webpagina leest "210 kg" beter.
+const getal = (n) => Number(n).toFixed(1).replace(/[.,]0$/, '').replace('.', ',');
+const maatDelen = (d) => [
+  Number.isFinite(d && d.lengte) ? ['Lengte', `${getal(d.lengte)} m`] : null,
+  Number.isFinite(d && d.gewicht) ? ['Gewicht', `${getal(d.gewicht)} kg`] : null,
+].filter(Boolean);
+const maatTekst = (d) => maatDelen(d).map(([, waarde]) => waarde).join(' · ');
+
 // ---- Evolutielijn ----
 // Niet alleen de volgende stap, maar de hele reeks: waar dit beestje vandaan komt en waar het
 // heen gaat. De dexdata kent alleen de stap vooruit (`evoluties`), dus de stap terug leiden we
@@ -173,10 +184,19 @@ function detailHtml(s) {
   // zijn. Zijn ze het oneens, dan hoort hij per spel bij zijn eigen beschrijving.
   const categorieën = [...new Set(dexen.map((d) => d.categorie).filter(Boolean))];
   const soortnaam = categorieën.length === 1 ? categorieën[0] : '';
+  // Lengte en gewicht volgen dezelfde regel als de soortnaam: zijn de spellen het eens — en dat
+  // zijn ze bijna altijd — dan staat het één keer bovenaan; verschillen ze, dan hoort het bij de
+  // beschrijving van dat ene spel te staan en niet als losse bewering bovenaan.
+  const maten = [...new Set(dexen.map(maatTekst).filter(Boolean))];
+  const maatRegel = maten.length === 1
+    ? `<p class="dexmaten">${maatDelen(dexen.find((d) => maatTekst(d)))
+        .map(([naam, waarde]) => `<span>${naam} <b>${esc(waarde)}</b></span>`).join('')}</p>`
+    : '';
   const beschrijving = dexen.length
     ? `<dl class="beschrijvingen">${dexen.map((d) => `
           <div class="beschrijving">
-            <dt>${esc(d.label)}${categorieën.length > 1 && d.categorie ? ` <span class="dexmeta">${esc(d.categorie)}</span>` : ''}</dt>
+            <dt>${esc(d.label)}${categorieën.length > 1 && d.categorie ? ` <span class="dexmeta">${esc(d.categorie)}</span>` : ''}${
+              maten.length > 1 && maatTekst(d) ? ` <span class="dexmeta">${esc(maatTekst(d))}</span>` : ''}</dt>
             <dd>${esc(d.tekst)}</dd>
           </div>`).join('')}
        </dl>`
@@ -224,6 +244,7 @@ function detailHtml(s) {
         <h1>${esc(naamVan(s))}${anderenaam ? ` <span class="naam-anders">(${esc(anderenaam)})</span>` : ''}</h1>
         ${soortnaam ? `<p class="dexsoort">${esc(soortnaam)}</p>` : ''}
         <p class="dextypen">${typenHtml(s)}</p>
+        ${maatRegel}
       </div>
       ${plaat}
     </div>
