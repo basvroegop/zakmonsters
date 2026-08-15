@@ -148,6 +148,55 @@ function evolutieHtml(soort) {
       </div>`).join('')}</div>`;
 }
 
+// ---- Waar te vinden ----
+// Zes manieren om aan een beestje te komen, en dat verschil is het halve antwoord: in het gras
+// lopen is iets anders dan een boom uitkloppen of iemand omruilen. De plekken komen per manier
+// bij elkaar te staan, want "waar vind ik hem in het gras" is de vraag die je stelt.
+const MANIEREN = [
+  ['gras', 'In het gras'],
+  ['water', 'In het water'],
+  ['hengel', 'Met een hengel'],
+  ['boom', 'Uit een boom (hoofdstoot)'],
+  ['zwerm', 'Bij een zwerm'],
+  ['cadeau', 'Krijg je van iemand'],
+  ['ruil', 'In ruil voor'],
+];
+
+// De naam van een spelversie zoals hij ook boven de dexbeschrijving staat, zodat "goud" hier
+// niet ineens anders heet dan daar.
+const versieLabel = (sleutel) => ((bronnen().find((b) => b.sleutel === sleutel) || {}).label
+  || sleutel.charAt(0).toUpperCase() + sleutel.slice(1));
+
+const opsomming = (lijst) => (lijst.length < 2 ? (lijst[0] || '')
+  : `${lijst.slice(0, -1).join(', ')} en ${lijst[lijst.length - 1]}`);
+
+function vindplaatsenHtml(s) {
+  const plekken = s.vindplaatsen || [];
+  // Alleen in bepaalde versies te krijgen? Dat hoort bovenaan te staan, niet per regel — het
+  // gaat over het beestje, niet over die ene plek.
+  const alleen = (s.inVersies || []).length
+    ? `<p class="dexalleen">Alleen in ${esc(opsomming(s.inVersies.map(versieLabel)))}</p>` : '';
+  if (!plekken.length) {
+    // Geen enkele plek: dan komt hij uit een ei of uit een evolutie, en dat staat al in het
+    // evolutieblok. Beter dat zeggen dan een leeg kopje tonen.
+    return alleen ? `${alleen}<p class="uitleg">Niet in het wild te vangen.</p>` : '';
+  }
+  const rijen = MANIEREN.map(([sleutel, label]) => {
+    const van = plekken.filter((p) => p.soort === sleutel);
+    if (!van.length) return '';
+    const delen = van.map((p) => {
+      const bij = [p.tijd, (p.versies || []).length ? `alleen ${opsomming(p.versies.map(versieLabel))}` : '']
+        .filter(Boolean).join(', ');
+      return `<li>${esc(p.locatie)}${bij ? ` <span class="dexmeta">${esc(bij)}</span>` : ''}</li>`;
+    });
+    return `<div class="vindwijze">
+        <h3>${esc(label)}</h3>
+        <ul class="vindlijst">${delen.join('')}</ul>
+      </div>`;
+  }).filter(Boolean).join('');
+  return `${alleen}<div class="vindplaatsen">${rijen}</div>`;
+}
+
 function detailHtml(s) {
   const stats = Object.entries(s.stats || {})
     .map(([sleutel, waarde]) => `<div class="statrij">
@@ -248,6 +297,8 @@ function detailHtml(s) {
       </tbody></table>`
     : '<p class="uitleg">Geen aanvallen door levelen.</p>';
 
+  const vindplaatsen = vindplaatsenHtml(s);
+
   return `<a class="terug" href="pokedex.html${seAan ? '?se=1' : ''}">← Alle Pokémon</a>
     <div class="dexboven">
       <div class="dexkop">
@@ -261,6 +312,7 @@ function detailHtml(s) {
 
     <div class="dexdetail">
       ${beschrijving ? `<section class="blok blok--breed"><h2>Pokédex</h2>${beschrijving}</section>` : ''}
+      ${vindplaatsen ? `<section class="blok blok--breed"><h2>Waar te vinden</h2>${vindplaatsen}</section>` : ''}
       <section class="blok"><h2>Basiswaarden</h2><div class="stats">${stats}</div></section>
       <section class="blok blok--evolutie"><h2>Evolutie</h2>${evoluties}</section>
       <section class="blok blok--breed"><h2>Aanvallen per level</h2>${aanvallen}</section>
