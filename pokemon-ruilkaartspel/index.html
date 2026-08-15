@@ -56,9 +56,10 @@ const $ = (id) => document.getElementById(id);
 const id = (typeof window !== 'undefined' && window.__entiteit)
   || new URLSearchParams(location.search).get('p') || '';
 
-// De weg terug naar de lijst. De kopbalk brengt je er ook, maar boven de pagina zelf hoort te
-// staan waar je vandaan komt — zeker als je hier via een gedeelde link binnenkomt.
-const TERUG = '<a class="terug" href="index.html">← Alle projecten</a>';
+// Hier stond "← Alle projecten". Die is eruit: de kopbalk staat boven élke pagina en heeft
+// "Projecten" als eerste ingang, dus het was een tweede weg terug op dezelfde plek. Op de
+// dexpagina's blijft hij wél staan — daar brengt "Pokédex" in de kopbalk je naar de lijst, maar
+// de weg terug vanaf één soort is een stap kleiner dan een menu-ingang.
 
 // De plaat draagt de titel al, dus er staat geen kop overheen. Hij wordt hier tot 16:9 gecropt
 // (de bron is 4:3, voor de kaarten op de home) zodat hij niet het halve scherm inneemt.
@@ -100,7 +101,7 @@ function wisselHtml(project, editie, actief) {
     project = await laadProject(id);
   } catch (err) {
     console.error(err);
-    $('pagina').innerHTML = `${TERUG}
+    $('pagina').innerHTML = `
       <div class="fout-blok">
         <h1>Project niet gevonden</h1>
         <p>Dit project bestaat (nog) niet. <a href="index.html">Terug naar alle projecten</a>.</p>
@@ -125,7 +126,6 @@ function wisselHtml(project, editie, actief) {
     // onderrand; op een smal scherm vallen ze onder elkaar. De projecttekst loopt daaronder
     // over de volle breedte, want die leest niet prettig in een smalle kolom naast een plaat.
     $('pagina').innerHTML = `
-      ${TERUG}
       <div class="projectkop">
         ${held(actief)}
         <aside class="projectzij">

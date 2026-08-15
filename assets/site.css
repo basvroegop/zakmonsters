@@ -334,7 +334,7 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
    hoogte van de plaat, zodat de drie boven- en onderrand gelijk liggen. Passen ze niet, dan
    groeit de rij mee en blijft alleen de bovenrand uitgelijnd. */
 .projectkop {
-  display: grid; gap: 1.5rem; align-items: stretch; margin-bottom: 2rem;
+  display: grid; gap: 1.5rem; align-items: stretch; margin: 1.75rem 0 2rem;
   grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
 }
 /* De plaat houdt zijn eigen hoogte: hij wordt niet uitgerekt naar de blokken ernaast. Deed hij
