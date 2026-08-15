@@ -477,19 +477,20 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .naam-anders {
   color: var(--grijs); font-size: .62em; font-weight: 500; font-style: italic; white-space: nowrap;
 }
-/* De soortnaam uit het spel zelf (ZAAD, VLAM): wat de Pokédex in de game boven de tekst zet. */
+/* De soortnaam uit het spel zelf (ZAAD, VLAM): wat de Pokédex in de game boven de tekst zet —
+   met daarachter lengte en gewicht, gescheiden door een punt. Eén regel, want het hoort bij
+   elkaar: dit is wat de dex over het beestje zelf zegt, nog vóór de cijfers. */
 .dexsoort {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem;
   color: var(--tekst-zacht); letter-spacing: .06em; font-weight: 600;
   margin: 0 0 .6rem; font-size: .95rem;
 }
+/* De maten zijn een terzijde bij de soortnaam: geen extra letterafstand en niet vet, zodat de
+   soortnaam de regel blijft aanvoeren. Het getal krijgt wél nadruk — daar kijk je naar. */
+.dexmaat { letter-spacing: normal; font-weight: 400; }
+.dexmaat b { color: var(--tekst); font-weight: 600; }
+.dexsoort .scheiding { color: var(--grijs); letter-spacing: normal; }
 .dexkop .dextypen { margin-left: 0; }
-/* Lengte en gewicht, zoals de Pokédex in het spel ze naast het beestje zet. Het label blijft
-   klein en zacht, de waarde krijgt het gewicht — je zoekt hier het getal, niet het woord. */
-.dexmaten {
-  display: flex; flex-wrap: wrap; gap: .25rem 1.2rem;
-  margin: .7rem 0 0; color: var(--tekst-zacht); font-size: .9rem;
-}
-.dexmaten b { color: var(--tekst); font-weight: 600; }
 .dexbeschrijving { margin-bottom: 1.5rem; }
 .dexbeschrijving p { margin: 0; }
 .dexmeta { color: var(--tekst-zacht); font-size: .85rem; margin-bottom: .5rem !important; }

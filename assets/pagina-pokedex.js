@@ -185,12 +185,23 @@ function detailHtml(s) {
   const categorieën = [...new Set(dexen.map((d) => d.categorie).filter(Boolean))];
   const soortnaam = categorieën.length === 1 ? categorieën[0] : '';
   // Lengte en gewicht volgen dezelfde regel als de soortnaam: zijn de spellen het eens — en dat
-  // zijn ze bijna altijd — dan staat het één keer bovenaan; verschillen ze, dan hoort het bij de
-  // beschrijving van dat ene spel te staan en niet als losse bewering bovenaan.
+  // zijn ze bijna altijd — dan staan ze één keer bovenaan, op dezelfde regel als de soortnaam
+  // (ZAAD · Lengte 0,7 m · Gewicht 6,9 kg). Verschillen ze, dan hoort het bij de beschrijving
+  // van dat ene spel te staan en niet als losse bewering bovenaan.
+  //
+  // De scheidingstekens staan als eigen element in de regel en niet als CSS-pseudo-element: zo
+  // klopt de regel ook als er geen soortnaam is (dan begint hij gewoon bij "Lengte"), en een
+  // schermlezer slaat ze over in plaats van "middelpunt" voor te lezen.
   const maten = [...new Set(dexen.map(maatTekst).filter(Boolean))];
-  const maatRegel = maten.length === 1
-    ? `<p class="dexmaten">${maatDelen(dexen.find((d) => maatTekst(d)))
-        .map(([naam, waarde]) => `<span>${naam} <b>${esc(waarde)}</b></span>`).join('')}</p>`
+  const kopregel = [
+    soortnaam ? `<span class="dexsoortnaam">${esc(soortnaam)}</span>` : '',
+    ...(maten.length === 1
+      ? maatDelen(dexen.find((d) => maatTekst(d)))
+        .map(([naam, waarde]) => `<span class="dexmaat">${naam} <b>${esc(waarde)}</b></span>`)
+      : []),
+  ].filter(Boolean);
+  const soortregel = kopregel.length
+    ? `<p class="dexsoort">${kopregel.join('<span class="scheiding" aria-hidden="true">·</span>')}</p>`
     : '';
   const beschrijving = dexen.length
     ? `<dl class="beschrijvingen">${dexen.map((d) => `
@@ -242,9 +253,8 @@ function detailHtml(s) {
       <div class="dexkop">
         <span class="dexnr dexnr--groot">${nummer(s.nr)}</span>
         <h1>${esc(naamVan(s))}${anderenaam ? ` <span class="naam-anders">(${esc(anderenaam)})</span>` : ''}</h1>
-        ${soortnaam ? `<p class="dexsoort">${esc(soortnaam)}</p>` : ''}
+        ${soortregel}
         <p class="dextypen">${typenHtml(s)}</p>
-        ${maatRegel}
       </div>
       ${plaat}
     </div>
