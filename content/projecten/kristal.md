@@ -2,7 +2,7 @@
 naam: Pokémon Kristal
 status: voltooid
 samenvatting: De uitgebreide versie van Goud en Zilver, met de Suicune-verhaallijn.
-teaser: teasers/kristal-16-9.png
+teaser: teasers/kristal.png
 kleur: "#4f9bd9"
 voortgang: pokecrystal-nl
 downloads:
