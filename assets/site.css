@@ -144,6 +144,21 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
   .merk span { display: none; }
   .menu a { padding: .45rem .6rem; }
 }
+/* Onder de ~480px past de rij niet meer: alleen het menu is daar al breder dan een telefoon
+   (vier ingangen sinds de Aanvallen- en Voorwerpenpagina erbij kwamen). Het duwde de nachtknop
+   buiten beeld en maakte daarmee de héle site zijwaarts scrollbaar — op elke pagina, want deze
+   balk staat overal. Het menu gaat daarom op een eigen regel onder de merknaam staan en mag
+   daar zelf ook afbreken; zo blijft alles bereikbaar zonder verstopmenu. */
+@media (max-width: 480px) {
+  .kopbalk-binnen { flex-wrap: wrap; gap: .35rem .6rem; padding-top: .45rem; padding-bottom: .45rem; }
+  .merk { margin-right: auto; }
+  .themaknop { order: 2; }
+  .menu {
+    order: 3; width: 100%; margin-left: 0;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .menu a { padding: .35rem .55rem; font-size: .9rem; }
+}
 
 /* ---- Held (intro) ---- */
 .held { padding: clamp(2.5rem, 8vw, 5rem) 0 1rem; }
@@ -159,7 +174,10 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 .projecten h2:first-child { margin-top: 0; }
 .kaarten {
   display: grid; gap: 1.25rem; align-items: start;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  /* `min(100%, …)` en niet kaal 320px: op een smalle telefoon (320px breed, en de omhulsel houdt
+     er marge af) is een kolom van 320 breder dan de pagina zelf, en dan schuift de hele site
+     zijwaarts. Met deze grens krimpt de kolom mee tot wat er is. */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
 }
 .kaart {
   display: flex; flex-direction: column; overflow: hidden; text-decoration: none;
@@ -298,8 +316,11 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 
 /* Wisselen tussen de gewone uitvoering en een speciale editie. Twee knoppen naast elkaar in
    één omlijsting, zodat het als één keuze leest en niet als twee losse acties. */
+/* De keuzeschakelaar: twee of meer knoppen in één omlijsting, zodat het als één keuze leest.
+   Hij mag afbreken — de zakken op de voorwerpenpagina zijn met z'n vijven breder dan een
+   telefoon, en zonder wikkelen duwde die rij de hele pagina zijwaarts. */
 .wissel {
-  display: inline-flex; gap: .25rem; margin: 0 0 1.75rem;
+  display: inline-flex; flex-wrap: wrap; gap: .25rem; margin: 0 0 1.75rem; max-width: 100%;
   background: var(--vlak); border: 1px solid var(--vlak-rand); border-radius: 999px; padding: .3rem;
 }
 .wisselknop {
@@ -316,7 +337,11 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
   display: grid; gap: 1.5rem; align-items: stretch; margin-bottom: 2rem;
   grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
 }
-.projectkop .projectheld { margin: 0; align-self: stretch; height: 100%; }
+/* De plaat houdt zijn eigen hoogte: hij wordt niet uitgerekt naar de blokken ernaast. Deed hij
+   dat wel, dan vulde de kaartkleur het verschil — en dan staan er gekleurde balken boven en
+   onder een plaat die zelf niets verkeerd doet. Dat werd zichtbaar zodra er een derde blok bij
+   kwam (Screenshots) en de zijkolom hoger werd dan de plaat. */
+.projectkop .projectheld { margin: 0; align-self: start; }
 /* space-between i.p.v. uitrekken: de blokken houden hun eigen hoogte en verdelen de ruimte
    ertussen. Zo liggen de bovenrand van het eerste en de onderrand van het laatste blok gelijk
    met de plaat, zonder dat de blokken vanbinnen hol worden. */
@@ -386,7 +411,7 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 
 .dexlijst {
   display: grid; gap: .6rem; padding-bottom: 3rem;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
 }
 .dexknop {
   display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--tekst);

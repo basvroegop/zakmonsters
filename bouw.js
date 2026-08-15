@@ -40,16 +40,20 @@ async function modules() {
 //
 // Deze mappen bestaan alléén in de gepubliceerde kopie. Lokaal en in de voorvertoning van het
 // CMS staan de bronbestanden, en daar blijven de vraagteken-URL's werken.
+// `entiteit` is wat de pagina moet openen; `slug` is waar hij komt te staan. Bij een soort of
+// een aanval zijn die gelijk, bij een project niet per se: het adres mag /rood-blauw zijn
+// terwijl het bestand `rood.md` heet. De pagina krijgt dan het bestands-id, zodat hij niets
+// hoeft terug te zoeken.
 function schrijfAdressen(doelmap, paginaBestand, entiteiten, titelStaart) {
   const bron = fs.readFileSync(path.join(DOEL, paginaBestand), 'utf8');
   let aantal = 0;
-  for (const { slug, titel } of entiteiten) {
+  for (const { slug, titel, entiteit } of entiteiten) {
     if (!slug) continue;
     const html = bron
       .replace('<head>', `<head>\n<base href="/">`)
       .replace(/<title>[^<]*<\/title>/, `<title>${titel} — ${titelStaart}</title>`)
-      .replace('</head>', `<script>window.__entiteit = ${JSON.stringify(slug)};</script>\n</head>`);
-    const map = path.join(DOEL, doelmap, slug);
+      .replace('</head>', `<script>window.__entiteit = ${JSON.stringify(entiteit || slug)};</script>\n</head>`);
+    const map = doelmap ? path.join(DOEL, doelmap, slug) : path.join(DOEL, slug);
     fs.mkdirSync(map, { recursive: true });
     fs.writeFileSync(path.join(map, 'index.html'), html);
     aantal += 1;
@@ -110,8 +114,11 @@ function vervang(bestand, merk, inhoud) {
       leden: weergave.sorteerProjecten((groep.projecten || []).map((id) => projecten[id]).filter(Boolean)),
     }))
     .filter((groep) => groep.leden.length)
+    // `mooieUrls` staat hier aan: de gepubliceerde kopie krijgt hieronder een eigen adres per
+    // project, en de ingebakken kaarten moeten daar meteen naartoe linken. Zouden ze de
+    // vraagteken-URL houden, dan wees de eerste tekening ergens anders heen dan de tweede.
     .map((groep) => `${groep.titel ? `<h2>${inhoud.esc(groep.titel)}</h2>` : ''}
-        <div class="kaarten">${groep.leden.map((p) => weergave.kaartHtml(p, {})).join('')}</div>`)
+        <div class="kaarten">${groep.leden.map((p) => weergave.kaartHtml(p, {}, { mooieUrls: true })).join('')}</div>`)
     .join('\n');
 
   const json = `<script type="application/json" id="ingebakken">${veiligJson({ site, projecten, edities })}</script>`;
@@ -124,20 +131,47 @@ function vervang(bestand, merk, inhoud) {
   console.log(`Ingebakken: ${aantal} project${aantal === 1 ? '' : 'en'}, ` +
     `${Object.keys(edities).length} speciale editie(s), ${groepen.length} groep(en).`);
 
-  // Elke soort, aanval en voorwerp een eigen adres. Eerst de vlag in de pagina's zetten en dan
-  // pas de kopieën maken: de kopie moet die vlag ook hebben, anders linkt hij nog naar de
-  // vraagteken-URL's.
+  // Elk project, elke soort, aanval en voorwerp een eigen adres. Eerst de vlag in de pagina's
+  // zetten en dan pas de kopieën maken: de kopie moet die vlag ook hebben, anders linkt hij nog
+  // naar de vraagteken-URL's.
   const pokedex = lijstVan('pokedex');
   const aanvallen = lijstVan('aanvallen');
   const voorwerpen = lijstVan('voorwerpen');
 
-  if (pokedex || aanvallen || voorwerpen) {
+  {
     for (const bestand of ['index.html', 'project.html', 'pokedex.html', 'aanvallen.html', 'voorwerpen.html']) {
       const pad = path.join(DOEL, bestand);
       if (!fs.existsSync(pad)) continue;
       const html = fs.readFileSync(pad, 'utf8');
       fs.writeFileSync(pad, html.replace('</head>', '<script>window.__mooieUrls = true;</script>\n</head>'));
     }
+
+    // De projecten staan in de wortel: /geel/, /goud-zilver/. Zo kort mogelijk, want dit is het
+    // adres dat je deelt. Het `slug`-veld wint van de bestandsnaam, zodat `rood.md` op
+    // /rood-blauw/ mag staan zonder dat het bestand hoeft te verhuizen.
+    //
+    // Botsingen kunnen echt gebeuren — /dex/ of /aanvallen/ als projectslug zou de dexpagina's
+    // overschrijven — dus die weigeren we hier met een duidelijke melding in plaats van stil
+    // een map te vervangen.
+    const bezet = new Set(['dex', 'aanvallen', 'voorwerpen', 'content', 'assets']);
+    const projectAdressen = Object.values(projecten)
+      .map((p) => ({ slug: String(p.slug || p.id).trim(), entiteit: p.id, titel: p.naam || p.id }))
+      .filter((p) => {
+        if (!/^[a-z0-9][a-z0-9-]*$/.test(p.slug)) {
+          console.warn(`project "${p.entiteit}": "${p.slug}" is geen bruikbaar adres; overgeslagen`);
+          return false;
+        }
+        if (bezet.has(p.slug)) {
+          console.warn(`project "${p.entiteit}": /${p.slug}/ is al van de site zelf; overgeslagen`);
+          return false;
+        }
+        return true;
+      });
+    const projectMappen = schrijfAdressen('', 'project.html', projectAdressen, site.titel || 'Zakmonsters');
+    console.log(`Eigen adressen: ${projectMappen} project(en).`);
+  }
+
+  if (pokedex || aanvallen || voorwerpen) {
 
     // Het adres van elk ding staat in de gegevens zelf (`pad`); cms/pokedex.js heeft daar al
     // uitgezocht wat er moet gebeuren als twee dingen hetzelfde heten.

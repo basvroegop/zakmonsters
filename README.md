@@ -118,6 +118,7 @@ Gewone tekst met **nadruk**, [links](https://voorbeeld.nl) en lijstjes.
 | Veld | Toelichting |
 | --- | --- |
 | `naam` | Wat er op de knop en boven de pagina staat |
+| `slug` | Het adres op de site (`/rood-blauw/`). Leeg = de bestandsnaam; zie "Eigen adressen" |
 | `status` | `voltooid` → "Voltooid", `bezig` → "Mee bezig", `gepland` → "Gepland" |
 | `samenvatting` | Eén zin op de knop |
 | `teaser` | Pad naar de plaat, bv. `teasers/geel.png`. Leeg = een egaal vlak in `kleur` |
@@ -398,13 +399,21 @@ aanval maar een gevechtsanimatie (ANIM_WOBBLE) en valt weg.
 
 ### Eigen adressen
 
-Elke Pokémon, aanval en voorwerp heeft een eigen adres:
+Elk project, en elke Pokémon, aanval en voorwerp heeft een eigen adres:
 
 ```
+zakmonsters.nl/geel/
 zakmonsters.nl/dex/pikachu/
 zakmonsters.nl/aanvallen/donderschok/
 zakmonsters.nl/voorwerpen/hyperbal/
 ```
+
+Projecten staan in de wortel, want dat is het adres dat je deelt. Standaard is dat de
+bestandsnaam (`geel.md` → `/geel/`); met het veld `slug` kies je een ander (`rood.md` met
+`slug: rood-blauw` → `/rood-blauw/`) zonder dat het bestand hoeft te verhuizen. Alleen kleine
+letters, cijfers en streepjes, en niet een adres dat de site zelf al gebruikt (`dex`,
+`aanvallen`, `voorwerpen`, `content`, `assets`) — dat laatste slaat `bouw.js` met een melding
+over in plaats van de map te overschrijven.
 
 Die mappen maakt `site/bouw.js` bij het publiceren: één klein bestand per ding, met een `<base>`
 (het staat twee mappen diep), de juiste titel en welk ding het is. Zodra ze bestaan, linken de

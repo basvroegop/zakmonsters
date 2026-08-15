@@ -109,7 +109,20 @@ export function tweedePlaatHtml(project) {
 //     en voor een zoekmachine betekenisloos;
 //   - is er géén plaat, dan verschijnt de naam wél in beeld. Anders zou een pas toegevoegd
 //     project een leeg gekleurd vlak zijn waar niemand iets aan heeft.
-export function kaartHtml(project, voortgang) {
+// Het adres van een project. Bij het publiceren krijgt elk project een eigen map in de wortel
+// (/geel/, /goud-zilver/) — zie site/bouw.js; die zet ook de vlag waaraan we dat hier zien.
+// Lokaal en in de voorvertoning van het CMS bestaan die mappen niet, en blijft het de
+// vraagteken-URL. `slug` wint van het bestands-id, zodat `rood.md` op /rood-blauw/ mag staan.
+const mooieUrls = () => typeof window !== 'undefined' && !!window.__mooieUrls;
+
+export function projectUrl(project, opties = {}) {
+  const mooi = opties.mooieUrls != null ? opties.mooieUrls : mooieUrls();
+  const slug = String((project && project.slug) || (project && project.id) || '').trim();
+  return mooi && /^[a-z0-9][a-z0-9-]*$/.test(slug)
+    ? `/${slug}/` : `project.html?p=${encodeURIComponent((project || {}).id || '')}`;
+}
+
+export function kaartHtml(project, voortgang, opties = {}) {
   const naam = project.naam || project.id;
   const teaser = contentUrl(project.teaser);
   const pct = procentVan(project, voortgang);
@@ -119,7 +132,7 @@ export function kaartHtml(project, voortgang) {
   // Zo blijft de kaart één plaat, en zie je toch in één oogopslag hoe ver een project is.
   const balk = pct === null ? '' : `<span class="kaart-pct">${pct}%</span>
       <span class="kaart-balk${afKlasse(project)}" aria-hidden="true"><i style="width:${pct}%"></i></span>`;
-  return `<a class="kaart${teaser ? '' : ' kaart--zonderplaat'}" href="project.html?p=${encodeURIComponent(project.id)}"
+  return `<a class="kaart${teaser ? '' : ' kaart--zonderplaat'}" href="${esc(projectUrl(project, opties))}"
        aria-label="${esc(omschrijving)}">
       <span class="kaart-plaat" style="--kaartkleur:${esc(kleurVan(project))}">
         ${plaatHtml(project)}
