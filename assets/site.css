@@ -334,21 +334,18 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
    hoogte van de plaat, zodat de drie boven- en onderrand gelijk liggen. Passen ze niet, dan
    groeit de rij mee en blijft alleen de bovenrand uitgelijnd. */
 .projectkop {
-  display: grid; gap: 1.5rem; align-items: stretch; margin: 1.75rem 0 2rem;
+  display: grid; gap: 1.5rem; align-items: start; margin: 1.75rem 0 2rem;
   grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
 }
-/* De plaat houdt zijn eigen hoogte: hij wordt niet uitgerekt naar de blokken ernaast. Deed hij
-   dat wel, dan vulde de kaartkleur het verschil — en dan staan er gekleurde balken boven en
-   onder een plaat die zelf niets verkeerd doet. Dat werd zichtbaar zodra er een derde blok bij
-   kwam (Screenshots) en de zijkolom hoger werd dan de plaat. */
-.projectkop .projectheld { margin: 0; align-self: start; }
-/* space-between i.p.v. uitrekken: de blokken houden hun eigen hoogte en verdelen de ruimte
-   ertussen. Zo liggen de bovenrand van het eerste en de onderrand van het laatste blok gelijk
-   met de plaat, zonder dat de blokken vanbinnen hol worden. */
-.projectkop .projectzij { align-content: space-between; position: static; }
+/* De linkerkolom: de plaat, daaronder de uitvoeringswissel en de projecttekst. Zo vult de tekst
+   de ruimte onder de plaat, want los stond die vaak lager dan de zijkolom en bleef er een leeg
+   gat. min-width:0 zodat een lange regel of code de kolom niet zijwaarts oprekt. */
+.projecthoofd { min-width: 0; }
+.projecthoofd > .projectheld { margin: 0 0 1.5rem; }
+/* De zijkolom stapelt van boven af en blijft in beeld terwijl je door de tekst scrolt. */
+.projectkop .projectzij { align-content: start; }
 @media (max-width: 800px) {
   .projectkop { grid-template-columns: 1fr; }
-  .projectkop .projectzij { align-content: start; }
 }
 .projecttekst { padding-bottom: 3rem; }
 .projecttekst h2 { margin-top: 2rem; }
@@ -383,6 +380,16 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 /* Eén afdruk hoeft niet in een halve kolom te hangen; die krijgt de volle breedte. */
 .schermraster > .schermvak:only-child { grid-column: 1 / -1; }
 .schermraster > .schermvak:only-child img { aspect-ratio: auto; }
+/* Zit er meer dan een blok vol afdrukken in, dan komt de rest achter een uitklap. De samenvatting
+   is een gewoon tekstlinkje; het driehoekje weg, want "(XX meer…)" vertelt zelf al genoeg. */
+.schermmeer { margin-top: .5rem; }
+.schermmeer > summary {
+  cursor: pointer; font-size: .8rem; color: var(--link);
+  list-style: none; display: inline-block;
+}
+.schermmeer > summary::-webkit-details-marker { display: none; }
+.schermmeer > summary:hover { color: var(--link-hover); text-decoration: underline; }
+.schermmeer[open] > summary { margin-bottom: .5rem; }
 .blok {
   background: var(--vlak); border: 1px solid var(--vlak-rand);
   border-radius: var(--ronding); padding: 1.15rem 1.25rem;

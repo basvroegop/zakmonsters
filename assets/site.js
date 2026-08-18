@@ -44,12 +44,12 @@ export function procentVan(project, voortgang) {
 // kleur en label hetzelfde zeggen in plaats van elk iets anders.
 const afKlasse = (project) => (statusVan(project) === STATUS.voltooid ? ' is-af' : '');
 
-// De drie stappen die een regel doorloopt: eerst vertaald, dan door een tweede persoon
-// geredigeerd, en uiteindelijk opgenomen in het spel zelf.
+// De twee stappen die we tonen: eerst vertaald, dan door een tweede persoon geredigeerd. De
+// laatste stap ("In game") laten we bewust weg — die maakte het voortgangsblok hoger dan nodig
+// en zei voor de bezoeker weinig extra's boven op vertaald/geredigeerd.
 const BALKEN = [
   { sleutel: 'vertaald', label: 'Vertaald' },
   { sleutel: 'geredigeerd', label: 'Geredigeerd' },
-  { sleutel: 'inSpel', label: 'In game' },
 ];
 
 export function voortgangHtml(project, voortgang) {
@@ -150,6 +150,11 @@ export function kaartHtml(project, voortgang, opties = {}) {
 // kan dit al, en op een telefoon werkt zoomen daar beter dan in een overlay.
 //
 // Zonder afdrukken komt er niets: dan hoort er ook geen leeg kader met een belofte te staan.
+// Hoeveel afdrukken meteen zichtbaar zijn: twee rijen van twee. Zo blijft het blok ongeveer even
+// hoog als de plaat ernaast, ongeacht hoeveel schermafdrukken een project heeft. De rest komt
+// achter een "(XX meer…)"-uitklap, die de bezoeker alleen opent als hij ze echt wil zien.
+const SCHERMEN_ZICHTBAAR = 4;
+
 export function schermafdrukkenHtml(project) {
   const lijst = (Array.isArray(project.schermafdrukken) ? project.schermafdrukken : [])
     .map((s) => (typeof s === 'string' ? { pad: s } : s))
@@ -157,11 +162,22 @@ export function schermafdrukkenHtml(project) {
     .filter((s) => s.url);
   if (!lijst.length) return '';
   const naam = project.naam || project.id;
-  return `<div class="schermraster">${lijst.map((s, i) => `
+  const vak = (s, i) => `
       <a class="schermvak" href="${esc(s.url)}" target="_blank" rel="noopener"
          aria-label="${esc(s.bijschrift || `Schermafdruk ${i + 1} van ${naam}`)} — open op ware grootte">
         <img src="${esc(s.url)}" alt="${esc(s.bijschrift)}" loading="lazy">
-      </a>`).join('')}</div>`;
+      </a>`;
+  const raster = (rijen) => `<div class="schermraster">${rijen.join('')}</div>`;
+  if (lijst.length <= SCHERMEN_ZICHTBAAR) {
+    return raster(lijst.map(vak));
+  }
+  const zichtbaar = lijst.slice(0, SCHERMEN_ZICHTBAAR);
+  const rest = lijst.slice(SCHERMEN_ZICHTBAAR);
+  return `${raster(zichtbaar.map(vak))}
+    <details class="schermmeer">
+      <summary>(${rest.length} meer…)</summary>
+      ${raster(rest.map((s, i) => vak(s, i + SCHERMEN_ZICHTBAAR)))}
+    </details>`;
 }
 
 export function downloadsHtml(project) {
