@@ -333,19 +333,22 @@ hr { border: 0; border-top: 1px solid var(--vlak-rand); margin: 2rem 0; }
 /* Plaat links, Voortgang en Downloads rechts ernaast. De blokken verdelen samen precies de
    hoogte van de plaat, zodat de drie boven- en onderrand gelijk liggen. Passen ze niet, dan
    groeit de rij mee en blijft alleen de bovenrand uitgelijnd. */
-.projectkop {
-  display: grid; gap: 1.5rem; align-items: start; margin: 1.75rem 0 2rem;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
-}
-/* De linkerkolom: de plaat, daaronder de uitvoeringswissel en de projecttekst. Zo vult de tekst
-   de ruimte onder de plaat, want los stond die vaak lager dan de zijkolom en bleef er een leeg
-   gat. min-width:0 zodat een lange regel of code de kolom niet zijwaarts oprekt. */
-.projecthoofd { min-width: 0; }
-.projecthoofd > .projectheld { margin: 0 0 1.5rem; }
-/* De zijkolom stapelt van boven af en blijft in beeld terwijl je door de tekst scrolt. */
-.projectkop .projectzij { align-content: start; }
+/* Plaat links, zijkolom rechts, en de tekst eronder loopt om beide heen. Geen grid maar floats:
+   alleen zo pakt lopende tekst de breedte terug zodra hij voorbij het kortere blok is. Bij een
+   grid bleef altijd de ene of de andere kolom leeg — was de zijkolom korter dan de plaat, dan
+   gaapte er rechtsonder een leeg vak naast de tekst. */
+.projectkop { margin: 1.75rem 0 2rem; }
+.projectkop::after { content: ""; display: block; clear: both; }
+.projectkop .projectheld { float: left; width: calc(66% - 1.5rem); margin: 0 1.5rem 1.5rem 0; }
+.projectkop .projectzij { float: right; width: 34%; position: static; }
+/* Wissel en tekst beginnen onder de plaat (die is te breed om er tekst naast te persen) en
+   lopen daarna om de zijkolom heen tot de volle breedte. */
+.projectkop .wissel, .projectkop .projecttekst { clear: left; }
 @media (max-width: 800px) {
-  .projectkop { grid-template-columns: 1fr; }
+  .projectkop .projectheld, .projectkop .projectzij {
+    float: none; width: auto; margin: 0 0 1.5rem;
+  }
+  .projectkop .wissel, .projectkop .projecttekst { clear: none; }
 }
 .projecttekst { padding-bottom: 3rem; }
 .projecttekst h2 { margin-top: 2rem; }

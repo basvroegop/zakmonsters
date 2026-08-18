@@ -120,17 +120,14 @@ function wisselHtml(project, editie, actief) {
     const balk = actief.voortgang ? voortgangHtml(actief, voortgang) : '';
     const schermen = schermafdrukkenHtml(actief);
 
-    // Op een breed scherm staat links de plaat met daaronder de uitvoeringswissel en de
-    // projecttekst; rechts ernaast de zijkolom met voortgang, screenshots en downloads. Zo vult
-    // de tekst de ruimte onder de plaat in plaats van dat daar een leeg gat blijft. Op een smal
-    // scherm valt de zijkolom onder de tekst.
+    // Op een breed scherm zweeft de plaat links en de zijkolom (voortgang, screenshots,
+    // downloads) rechts; de uitvoeringswissel en de projecttekst lopen daaronder door en pakken
+    // zodra ze voorbij een blok zijn de vrijgekomen breedte terug. Zo blijft er geen leeg vak
+    // over, of de plaat nu hoger is dan de zijkolom of andersom. Op een smal scherm vallen ze
+    // gewoon onder elkaar.
     $('pagina').innerHTML = `
       <div class="projectkop">
-        <div class="projecthoofd">
-          ${held(actief)}
-          ${editie ? wisselHtml(project, editie, welke) : ''}
-          <article class="projecttekst">${markdown(actief.body || '')}</article>
-        </div>
+        ${held(actief)}
         <aside class="projectzij">
           ${balk ? `<section class="blok">
             <h2>Voortgang</h2>
@@ -145,6 +142,8 @@ function wisselHtml(project, editie, actief) {
             ${downloadsHtml(actief)}
           </section>
         </aside>
+        ${editie ? wisselHtml(project, editie, welke) : ''}
+        <article class="projecttekst">${markdown(actief.body || '')}</article>
       </div>`;
 
     for (const knop of document.querySelectorAll('.wisselknop')) {
